@@ -13,7 +13,10 @@ class World {
     ];
 
     backgroundObjects = [
-        new BackgroundObject('img/3. Background/Layers/3.Fondo 1/L2.png')
+        new BackgroundObject('img/3. Background/Legacy/Layers/5. Water/D2.png', 0),
+        new BackgroundObject('img/3. Background/Layers/3.Fondo 1/D1.png', 400),
+        new BackgroundObject ('img/3. Background/Layers/4.Fondo 2/L2.png', 0),
+        new BackgroundObject ('img/3. Background/Legacy/Layers/2. Floor/D3.png', 0),
     ];
 
     canvas;
@@ -26,22 +29,13 @@ class World {
         this.draw();
     }
 
-
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.ctx.drawImage(this.character.img, this.character.positionX, this.character.positionY, this.character.width, this.character.height);
         
-        this.enemies.forEach(enemy => {
-           this.addToMap(enemy);
-        });
-
-         this.lights.forEach(light => {
-            this.addToMap(light);
-        });
-
-          this.backgroundObjects.forEach(background => {
-            this.addToMap(background);
-        });
+        this.addObjectsToMap(this.backgroundObjects);
+        this.addObjectsToMap(this.lights);
+        this.addObjectsToMap(this.enemies);
+        this.addToMap(this.character);
 
         //draw() wird immer wieder aufgerufen. Durch requestAnimationFrame() wird die Leistung der Grafikkarte berücksichtig.
         let self = this;
@@ -50,7 +44,13 @@ class World {
         });
     };
 
+    addObjectsToMap(objects) {
+        objects.forEach(object => {
+            this.addToMap(object);
+        });
+    }
+
     addToMap(objectToAdd) {
-         this.ctx.drawImage(objectToAdd.img, objectToAdd.positionX, objectToAdd.positionY, objectToAdd.width, objectToAdd.height);
+        this.ctx.drawImage(objectToAdd.img, objectToAdd.positionX, objectToAdd.positionY, objectToAdd.width, objectToAdd.height);
     }
 }
