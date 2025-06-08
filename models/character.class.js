@@ -1,6 +1,6 @@
 class Character extends MovableObject {
     positionX = 20;
-    positionY = 150;
+    positionY = 80;
     height = 200;
     width = 200;
     speed = 3;
@@ -29,30 +29,32 @@ class Character extends MovableObject {
     constructor() {
         super().loadImg('img/1.Sharkie/1.IDLE/1.png');
         this.loadImgs(this.IMAGES_WALKING);
+        this.applyGravity();
         this.animate();
+
     }
 
     animate() {
         setInterval(() => {
             if (this.world.keyboard.RIGHT && this.positionX < this.world.level.levelEndX) {
-                this.positionX += this.speed;
+                this.moveRight();
                 this.otherDirection = false;
             }
 
             if (this.world.keyboard.LEFT && this.positionX > 0) {
-                this.positionX -= this.speed;
+                this.moveLeft();
                 this.otherDirection = true;
             }
+
+            if ((this.world.keyboard.UP || this.world.keyboard.SPACE) && !this.isAboveGround()) {
+                this.jump();
+            }
+
             this.world.cameraX = -this.positionX;
         }, 1000 / 60);
 
         setInterval(() => {
             this.playAnimation(this.IMAGES_WALKING);
         }, 150);
-    }
-
-    jump() {
-
-
     }
 }
