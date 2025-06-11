@@ -5,6 +5,7 @@ class World {
     ctx;
     keyboard;
     cameraX = 0;
+    statusBar = new StatusBar();
 
     constructor(canvas, keyboard) {
         this.ctx = canvas.getContext('2d');
@@ -12,10 +13,22 @@ class World {
         this.keyboard = keyboard;
         this.draw();
         this.setWorld();
+        this.checkCollisions();
     }
 
     setWorld() {
         this.character.world = this;
+    }
+
+    checkCollisions() {
+        setInterval(() => {
+            this.level.enemies.forEach((enemy) => {
+                if (this.character.isColliding(enemy)) {
+                    this.character.hit();
+                    console.log('Collision with Character, energy', this.character.energy);
+                }
+            })
+        }, 1000)
     }
 
     draw() {
@@ -24,6 +37,7 @@ class World {
         this.ctx.translate(this.cameraX, 0);
 
         this.addObjectsToMap(this.level.backgroundObjects);
+        this.addObjectsToMap(this.statusBar);
         this.addObjectsToMap(this.level.lights);
         this.addObjectsToMap(this.level.enemies);
         this.addToMap(this.character);
@@ -64,7 +78,7 @@ class World {
         objectToAdd.positionX = objectToAdd.positionX * -1;
     }
 
-    flipImageBack() {
+    flipImageBack(objectToAdd) {
         objectToAdd.positionX = objectToAdd.positionX * -1;
         this.ctx.restore();
     }
