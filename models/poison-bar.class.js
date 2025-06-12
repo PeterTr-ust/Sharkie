@@ -12,7 +12,7 @@ class PoisonBar extends StatusBar {
         super().loadImg(this.IMAGES[5]);
         
         this.positionX = x || 20;
-        this.positionY = y || 100;
+        this.positionY = y || 110;
         this.width = width || 200;
         this.height = height || 60;
         

@@ -8,6 +8,7 @@ class World {
     lifeBar = new LifeBar();
     coinBar = new CoinBar();
     poisonBar = new PoisonBar();
+    throwableObjects = [];
 
     constructor(canvas, keyboard) {
         this.ctx = canvas.getContext('2d');
@@ -15,23 +16,35 @@ class World {
         this.keyboard = keyboard;
         this.draw();
         this.setWorld();
-        this.checkCollisions();
+        this.run();
     }
 
     setWorld() {
         this.character.world = this;
     }
 
-    checkCollisions() {
+    run() {
         setInterval(() => {
-            this.level.enemies.forEach((enemy) => {
-                if (this.character.isColliding(enemy)) {
-                    this.character.hit();
-                    this.lifeBar.setPercentage(this.character.energy);
-                    console.log('Collision with Character, energy', this.character.energy);
-                }
-            })
+            this.checkCollisions();
+            this.checkThrowObjects();
         }, 1000)
+    }
+
+    checkCollisions() {
+        this.level.enemies.forEach((enemy) => {
+            if (this.character.isColliding(enemy)) {
+                this.character.hit();
+                this.lifeBar.setPercentage(this.character.energy);
+                console.log('Collision with Character, energy', this.character.energy);
+            }
+        })
+    }
+
+    checkThrowObjects() {
+        if (this.keyboard.D) {
+            let bubble = new ThrowableObject(this.character.positionX, this.character.positionY);
+            this.throwableObjects.push(bubble);
+        }
     }
 
     draw() {
@@ -46,6 +59,7 @@ class World {
         this.ctx.translate(this.cameraX, 0);
         this.addObjectsToMap(this.level.lights);
         this.addObjectsToMap(this.level.enemies);
+        this.addObjectsToMap(this.throwableObjects);
         this.addToMap(this.character);
 
         this.ctx.translate(-this.cameraX, 0);

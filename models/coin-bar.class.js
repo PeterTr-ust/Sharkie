@@ -12,7 +12,7 @@ class CoinBar extends StatusBar {
         super().loadImg(this.IMAGES[5]);
         
         this.positionX = x || 20;
-        this.positionY = y || 50;
+        this.positionY = y || 60;
         this.width = width || 200;
         this.height = height || 60;
         
