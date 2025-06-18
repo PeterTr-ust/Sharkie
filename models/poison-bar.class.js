@@ -1,3 +1,7 @@
+/**
+ * Represents the poison status bar in the game.
+ * Displays the player's poison level using different image states.
+ */
 class PoisonBar extends StatusBar {
     IMAGES = [
         'img/4. Marcadores/orange/0_ copia.png',
