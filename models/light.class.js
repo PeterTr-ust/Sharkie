@@ -1,3 +1,7 @@
+/**
+ * Represents a movable light source in the game.
+ * Extends the MovableObject class to inherit movement behavior.
+ */
 class Light extends MovableObject {
     positionX = 100;
     positionY = 0;
