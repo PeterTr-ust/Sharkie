@@ -1,3 +1,7 @@
+/**
+ * Represents the life status bar in the game.
+ * Displays the player's health with different image states.
+ */
 class LifeBar extends StatusBar {
     IMAGES = [
         'img/4. Marcadores/green/Life/0_  copia 3.png',
