@@ -1,3 +1,7 @@
+/**
+ * Represents the coin status bar in the game.
+ * Extends the StatusBar class and displays the coin collection status.
+ */
 class CoinBar extends StatusBar {
     IMAGES = [
         'img/4. Marcadores/orange/0_  copia 2.png',
