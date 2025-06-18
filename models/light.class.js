@@ -9,7 +9,7 @@ class Light extends MovableObject {
     height = 500;
 
     constructor() {
-        super().loadImg('img/3. Background/Layers/1. Light/2.png');
+        super().loadImg('img/game-background/game-background-element-7.png');
 
         this.animate();
     }

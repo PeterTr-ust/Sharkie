@@ -7,7 +7,7 @@ class ThrowableObject extends MovableObject {
     width = 70;
 
     constructor(positionX, positionY) {
-        super().loadImg('img/1.Sharkie/4.Attack/Bubble trap/Bubble.png');
+        super().loadImg('img/character/attacks/bubble/bubble.png');
         this.positionX = positionX;
         this.positionY = positionY;
         this.throw();

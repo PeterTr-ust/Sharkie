@@ -9,19 +9,19 @@ const level1 = new Level(
         new Light()
     ],
     [
-        new BackgroundObject('img/3. Background/Legacy/Layers/5. Water/D1.png', 0),
-        new BackgroundObject('img/3. Background/Layers/3.Fondo 1/D1.png', 0),
-        new BackgroundObject('img/3. Background/Layers/4.Fondo 2/L1.png', 0),
-        new BackgroundObject('img/3. Background/Legacy/Layers/2. Floor/D1.png', 0),
+        new BackgroundObject('img/game-background/game-background-1.png', 0),
+        new BackgroundObject('img/game-background/game-background-element-1.png', 0),
+        new BackgroundObject('img/game-background/game-background-element-2.png', 0),
+        new BackgroundObject('img/game-background/game-background-element-3.png', 0),
 
-        new BackgroundObject('img/3. Background/Legacy/Layers/5. Water/D2.png', 720),
-        new BackgroundObject('img/3. Background/Layers/3.Fondo 1/D2.png', 720),
-        new BackgroundObject('img/3. Background/Layers/4.Fondo 2/L2.png', 720),
-        new BackgroundObject('img/3. Background/Legacy/Layers/2. Floor/D2.png', 720),
+        new BackgroundObject('img/game-background/game-background-2.png', 720),
+        new BackgroundObject('img/game-background/game-background-element-4.png', 720),
+        new BackgroundObject('img/game-background/game-background-element-5.png', 720),
+        new BackgroundObject('img/game-background/game-background-element-6.png', 720),
 
-        new BackgroundObject('img/3. Background/Legacy/Layers/5. Water/D3.png', 720 * 2),
-        new BackgroundObject('img/3. Background/Layers/3.Fondo 1/D1.png', 720 * 2),
-        new BackgroundObject('img/3. Background/Layers/4.Fondo 2/L1.png', 720 * 2),
-        new BackgroundObject('img/3. Background/Legacy/Layers/2. Floor/D1.png', 720 * 2),
+        new BackgroundObject('img/game-background/game-background-3.png', 720 * 2),
+        new BackgroundObject('img/game-background/game-background-element-1.png', 720 * 2),
+        new BackgroundObject('img/game-background/game-background-element-2.png', 720 * 2),
+        new BackgroundObject('img/game-background/game-background-element-3.png', 720 * 2),
     ]
 );

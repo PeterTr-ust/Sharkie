@@ -9,45 +9,45 @@ class Character extends MovableObject {
     width = 200;
     speed = 3;
     IMAGES_WALKING = [
-        'img/1.Sharkie/1.IDLE/1.png',
-        'img/1.Sharkie/1.IDLE/2.png',
-        'img/1.Sharkie/1.IDLE/3.png',
-        'img/1.Sharkie/1.IDLE/4.png',
-        'img/1.Sharkie/1.IDLE/5.png',
-        'img/1.Sharkie/1.IDLE/6.png',
-        'img/1.Sharkie/1.IDLE/7.png',
-        'img/1.Sharkie/1.IDLE/8.png',
-        'img/1.Sharkie/1.IDLE/9.png',
-        'img/1.Sharkie/1.IDLE/10.png',
-        'img/1.Sharkie/1.IDLE/11.png',
-        'img/1.Sharkie/1.IDLE/12.png',
-        'img/1.Sharkie/1.IDLE/13.png',
-        'img/1.Sharkie/1.IDLE/14.png',
-        'img/1.Sharkie/1.IDLE/15.png',
-        'img/1.Sharkie/1.IDLE/16.png',
-        'img/1.Sharkie/1.IDLE/17.png',
-        'img/1.Sharkie/1.IDLE/18.png'
+        'img/character/idle/1.png',
+        'img/character/idle/2.png',
+        'img/character/idle/3.png',
+        'img/character/idle/4.png',
+        'img/character/idle/5.png',
+        'img/character/idle/6.png',
+        'img/character/idle/7.png',
+        'img/character/idle/8.png',
+        'img/character/idle/9.png',
+        'img/character/idle/10.png',
+        'img/character/idle/11.png',
+        'img/character/idle/12.png',
+        'img/character/idle/13.png',
+        'img/character/idle/14.png',
+        'img/character/idle/15.png',
+        'img/character/idle/16.png',
+        'img/character/idle/17.png',
+        'img/character/idle/18.png'
     ];
     IMAGES_DEAD = [
-        'img/1.Sharkie/6.dead/1.Poisoned/1.png',
-        'img/1.Sharkie/6.dead/1.Poisoned/2.png',
-        'img/1.Sharkie/6.dead/1.Poisoned/3.png',
-        'img/1.Sharkie/6.dead/1.Poisoned/4.png',
-        'img/1.Sharkie/6.dead/1.Poisoned/5.png',
-        'img/1.Sharkie/6.dead/1.Poisoned/6.png',
-        'img/1.Sharkie/6.dead/1.Poisoned/7.png',
-        'img/1.Sharkie/6.dead/1.Poisoned/8.png',
-        'img/1.Sharkie/6.dead/1.Poisoned/9.png',
-        'img/1.Sharkie/6.dead/1.Poisoned/10.png',
-        'img/1.Sharkie/6.dead/1.Poisoned/11.png',
-        'img/1.Sharkie/6.dead/1.Poisoned/12.png'
+        'img/character/dead/1.png',
+        'img/character/dead/2.png',
+        'img/character/dead/3.png',
+        'img/character/dead/4.png',
+        'img/character/dead/5.png',
+        'img/character/dead/6.png',
+        'img/character/dead/7.png',
+        'img/character/dead/8.png',
+        'img/character/dead/9.png',
+        'img/character/dead/10.png',
+        'img/character/dead/11.png',
+        'img/character/dead/12.png'
     ];
     IMAGES_HURT = [
-        'img/1.Sharkie/5.Hurt/1.Poisoned/1.png',
-        'img/1.Sharkie/5.Hurt/1.Poisoned/2.png',
-        'img/1.Sharkie/5.Hurt/1.Poisoned/3.png',
-        'img/1.Sharkie/5.Hurt/1.Poisoned/4.png',
-        'img/1.Sharkie/5.Hurt/1.Poisoned/5.png'
+        'img/character/hurt/poisoned/1.png',
+        'img/character/hurt/poisoned/2.png',
+        'img/character/hurt/poisoned/3.png',
+        'img/character/hurt/poisoned/4.png',
+        'img/character/hurt/poisoned/5.png'
     ];
     world;
     offset = {
@@ -58,7 +58,7 @@ class Character extends MovableObject {
     };
 
     constructor() {
-        super().loadImg('img/1.Sharkie/1.IDLE/1.png');
+        super().loadImg('img/character/idle/1.png');
         this.loadImgs(this.IMAGES_WALKING);
         this.loadImgs(this.IMAGES_DEAD);
         this.loadImgs(this.IMAGES_HURT);

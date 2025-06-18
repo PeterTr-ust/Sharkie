@@ -4,12 +4,12 @@
  */
 class PoisonBar extends StatusBar {
     IMAGES = [
-        'img/4. Marcadores/orange/0_ copia.png',
-        'img/4. Marcadores/orange/20_ copia.png',
-        'img/4. Marcadores/orange/40_ copia.png',
-        'img/4. Marcadores/orange/60_ copia.png',
-        'img/4. Marcadores/orange/80_ copia.png',
-        'img/4. Marcadores/orange/100_ copia.png'
+        'img/status-bars/poison-bar/0-poison-bar.png',
+        'img/status-bars/poison-bar/20-poison-bar.png',
+        'img/status-bars/poison-bar/40-poison-bar.png',
+        'img/status-bars/poison-bar/60-poison-bar.png',
+        'img/status-bars/poison-bar/80-poison-bar.png',
+        'img/status-bars/poison-bar/100-poison-bar.png'
     ];
 
     constructor(x, y, width, height) {
