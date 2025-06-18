@@ -1,3 +1,7 @@
+/**
+ * Represents a game object that can move and interact with gravity and collisions.
+ * Inherits drawing functionality from DrawableObject.
+ */
 class MovableObject extends DrawableObject {
     speed = 0.01;
     otherDirection = false;
@@ -12,6 +16,9 @@ class MovableObject extends DrawableObject {
     energy = 100;
     lastHit = 0;
 
+    /**
+    * Applies gravity by updating vertical position and speed at intervals.
+    */
     applyGravity() {
         setInterval(() => {
             if (this.isAboveGround() || this.speedY > 0) {
@@ -21,18 +28,32 @@ class MovableObject extends DrawableObject {
         }, 1000 / 25);
     }
 
+    /**
+    * Checks whether the object is above the ground level.
+    * @returns {boolean}
+    */
     isAboveGround() {
         return this.positionY < 200;
     }
 
+    /**
+     * Moves the object to the right.
+     */
     moveRight() {
         this.positionX += this.speed;
     }
 
+    /**
+     * Moves the object to the left.
+     */
     moveLeft() {
         this.positionX -= this.speed;
     }
 
+    /**
+     * Plays an animation by cycling through an array of images.
+     * @param {string[]} imagesToPlay - List of image paths.
+     */
     playAnimation(imagesToPlay) {
         let index = this.currentImage % imagesToPlay.length;
         let path = imagesToPlay[index];
@@ -40,10 +61,18 @@ class MovableObject extends DrawableObject {
         this.currentImage++;
     }
 
+    /**
+     * Makes the object jump by setting vertical speed.
+     */
     jump() {
         this.speedY = 30;
     }
 
+    /**
+     * Checks if this object collides with another movable object.
+     * @param {MovableObject} mo - The other object.
+     * @returns {boolean}
+     */
     isColliding(mo) {
         const a = this.getCollisionFrame();
         const b = mo.getCollisionFrame();
@@ -56,6 +85,10 @@ class MovableObject extends DrawableObject {
         );
     }
 
+    /**
+     * Calculates the collision bounding box with applied offset.
+     * @returns {{x: number, y: number, width: number, height: number}}
+     */
     getCollisionFrame() {
         const o = this.offset || { top: 0, left: 0, right: 0, bottom: 0 };
         return {
@@ -66,6 +99,9 @@ class MovableObject extends DrawableObject {
         };
     } 0
 
+    /**
+    * Applies damage to the object and updates the hit timestamp.
+    */
     hit() {
         this.energy -= 5;
         if (this.energy < 0) {
@@ -75,10 +111,18 @@ class MovableObject extends DrawableObject {
         }
     }
 
+    /**
+     * Checks if the object is dead (energy depleted).
+     * @returns {boolean}
+     */
     isDead() {
         return this.energy == 0;
     }
 
+    /**
+     * Checks if the object was recently hit.
+     * @returns {boolean}
+     */
     isHurt() {
         let timePassed = new Date().getTime() - this.lastHit
         timePassed = timePassed / 1000;
