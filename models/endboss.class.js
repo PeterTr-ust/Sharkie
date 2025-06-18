@@ -1,3 +1,7 @@
+/**
+ * Represents the final boss in the game.
+ * Extends the MovableObject class to inherit movement behavior.
+ */
 class Endboss extends MovableObject {
     height = 400;
     width = 400;
@@ -40,6 +44,9 @@ class Endboss extends MovableObject {
         this.animate();
     }
 
+    /**
+     * Controls the animation and interaction with the player.
+     */
     animate() {
         let i = 0;
 
