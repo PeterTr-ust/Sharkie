@@ -1,14 +1,27 @@
 body {
     height: 100vh;
-    background-color: rgb(28, 16, 100);
     display: flex;
     justify-content: center;
     align-items: center;
     margin: 0;
 }
 
+body::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url('img/background.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    filter: brightness(50%);
+    z-index: -1;
+}
+
 canvas {
     display: block;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.6);
+    border-radius: 10px;
 }
 
 @media only screen and (max-width: 760px) {
