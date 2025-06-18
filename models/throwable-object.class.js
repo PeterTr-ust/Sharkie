@@ -1,3 +1,7 @@
+/**
+ * Represents a throwable object (e.g., a projectile like a bubble).
+ * Inherits from MovableObject for basic movement and rendering.
+ */
 class ThrowableObject extends MovableObject {
     height = 70;
     width = 70;
@@ -9,6 +13,10 @@ class ThrowableObject extends MovableObject {
         this.throw();
     }
 
+    /**
+     * Starts the object's forward motion.
+     * Moves it to the right at a fixed interval.
+     */
     throw() {
         this.positionX = positionX;
         this.positionY = positionY;
