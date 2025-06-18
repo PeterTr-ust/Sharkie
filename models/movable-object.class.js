@@ -1,4 +1,4 @@
-class MovableObject  extends DrawableObject{
+class MovableObject extends DrawableObject {
     speed = 0.01;
     otherDirection = false;
     speedY = 0;
@@ -45,11 +45,26 @@ class MovableObject  extends DrawableObject{
     }
 
     isColliding(mo) {
-        return this.positionX + this.width > mo.positionX &&
-            this.positionY + this.height > mo.positionY &&
-            this.positionX < mo.positionX &&
-            this.positionY < mo.positionY + mo.height;
+        const a = this.getCollisionFrame();
+        const b = mo.getCollisionFrame();
+
+        return (
+            a.x < b.x + b.width &&
+            a.x + a.width > b.x &&
+            a.y < b.y + b.height &&
+            a.y + a.height > b.y
+        );
     }
+
+    getCollisionFrame() {
+        const o = this.offset || { top: 0, left: 0, right: 0, bottom: 0 };
+        return {
+            x: this.positionX - o.left,
+            y: this.positionY - o.top,
+            width: this.width + o.left + o.right,
+            height: this.height + o.top + o.bottom
+        };
+    } 0
 
     hit() {
         this.energy -= 5;

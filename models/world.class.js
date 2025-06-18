@@ -51,20 +51,17 @@ class World {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.ctx.translate(this.cameraX, 0);
         this.addObjectsToMap(this.level.backgroundObjects);
-         this.addObjectsToMap(this.level.lights);
+        this.addObjectsToMap(this.level.lights);
+        this.addObjectsToMap(this.level.enemies);
+        this.addObjectsToMap(this.throwableObjects);
+        this.addToMap(this.character);
         this.ctx.translate(-this.cameraX, 0);
         //  Space for fixed objects
         this.addToMap(this.lifeBar);
         this.addToMap(this.coinBar);
         this.addToMap(this.poisonBar);
         this.ctx.translate(this.cameraX, 0);
-       
-        this.addObjectsToMap(this.level.enemies);
-        this.addObjectsToMap(this.throwableObjects);
-        this.addToMap(this.character);
-
         this.ctx.translate(-this.cameraX, 0);
-
         //draw() wird immer wieder aufgerufen. Durch requestAnimationFrame() wird die Leistung der Grafikkarte berücksichtig.
         let self = this;
         requestAnimationFrame(function () {

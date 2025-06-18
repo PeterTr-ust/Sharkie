@@ -24,7 +24,7 @@ class DrawableObject {
         ctx.drawImage(this.img, this.positionX, this.positionY, this.width, this.height);
     }
 
-     drawFrame(ctx) {
+    drawFrame(ctx) {
         if (this instanceof Character || this instanceof PufferFish) {
             const o = this.offset || { top: 0, left: 0, right: 0, bottom: 0 };
 
