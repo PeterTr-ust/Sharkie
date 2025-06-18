@@ -1,3 +1,7 @@
+/**
+ * Represents the main character in the game.
+ * Extends the MovableObject class to inherit movement behavior.
+ */
 class Character extends MovableObject {
     positionX = 20;
     positionY = 80;
@@ -62,6 +66,9 @@ class Character extends MovableObject {
         this.animate();
     }
 
+    /**
+    * Handles character movement and animation updates.
+    */
     animate() {
         setInterval(() => {
             if (this.world && this.world.keyboard) {
