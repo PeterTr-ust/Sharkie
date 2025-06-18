@@ -1,3 +1,7 @@
+/**
+ * Represents a puffer fish enemy that swims from right to left.
+ * Inherits movement and drawing behavior from MovableObject.
+ */
 class PufferFish extends MovableObject {
     IMAGES_WALKING = [
         'img/2.Enemy/1.Puffer fish (3 color options)/1.Swim/2.swim1.png',
@@ -23,6 +27,10 @@ class PufferFish extends MovableObject {
         this.animate();
     }
 
+    /**
+     * Starts the movement and animation intervals.
+     * Moves the fish left and updates its current image.
+     */
     animate() {
         setInterval(() => {
             this.moveLeft();
