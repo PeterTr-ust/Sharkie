@@ -1,3 +1,7 @@
+/**
+ * Represents the main game world, tying together the character, level,
+ * canvas context, status bars, and gameplay logic.
+ */
 class World {
     character = new Character();
     level = level1;
@@ -19,10 +23,16 @@ class World {
         this.run();
     }
 
+    /**
+     * Assigns a reference of the world to the character.
+     */
     setWorld() {
         this.character.world = this;
     }
 
+    /**
+     * Starts recurring game logic checks like collision and throwing.
+     */
     run() {
         setInterval(() => {
             this.checkCollisions();
@@ -30,6 +40,10 @@ class World {
         }, 1000)
     }
 
+    /**
+     * Checks for collisions between the character and enemies.
+     * Applies damage if collision is detected.
+     */
     checkCollisions() {
         this.level.enemies.forEach((enemy) => {
             if (this.character.isColliding(enemy)) {
@@ -40,6 +54,9 @@ class World {
         })
     }
 
+    /**
+     * Checks if the player pressed the 'D' key and throws a bubble if so.
+     */
     checkThrowObjects() {
         if (this.keyboard.D) {
             let bubble = new ThrowableObject(this.character.positionX, this.character.positionY);
@@ -47,6 +64,10 @@ class World {
         }
     }
 
+    /**
+     * Clears and redraws the entire game scene.
+     * Uses animation frames for smooth updates.
+     */
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.ctx.translate(this.cameraX, 0);
@@ -69,12 +90,20 @@ class World {
         });
     };
 
+    /**
+     * Adds multiple drawable objects to the canvas.
+     * @param {DrawableObject[]} objects - The objects to draw.
+     */
     addObjectsToMap(objects) {
         objects.forEach(object => {
             this.addToMap(object);
         });
     }
 
+    /**
+    * Adds a single object to the canvas, respecting orientation.
+    * @param {DrawableObject} objectToAdd - Object to render.
+    */
     addToMap(objectToAdd) {
         if (objectToAdd.otherDirection) {
             this.flipImage(objectToAdd);
@@ -89,6 +118,10 @@ class World {
         }
     }
 
+    /**
+     * Flips an object's image horizontally.
+     * @param {DrawableObject} objectToAdd - Object to flip.
+     */
     flipImage(objectToAdd) {
         this.ctx.save();
         this.ctx.translate(objectToAdd.width, 0);
@@ -96,6 +129,10 @@ class World {
         objectToAdd.positionX = objectToAdd.positionX * -1;
     }
 
+    /**
+     * Restores the object's original orientation.
+     * @param {DrawableObject} objectToAdd - Object to unflip.
+     */
     flipImageBack(objectToAdd) {
         objectToAdd.positionX = objectToAdd.positionX * -1;
         this.ctx.restore();
