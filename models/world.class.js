@@ -3,11 +3,12 @@
  * canvas context, status bars, and gameplay logic.
  */
 class World {
-    character = new Character();
+    character;
     level = level1;
     canvas;
     ctx;
     keyboard;
+    soundManager;
     cameraX = 0;
     lifeBar = new LifeBar();
     coinBar = new CoinBar();
@@ -18,6 +19,8 @@ class World {
         this.ctx = canvas.getContext('2d');
         this.canvas = canvas;
         this.keyboard = keyboard;
+        this.soundManager = soundManager;
+        this.character = new Character(this.soundManager);
         this.draw();
         this.setWorld();
         this.run();

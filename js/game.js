@@ -1,4 +1,5 @@
 let canvas;
+let soundManager;
 let world;
 let keyboard = new Keyboard();
 
@@ -7,7 +8,8 @@ let keyboard = new Keyboard();
  */
 function init() {
     canvas = document.getElementById('canvas');
-    world = new World(canvas, keyboard);
+    soundManager  = new SoundManager();
+    world = new World(canvas, keyboard, soundManager);
     console.log('My Character is', world.character);
 }
 

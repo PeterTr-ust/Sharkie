@@ -65,12 +65,13 @@ class Character extends MovableObject {
         bottom: -50
     };
 
-    constructor() {
+    constructor(soundManager) {
         super().loadImg('img/character/idle/1.png');
         this.loadImgs(this.IMAGES_IDLE);
         this.loadImgs(this.IMAGES_SWIM);
         this.loadImgs(this.IMAGES_DEAD);
         this.loadImgs(this.IMAGES_HURT);
+        this.soundManager = soundManager;
         this.animate();
     }
 
@@ -83,19 +84,23 @@ class Character extends MovableObject {
                 if (this.world.keyboard.RIGHT && this.positionX < this.world.level.levelEndX) {
                     this.moveRight();
                     this.otherDirection = false;
+                    this.soundManager.play('swim');
                 }
 
                 if (this.world.keyboard.LEFT && this.positionX > 0) {
                     this.moveLeft();
                     this.otherDirection = true;
+                    this.soundManager.play('swim');
                 }
 
                 if ((this.world.keyboard.UP) && this.isOnTop()) {
                     this.moveUp();
+                    this.soundManager.play('swim');
                 }
 
                 if ((this.world.keyboard.DOWN) && this.isOnBottom()) {
                     this.moveDown();
+                    this.soundManager.play('swim');
                 }
 
                 this.world.cameraX = -this.positionX;
