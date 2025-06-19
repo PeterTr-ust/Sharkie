@@ -16,6 +16,7 @@ class PufferFish extends MovableObject {
         right: -30,
         bottom: -35
     };
+    damage = 5;
 
     constructor() {
         super().loadImg('img/enemies/puffer-fish/idle/puffer-fish-idle-1.png');

@@ -1,13 +1,13 @@
 /**
- * Represents a jelly fish enemy that swims vertically.
+ * Represents a dangerous jelly fish enemy that swims vertically.
  * Inherits movement and drawing behavior from MovableObject.
  */
-class JellyFish extends MovableObject {
+class DangerousJellyFish extends MovableObject {
     IMAGES_IDLE = [
-        'img/enemies/jelly-fish/normal/idle/jelly-fish-idle-1.png',
-        'img/enemies/jelly-fish/normal/idle/jelly-fish-idle-2.png',
-        'img/enemies/jelly-fish/normal/idle/jelly-fish-idle-3.png',
-        'img/enemies/jelly-fish/normal/idle/jelly-fish-idle-4.png',
+        'img/enemies/jelly-fish/dangerous/idle/dangerous-jelly-fish-idle-1.png',
+        'img/enemies/jelly-fish/dangerous/idle/dangerous-jelly-fish-idle-2.png',
+        'img/enemies/jelly-fish/dangerous/idle/dangerous-jelly-fish-idle-3.png',
+        'img/enemies/jelly-fish/dangerous/idle/dangerous-jelly-fish-idle-4.png',
     ];
     offset = {
         top: -15,
@@ -16,12 +16,12 @@ class JellyFish extends MovableObject {
         bottom: -15
     };
     movingUp = true;
-    height = 80;
-    width = 80;
-    damage = 5;
+    height = 100;
+    width = 100;
+    damage = 20;
 
     constructor(x, y) {
-        super().loadImg('img/enemies/jelly-fish/normal/idle/jelly-fish-idle-1.png');
+        super().loadImg('img/enemies/jelly-fish/dangerous/idle/dangerous-jelly-fish-idle-1.png');
         this.positionX = x;
         this.positionY = y;
 
