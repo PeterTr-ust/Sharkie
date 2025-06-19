@@ -16,14 +16,16 @@ class JellyFish extends MovableObject {
         bottom: -15
     };
     movingUp = true;
+    height = 80;
+    width = 80;
 
-    constructor() {
+    constructor(x, y) {
         super().loadImg('img/enemies/jelly-fish/idle/jelly-fish-idle-1.png');
-        this.positionX = 300 + Math.random() * 500;
-        this.positionY = 400 - Math.random() * 350;
+        this.positionX = x;
+        this.positionY = y;
 
         this.loadImgs(this.IMAGES_IDLE);
-        this.speed = 1 + Math.random() * 0.25;
+        this.speed = 0.25 + Math.random() * 2;
         this.animate();
     }
 
