@@ -51,6 +51,20 @@ class MovableObject extends DrawableObject {
     }
 
     /**
+     * Moves the object up.
+     */
+    moveUp() {
+        this.positionY += this.speed;
+    }
+
+    /**
+     * Moves the object down.
+     */
+    moveDown() {
+        this.positionY -= this.speed;
+    }
+
+    /**
      * Plays an animation by cycling through an array of images.
      * @param {string[]} imagesToPlay - List of image paths.
      */

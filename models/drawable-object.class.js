@@ -45,7 +45,7 @@ class DrawableObject {
      * @param {CanvasRenderingContext2D} ctx - The canvas rendering context.
      */
     drawFrame(ctx) {
-        if (this instanceof Character || this instanceof PufferFish) {
+        if (this instanceof Character || this instanceof PufferFish || this instanceof JellyFish) {
             const o = this.offset || { top: 0, left: 0, right: 0, bottom: 0 };
 
             const x = this.positionX - o.left;
