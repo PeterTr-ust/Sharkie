@@ -23,6 +23,7 @@ class PufferFish extends MovableObject {
     ];
     damage = 5;
     currentImage = 0;
+    direction = 'left';
 
     constructor() {
         super().loadImg('img/enemies/puffer-fish/idle/puffer-fish-idle-1.png');
@@ -87,11 +88,41 @@ class PufferFish extends MovableObject {
      */
     animate() {
         setInterval(() => {
-            this.moveLeft();
+            this.updateDirection();
+            this.move();
         }, 1000 / 60);
 
         setInterval(() => {
             this.playAnimation(this.IMAGES_IDLE);
         }, 150);
+    }
+
+    /**
+     * Moves the fish based on current direction.
+     */
+    move() {
+        if (this.direction === 'left') {
+            this.moveLeft();
+        } else {
+            this.moveRight();
+        }
+    }
+
+    /**
+     * Checks canvas boundaries and reverses direction if needed.
+     */
+    updateDirection() {
+        const canvasMin = 50;
+        const canvasMax = 720;
+
+        if (this.positionX < canvasMin) {
+            this.direction = 'right';
+            this.otherDirection = true;
+        }
+
+        if (this.positionX > canvasMax - this.width) {
+            this.direction = 'left';
+            this.otherDirection = false;
+        }
     }
 }
