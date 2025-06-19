@@ -7,8 +7,8 @@ class Character extends MovableObject {
     positionY = 80;
     height = 200;
     width = 200;
-    speed = 3;
-    IMAGES_WALKING = [
+    speed = 2;
+    IMAGES_IDLE = [
         'img/character/idle/1.png',
         'img/character/idle/2.png',
         'img/character/idle/3.png',
@@ -27,6 +27,14 @@ class Character extends MovableObject {
         'img/character/idle/16.png',
         'img/character/idle/17.png',
         'img/character/idle/18.png'
+    ];
+    IMAGES_SWIM = [
+        'img/character/swim/character-swim-1.png',
+        'img/character/swim/character-swim-2.png',
+        'img/character/swim/character-swim-3.png',
+        'img/character/swim/character-swim-4.png',
+        'img/character/swim/character-swim-5.png',
+        'img/character/swim/character-swim-6.png',
     ];
     IMAGES_DEAD = [
         'img/character/dead/1.png',
@@ -59,10 +67,10 @@ class Character extends MovableObject {
 
     constructor() {
         super().loadImg('img/character/idle/1.png');
-        this.loadImgs(this.IMAGES_WALKING);
+        this.loadImgs(this.IMAGES_IDLE);
+        this.loadImgs(this.IMAGES_SWIM);
         this.loadImgs(this.IMAGES_DEAD);
         this.loadImgs(this.IMAGES_HURT);
-        this.applyGravity();
         this.animate();
     }
 
@@ -82,8 +90,12 @@ class Character extends MovableObject {
                     this.otherDirection = true;
                 }
 
-                if ((this.world.keyboard.UP || this.world.keyboard.SPACE) && !this.isAboveGround()) {
-                    this.jump();
+                if ((this.world.keyboard.UP) && this.isOnTop()) {
+                    this.moveUp();
+                }
+
+                if ((this.world.keyboard.DOWN) && this.isOnBottom()) {
+                    this.moveDown();
                 }
 
                 this.world.cameraX = -this.positionX;
@@ -95,8 +107,12 @@ class Character extends MovableObject {
                 this.playAnimation(this.IMAGES_DEAD);
             } else if (this.isHurt()) {
                 this.playAnimation(this.IMAGES_HURT);
+            } else if (
+                this.world.keyboard.RIGHT || this.world.keyboard.LEFT
+            ) {
+                this.playAnimation(this.IMAGES_SWIM);
             } else {
-                this.playAnimation(this.IMAGES_WALKING);
+                this.playAnimation(this.IMAGES_IDLE);
             }
         }, 150);
     }

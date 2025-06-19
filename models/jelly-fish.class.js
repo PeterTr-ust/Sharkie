@@ -41,12 +41,12 @@ class JellyFish extends MovableObject {
 
         setInterval(() => {
             if (this.movingUp) {
-                this.moveUp();
+                this.moveDown();
                 if (this.positionY >= 380) {
                     this.movingUp = false;
                 }
             } else {
-                this.moveDown();
+                this.moveUp();
                 if (this.positionY <= 10) {
                     this.movingUp = true;
                 }

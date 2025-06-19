@@ -19,21 +19,29 @@ class MovableObject extends DrawableObject {
     /**
     * Applies gravity by updating vertical position and speed at intervals.
     */
-    applyGravity() {
-        setInterval(() => {
-            if (this.isAboveGround() || this.speedY > 0) {
-                this.positionY -= this.speedY;
-                this.speedY -= this.acceleration;
-            }
-        }, 1000 / 25);
-    }
+    // applyGravity() {
+    //     setInterval(() => {
+    //         if (this.isAboveGround() || this.speedY > 0) {
+    //             this.positionY -= this.speedY;
+    //             this.speedY -= this.acceleration;
+    //         }
+    //     }, 1000 / 25);
+    // }
 
     /**
     * Checks whether the object is above the ground level.
     * @returns {boolean}
     */
-    isAboveGround() {
-        return this.positionY < 200;
+    isOnBottom() {
+        return this.positionY < 300;
+    }
+
+     /**
+    * Checks whether the object is under the top level.
+    * @returns {boolean}
+    */
+    isOnTop() {
+        return this.positionY > - 80;
     }
 
     /**
@@ -54,14 +62,14 @@ class MovableObject extends DrawableObject {
      * Moves the object up.
      */
     moveUp() {
-        this.positionY += this.speed;
+        this.positionY -= this.speed;
     }
 
     /**
      * Moves the object down.
      */
     moveDown() {
-        this.positionY -= this.speed;
+        this.positionY += this.speed;
     }
 
     /**

@@ -13,6 +13,11 @@ const level1 = new Level(
         new Light()
     ],
     [
+        new Coin(400, 200),
+        new Coin(450, 180),
+        new Coin(500, 200),
+    ],
+    [
         new BackgroundObject('img/game-background/game-background-1.png', 0),
         new BackgroundObject('img/game-background/game-background-element-1.png', 0),
         new BackgroundObject('img/game-background/game-background-element-2.png', 0),
