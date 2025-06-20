@@ -66,6 +66,7 @@ class World {
         this.level.coins = this.level.coins.filter((coin) => {
             if (this.character.isColliding(coin)) {
                 this.soundManager.play('collectedCoin');
+                this.coinBar.addCoin();
                 console.log('Coin collected!');
                 return false;
             }
@@ -81,6 +82,29 @@ class World {
             let bubble = new ThrowableObject(this.character.positionX, this.character.positionY);
             this.throwableObjects.push(bubble);
         }
+    }
+
+    /**
+    * Draws the current coin count inside the coin bar (e.g. "3 / 10").
+    */
+    drawCoinCounter() {
+        const collected = this.coinBar.coinsCollected;
+        const total = this.coinBar.maxCoins;
+        const text = `${collected} / ${total}`;
+
+        this.ctx.font = '20px Arial';
+        this.ctx.fillStyle = 'white';
+        this.ctx.strokeStyle = 'black';
+        this.ctx.lineWidth = 2;
+
+        const x = 100;
+        const y = 101;
+
+        this.ctx.textAlign = 'left';
+        this.ctx.textBaseline = 'middle';
+
+        this.ctx.strokeText(text, x, y);
+        this.ctx.fillText(text, x, y);
     }
 
     /**
@@ -100,6 +124,7 @@ class World {
         //  Space for fixed objects
         this.addToMap(this.lifeBar);
         this.addToMap(this.coinBar);
+        this.drawCoinCounter();
         this.addToMap(this.poisonBar);
         this.ctx.translate(this.cameraX, 0);
         this.ctx.translate(-this.cameraX, 0);

@@ -16,6 +16,13 @@ const level1 = new Level(
         new Coin(400, 200),
         new Coin(450, 180),
         new Coin(500, 200),
+        new Coin(700, 300),
+        new Coin(900, 180),
+        new Coin(1000, 180),
+        new Coin(1330, 100),
+        new Coin(1330, 200),
+        new Coin(1330, 300),
+        new Coin(1550, 350),
     ],
     [
         new BackgroundObject('img/game-background/game-background-1.png', 0),
