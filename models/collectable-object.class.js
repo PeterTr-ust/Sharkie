@@ -1,5 +1,5 @@
 class CollectableObject extends MovableObject {
-    delayPerFrame = 150;   
+    delayPerFrame = 150;
     pauseAfterCycle = 1500;
 
     constructor() {
@@ -7,8 +7,8 @@ class CollectableObject extends MovableObject {
     }
 
     /**
-     * Führt eine Animationsschleife mit Pause nach jedem Durchlauf aus.
-     * @param {string[]} images - Die Bildpfade für die Animation
+     * Runs an animation loop with a pause after each cycle.
+     * @param {string[]} images - The image paths for the animation
      */
     playCycle(images) {
         let index = 0;

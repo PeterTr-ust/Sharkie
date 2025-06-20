@@ -38,7 +38,8 @@ class World {
      */
     run() {
         setInterval(() => {
-            this.checkCollisions();
+            this.checkEnemyCollisions();
+            this.checkCoinCollection();
             this.checkThrowObjects();
         }, 1000)
     }
@@ -47,7 +48,7 @@ class World {
      * Checks for collisions between the character and enemies.
      * Applies damage if collision is detected.
      */
-    checkCollisions() {
+    checkEnemyCollisions() {
         this.level.enemies.forEach((enemy) => {
             if (this.character.isColliding(enemy)) {
                 this.character.hit(enemy.damage);
@@ -55,6 +56,21 @@ class World {
                 console.log('Collision with Character, energy', this.character.energy);
             }
         })
+    }
+
+    /**
+    * Checks for collisions between the character and coins.
+    * Removes collected coins and updates the coin bar.
+    */
+    checkCoinCollection() {
+        this.level.coins = this.level.coins.filter((coin) => {
+            if (this.character.isColliding(coin)) {
+                this.soundManager.play('collectedCoin');
+                console.log('Coin collected!');
+                return false;
+            }
+            return true;
+        });
     }
 
     /**

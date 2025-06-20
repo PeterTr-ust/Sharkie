@@ -113,12 +113,16 @@ class Character extends MovableObject {
             } else if (this.isHurt()) {
                 this.playAnimation(this.IMAGES_HURT);
             } else if (
-                this.world.keyboard.RIGHT || this.world.keyboard.LEFT
+                this.world.keyboard.RIGHT ||
+                this.world.keyboard.LEFT ||
+                this.world.keyboard.UP ||
+                this.world.keyboard.DOWN
             ) {
                 this.playAnimation(this.IMAGES_SWIM);
             } else {
                 this.playAnimation(this.IMAGES_IDLE);
             }
         }, 150);
+
     }
 }

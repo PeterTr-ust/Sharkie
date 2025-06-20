@@ -2,8 +2,7 @@ class SoundManager {
     constructor() {
         this.sounds = {
             swim: new Audio('audio/swim.mp3'),
-            // jump: new Audio('audio/jump.mp3'),
-            // hurt: new Audio('audio/hurt.mp3')
+            collectedCoin: new Audio('audio/collect-coin.mp3'),
         };
 
         for (const key in this.sounds) {
