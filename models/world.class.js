@@ -41,7 +41,7 @@ class World {
             this.checkEnemyCollisions();
             this.checkCoinCollection();
             this.checkThrowObjects();
-        }, 1000)
+        }, 50)
     }
 
     /**
@@ -63,14 +63,14 @@ class World {
     * Removes collected coins and updates the coin bar.
     */
     checkCoinCollection() {
-        this.level.coins = this.level.coins.filter((coin) => {
-            if (this.character.isColliding(coin)) {
+        this.level.coins.forEach((coin, index) => {
+            if (!coin.isBeingCollected && this.character.isColliding(coin)) {
                 this.soundManager.play('collectedCoin');
                 this.coinBar.addCoin();
-                console.log('Coin collected!');
-                return false;
+                coin.collectCoinAnimation().then(() => {
+                    this.level.coins.splice(index, 1);
+                });
             }
-            return true;
         });
     }
 
