@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="style.css">
     <link rel="icon" type="image/png" href="img/favicon-sharkie.png">
     <title>Sharkie</title>
+    <script src="./js/script.js" defer></script>
     <script src="./models/sound-manager.class.js"></script>
     <script src="./models/drawable-object.class.js"></script>
     <script src="./models/movable-object.class.js"></script>
@@ -34,8 +35,11 @@
 
 <body onload="init()">
     <h1 id="titel">Sharkie</h1>
-    <canvas id="canvas" width="720" height="480">
-    </canvas>
+    <div id="canvas-wrapper">
+        <canvas id="canvas" width="720" height="480"></canvas>
+        <img id="fullscreen-icon" src="img/icons/fullscreen.png" alt="Fullscreen" onclick="toggleFullscreen()">
+    </div>
 </body>
+
 
 </html>

@@ -30,6 +30,7 @@ body::before {
 
 h1 {
     color: rgb(199, 227, 247);
+    color: #ffffff;
     font-size: 100px;
     font-weight: 400;
     margin: 0;
@@ -41,6 +42,28 @@ canvas {
     box-shadow: 0 0 30px rgba(0, 0, 0, 0.6);
     border-radius: 10px;
 }
+
+#canvas-wrapper {
+    position: relative;
+    width: 720px;
+    height: 480px;
+}
+
+#fullscreen-icon {
+    position: absolute;
+    bottom: 5px;
+    right: 10px;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    z-index: 2;
+}
+
+#fullscreen-icon:hover {
+    transform: scale(1.1);
+}
+
 
 @media only screen and (max-width: 760px) {
     canvas {
