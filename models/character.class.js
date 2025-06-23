@@ -97,6 +97,7 @@ class Character extends MovableObject {
         this.loadImgs(this.IMAGES_HURT_BY_PUFFERFISH);
         this.loadImgs(this.IMAGES_HURT_BY_JELLYFISH);
         this.soundManager = soundManager;
+        this.inactivity = this.setupInactivityTimer();
         this.animate();
     }
 
@@ -121,67 +122,80 @@ class Character extends MovableObject {
     }
 
     /**
-   * Handles character movement and animation updates.
-   */
+    * Initializes main game loops for movement/audio and animation updates.
+    */
     animate() {
-        const { getInactivityDuration, resetInactivityTimer } = this.setupInactivityTimer();
-
         setInterval(() => {
-            const kb = this.world?.keyboard;
-            if (kb) {
-                if (kb.RIGHT && this.positionX < this.world.level.levelEndX) {
-                    this.moveRight();
-                    this.otherDirection = false;
-                    this.soundManager.play('swim');
-                    resetInactivityTimer();
-                }
-
-                if (kb.LEFT && this.positionX > 0) {
-                    this.moveLeft();
-                    this.otherDirection = true;
-                    this.soundManager.play('swim');
-                    resetInactivityTimer();
-                }
-
-                if (kb.UP && this.isOnTop()) {
-                    this.moveUp();
-                    this.soundManager.play('swim');
-                    resetInactivityTimer();
-                }
-
-                if (kb.DOWN && this.isOnBottom()) {
-                    this.moveDown();
-                    this.soundManager.play('swim');
-                    resetInactivityTimer();
-                }
-
-                this.world.cameraX = -this.positionX;
-            }
+            this.handleMovementAndSounds();
         }, 1000 / 60);
 
         setInterval(() => {
-            if (this.isDead()) {
-                this.playAnimation(this.IMAGES_DEAD);
-            } else if (this.isHurt()) {
-                resetInactivityTimer();
-                const enemy = this.lastHitByEnemy;
-                if (enemy instanceof PufferFish) {
-                    this.playAnimation(this.IMAGES_HURT_BY_PUFFERFISH);
-                } else {
-                    this.playAnimation(this.IMAGES_HURT_BY_JELLYFISH);
-                }
-            } else if (
-                this.world.keyboard.RIGHT ||
-                this.world.keyboard.LEFT ||
-                this.world.keyboard.UP ||
-                this.world.keyboard.DOWN
-            ) {
-                this.playAnimation(this.IMAGES_SWIM);
-            } else if (getInactivityDuration() > 15000) {
-                this.playAnimation(this.IMAGES_INACTIVE);
-            } else {
-                this.playAnimation(this.IMAGES_IDLE);
-            }
+            this.handleAnimations();
         }, 150);
+    }
+
+    /**
+     * Handles character movement and sound logic.
+     */
+    handleMovementAndSounds() {
+        const kb = this.world?.keyboard;
+        const swimming = kb?.RIGHT || kb?.LEFT || kb?.UP || kb?.DOWN;
+
+        if (swimming) {
+            this.handleMovement(kb);
+            this.inactivity.resetInactivityTimer();
+            this.soundManager.playLoop('swim');
+        } else {
+            this.soundManager.stop('swim');
+        }
+
+        if (this.inactivity.getInactivityDuration() > 15000) {
+            this.soundManager.playLoop('snoring');
+        } else {
+            this.soundManager.stop('snoring');
+        }
+    }
+
+    /**
+     * Moves the character based on active keys.
+     * @param {KeyboardInput} kb - The current keyboard input state.
+     */
+    handleMovement(kb) {
+        if (kb.RIGHT && this.positionX < this.world.level.levelEndX) {
+            this.moveRight();
+            this.otherDirection = false;
+        }
+        if (kb.LEFT && this.positionX > 0) {
+            this.moveLeft();
+            this.otherDirection = true;
+        }
+        if (kb.UP && this.isOnTop()) this.moveUp();
+        if (kb.DOWN && this.isOnBottom()) this.moveDown();
+
+        this.world.cameraX = -this.positionX;
+    }
+
+    /**
+     * Handles character animations based on state and input.
+     */
+    handleAnimations() {
+        const kb = this.world?.keyboard;
+
+        if (this.isDead()) {
+            this.playAnimation(this.IMAGES_DEAD);
+        } else if (this.isHurt()) {
+            this.inactivity.resetInactivityTimer();
+            const enemy = this.lastHitByEnemy;
+            const images = enemy instanceof PufferFish
+                ? this.IMAGES_HURT_BY_PUFFERFISH
+                : this.IMAGES_HURT_BY_JELLYFISH;
+            this.playAnimation(images);
+        } else if (kb?.RIGHT || kb?.LEFT || kb?.UP || kb?.DOWN) {
+            this.playAnimation(this.IMAGES_SWIM);
+        } else if (this.inactivity.getInactivityDuration() > 15000) {
+            this.playAnimation(this.IMAGES_INACTIVE);
+        } else {
+            this.playAnimation(this.IMAGES_IDLE);
+        }
     }
 }

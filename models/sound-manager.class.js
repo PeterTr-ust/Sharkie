@@ -4,6 +4,7 @@ class SoundManager {
             swim: new Audio('audio/swim.mp3'),
             collectedCoin: new Audio('audio/collect-coin.mp3'),
             collectedPoison: new Audio('audio/collect-poison.mp3'),
+            snoring: new Audio('audio/snoring.mp3'),
         };
 
         for (const key in this.sounds) {
@@ -34,4 +35,24 @@ class SoundManager {
             this.lastPlayed[name] = now;
         }
     }
+
+    playLoop(name) {
+        const sound = this.sounds[name];
+        if (!sound) return;
+        if (!sound.isPlaying) {
+            sound.loop = true;
+            sound.currentTime = 0;
+            sound.play();
+            sound.isPlaying = true;
+        }
+    }
+
+    stop(name) {
+        const sound = this.sounds[name];
+        if (!sound) return;
+        sound.pause();
+        sound.currentTime = 0;
+        sound.isPlaying = false;
+    }
+
 }
