@@ -4,7 +4,7 @@
  */
 class Character extends MovableObject {
     positionX = 20;
-    positionY = 80;
+    positionY = 200;
     height = 200;
     width = 200;
     speed = 2;
@@ -50,12 +50,19 @@ class Character extends MovableObject {
         'img/character/dead/11.png',
         'img/character/dead/12.png'
     ];
-    IMAGES_HURT = [
+    IMAGES_HURT_BY_PUFFERFISH = [
         'img/character/hurt/poisoned/1.png',
         'img/character/hurt/poisoned/2.png',
         'img/character/hurt/poisoned/3.png',
         'img/character/hurt/poisoned/4.png',
         'img/character/hurt/poisoned/5.png'
+    ];
+    IMAGES_HURT_BY_JELLYFISH = [
+        'img/character/hurt/shocked/shocked-1.png',
+        'img/character/hurt/shocked/shocked-2.png',
+        'img/character/hurt/shocked/shocked-3.png',
+        'img/character/hurt/shocked/shocked-4.png',
+        'img/character/hurt/shocked/shocked-5.png'
     ];
     world;
     offset = {
@@ -70,7 +77,8 @@ class Character extends MovableObject {
         this.loadImgs(this.IMAGES_IDLE);
         this.loadImgs(this.IMAGES_SWIM);
         this.loadImgs(this.IMAGES_DEAD);
-        this.loadImgs(this.IMAGES_HURT);
+        this.loadImgs(this.IMAGES_HURT_BY_PUFFERFISH);
+        this.loadImgs(this.IMAGES_HURT_BY_JELLYFISH);
         this.soundManager = soundManager;
         this.animate();
     }
@@ -111,7 +119,15 @@ class Character extends MovableObject {
             if (this.isDead()) {
                 this.playAnimation(this.IMAGES_DEAD);
             } else if (this.isHurt()) {
-                this.playAnimation(this.IMAGES_HURT);
+                const enemy = this.lastHitByEnemy;
+
+                if (enemy instanceof PufferFish) {
+                    this.playAnimation(this.IMAGES_HURT_BY_PUFFERFISH);
+                } else if (enemy instanceof JellyFish) {
+                    this.playAnimation(this.IMAGES_HURT_BY_JELLYFISH);
+                } else {
+                    this.playAnimation(this.IMAGES_HURT_BY_JELLYFISH);
+                }
             } else if (
                 this.world.keyboard.RIGHT ||
                 this.world.keyboard.LEFT ||

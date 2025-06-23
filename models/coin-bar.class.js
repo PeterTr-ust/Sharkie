@@ -12,7 +12,7 @@ class CoinBar extends StatusBar {
         'img/status-bars/coin-bar/100-coin-bar.png'
     ];
 
-    constructor(x = 240, y = 10, width = 200, height = 60) {
+    constructor(x = 240, y = 0, width = 200, height = 60) {
         super();
         this.loadImg(this.IMAGES[0]);
         this.positionX = x;

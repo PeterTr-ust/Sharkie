@@ -51,7 +51,7 @@ class World {
     checkEnemyCollisions() {
         this.level.enemies.forEach((enemy) => {
             if (this.character.isColliding(enemy)) {
-                this.character.hit(enemy.damage);
+                this.character.hit(enemy.damage, enemy);
                 this.lifeBar.setPercentage(this.character.energy);
                 console.log('Collision with Character, energy', this.character.energy);
             }
@@ -137,15 +137,13 @@ class World {
         this.addObjectsToMap(this.level.poisonBottles);
         this.addToMap(this.character);
         this.ctx.translate(-this.cameraX, 0);
-        //  Space for fixed objects
         this.addToMap(this.lifeBar);
         this.addToMap(this.coinBar);
-        this.drawCollectableCounter(this.coinBar, 325, 51);
+        this.drawCollectableCounter(this.coinBar, 325, 41);
         this.addToMap(this.poisonBar);
-        this.drawCollectableCounter(this.poisonBar, 550, 51);
+        this.drawCollectableCounter(this.poisonBar, 550, 41);
         this.ctx.translate(this.cameraX, 0);
         this.ctx.translate(-this.cameraX, 0);
-        //draw() wird immer wieder aufgerufen. Durch requestAnimationFrame() wird die Leistung der Grafikkarte berücksichtig.
         let self = this;
         requestAnimationFrame(function () {
             self.draw();

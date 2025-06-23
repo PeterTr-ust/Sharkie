@@ -36,12 +36,12 @@ class MovableObject extends DrawableObject {
         return this.positionY < 300;
     }
 
-     /**
-    * Checks whether the object is under the top level.
-    * @returns {boolean}
-    */
+    /**
+   * Checks whether the object is under the top level.
+   * @returns {boolean}
+   */
     isOnTop() {
-        return this.positionY > - 80;
+        return this.positionY > - 30;
     }
 
     /**
@@ -122,16 +122,22 @@ class MovableObject extends DrawableObject {
     } 0
 
     /**
-    * Applies damage to the object and updates the hit timestamp.
+    * Applies damage to the object, updates the hit timestamp,
+    * and remembers the enemy that caused the hit.
     */
-    hit(damage) {
+    hit(damage, enemy = null) {
         this.energy -= damage;
         if (this.energy < 0) {
             this.energy = 0;
         } else {
             this.lastHit = new Date().getTime();
         }
+
+        if (enemy) {
+            this.lastHitByEnemy = enemy;
+        }
     }
+
 
     /**
      * Checks if the object is dead (energy depleted).
