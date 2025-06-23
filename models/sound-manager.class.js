@@ -5,6 +5,8 @@ class SoundManager {
             collectedCoin: new Audio('audio/collect-coin.mp3'),
             collectedPoison: new Audio('audio/collect-poison.mp3'),
             snoring: new Audio('audio/snoring.mp3'),
+            finSlap: new Audio('audio/hit.mp3'),
+            
         };
 
         for (const key in this.sounds) {

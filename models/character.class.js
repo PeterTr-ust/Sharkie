@@ -52,6 +52,16 @@ class Character extends MovableObject {
         'img/character/swim/character-swim-5.png',
         'img/character/swim/character-swim-6.png',
     ];
+    IMAGES_FIN_SLAP = [
+        'img/character/attacks/fin-slap/fin-slap-1.png',
+        'img/character/attacks/fin-slap/fin-slap-2.png',
+        'img/character/attacks/fin-slap/fin-slap-3.png',
+        'img/character/attacks/fin-slap/fin-slap-4.png',
+        'img/character/attacks/fin-slap/fin-slap-5.png',
+        'img/character/attacks/fin-slap/fin-slap-6.png',
+        'img/character/attacks/fin-slap/fin-slap-7.png',
+        'img/character/attacks/fin-slap/fin-slap-8.png',
+    ];
     IMAGES_DEAD = [
         'img/character/dead/1.png',
         'img/character/dead/2.png',
@@ -87,18 +97,49 @@ class Character extends MovableObject {
         right: -50,
         bottom: -50
     };
+    isAttacking = false;
 
     constructor(soundManager) {
         super().loadImg('img/character/idle/1.png');
         this.loadImgs(this.IMAGES_IDLE);
         this.loadImgs(this.IMAGES_INACTIVE);
         this.loadImgs(this.IMAGES_SWIM);
+        this.loadImgs(this.IMAGES_FIN_SLAP);
         this.loadImgs(this.IMAGES_DEAD);
         this.loadImgs(this.IMAGES_HURT_BY_PUFFERFISH);
         this.loadImgs(this.IMAGES_HURT_BY_JELLYFISH);
         this.soundManager = soundManager;
         this.inactivity = this.setupInactivityTimer();
         this.animate();
+    }
+
+    /**
+    * Executes the character's fin slap attack.
+    * 
+    * - Plays the attack animation and sound.
+    * - Temporarily adjusts the character's collision offset to extend attack range.
+    * - Detects and triggers fly-away behavior on any enemy within the attack zone.
+    * - Restores the original offset and attack state after a short delay.
+    */
+    attack() {
+        this.isAttacking = true;
+        this.playAnimation(this.IMAGES_FIN_SLAP);
+        this.soundManager.play?.('finSlap');
+
+        const originalOffset = { ...this.offset };
+        this.offset.right = -20;
+        this.offset.bottom = -30;
+        this.offset.top = -90;
+
+        const hitEnemies = this.world.level.enemies.filter(enemy => !enemy.isFlyingAway && this.isColliding(enemy));
+        hitEnemies.forEach(enemy => {
+            enemy.enemyDeathAnimation();
+        });
+
+        setTimeout(() => {
+            this.offset = originalOffset;
+            this.isAttacking = false;
+        }, 150);
     }
 
     /**

@@ -14,6 +14,7 @@ class World {
     coinBar = new CoinBar();
     poisonBar = new PoisonBar();
     throwableObjects = [];
+    spaceKeyPressed = false;
 
     constructor(canvas, keyboard) {
         this.ctx = canvas.getContext('2d');
@@ -41,21 +42,27 @@ class World {
             this.checkEnemyCollisions();
             this.checkCollectablesCollisions();
             this.checkThrowObjects();
+            this.checkAttack();
         }, 50)
     }
 
     /**
-     * Checks for collisions between the character and enemies.
-     * Applies damage if collision is detected.
-     */
+    * Checks for collisions between the character and enemies.
+    * Applies damage only if the character is not currently attacking
+    * and the enemy is not already flying away.
+    */
     checkEnemyCollisions() {
         this.level.enemies.forEach((enemy) => {
-            if (this.character.isColliding(enemy)) {
+            const isColliding = this.character.isColliding(enemy);
+            const characterNotAttacking = !this.character.isAttacking;
+            const enemyNotFlyingAway = !enemy.isFlyingAway;
+
+            if (isColliding && characterNotAttacking && enemyNotFlyingAway) {
                 this.character.hit(enemy.damage, enemy);
                 this.lifeBar.setPercentage(this.character.energy);
                 console.log('Collision with Character, energy', this.character.energy);
             }
-        })
+        });
     }
 
     /**
@@ -99,6 +106,22 @@ class World {
     }
 
     /**
+    * Checks if the SPACE key was pressed to initiate an attack.
+    * Ensures the attack is triggered only once per key press.
+    * Prevents repeated attacks while holding down the key.
+    */
+    checkAttack() {
+        if (this.keyboard.SPACE && !this.spaceKeyPressed && !this.character.isAttacking) {
+            this.spaceKeyPressed = true;
+            this.character.attack();
+        }
+
+        if (!this.keyboard.SPACE) {
+            this.spaceKeyPressed = false;
+        }
+    }
+
+    /**
     * Renders a collectable counter (e.g., "3 / 10") on the canvas at a specified position.
     * Displays the current collected count out of the total available.
     *
@@ -131,6 +154,7 @@ class World {
         this.ctx.translate(this.cameraX, 0);
         this.addObjectsToMap(this.level.backgroundObjects);
         this.addObjectsToMap(this.level.lights);
+        this.level.enemies = this.level.enemies.filter(enemy => !enemy.markedForRemoval);
         this.addObjectsToMap(this.level.enemies);
         this.addObjectsToMap(this.throwableObjects);
         this.addObjectsToMap(this.level.coins);

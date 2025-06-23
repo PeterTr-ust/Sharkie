@@ -138,6 +138,47 @@ class MovableObject extends DrawableObject {
         }
     }
 
+    /**
+    * Triggers the enemy's death animation by making it fly upwards,
+    * rotate, and fade out gradually over time.
+    *
+    * - Prevents re-triggering if already in animation.
+    * - Applies upward velocity and simulates gravity.
+    * - Gradually reduces opacity and increases rotation.
+    * - Once fully faded or off-screen, marks the enemy for removal.
+    * - Overrides the draw method to render rotation and transparency.
+    */
+    enemyDeathAnimation() {
+        if (this.isFlyingAway) return;
+        this.isFlyingAway = true;
+        this.markedForRemoval = false;
+
+        this.speedY = -10;
+        this.opacity = 1;
+        let rotation = 0;
+        const gravity = 1;
+
+        const interval = setInterval(() => {
+            this.positionY += this.speedY;
+            this.speedY += gravity;
+            rotation += 10;
+            this.opacity -= 0.05;
+
+            if (this.opacity <= 0 || this.positionY > 600) {
+                clearInterval(interval);
+                this.markedForRemoval = true;
+            }
+        }, 30);
+
+        this.draw = function (ctx) {
+            ctx.save();
+            ctx.globalAlpha = this.opacity;
+            ctx.translate(this.positionX + this.width / 2, this.positionY + this.height / 2);
+            ctx.rotate(rotation * Math.PI / 180);
+            ctx.drawImage(this.img, -this.width / 2, -this.height / 2, this.width, this.height);
+            ctx.restore();
+        };
+    }
 
     /**
      * Checks if the object is dead (energy depleted).
