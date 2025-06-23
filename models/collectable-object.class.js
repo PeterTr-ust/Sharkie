@@ -1,6 +1,7 @@
 class CollectableObject extends MovableObject {
     delayPerFrame = 150;
     pauseAfterCycle = 1500;
+    isBeingCollected = false;
 
     constructor() {
         super();
@@ -26,5 +27,43 @@ class CollectableObject extends MovableObject {
         };
 
         cycle();
+    }
+
+    /**
+     * Triggers a generic collect animation (e.g. float upward).
+     * Can be reused by any collectable object like coins or poison.
+     */
+    async collectAnimation(offsetY = -50, duration = 150) {
+        this.isBeingCollected = true;
+        const startY = this.positionY;
+        const endY = startY + offsetY;
+        await this.animatePositionY(startY, endY, duration, (newY) => {
+            this.positionY = newY;
+        });
+    }
+
+    /**
+     * Animates vertical position from startY to endY over time.
+     */
+    animatePositionY(startY, endY, duration, updateCallback) {
+        return new Promise((resolve) => {
+            const startTime = performance.now();
+
+            const animate = (time) => {
+                const elapsed = time - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const newY = startY + (endY - startY) * progress;
+
+                updateCallback(newY);
+
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    resolve();
+                }
+            };
+
+            requestAnimationFrame(animate);
+        });
     }
 }

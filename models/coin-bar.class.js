@@ -12,25 +12,19 @@ class CoinBar extends StatusBar {
         'img/status-bars/coin-bar/100-coin-bar.png'
     ];
 
-    coinsCollected = 0;
-    maxCoins = 10; // z. B. 5 Coins im Level – kann auch dynamisch sein
-
-    constructor(x, y, width, height) {
-        super().loadImg(this.IMAGES[0]);
-        this.positionX = x || 20;
-        this.positionY = y || 60;
-        this.width = width || 200;
-        this.height = height || 60;
-
+    constructor(x = 240, y = 10, width = 200, height = 60) {
+        super();
+        this.loadImg(this.IMAGES[0]);
+        this.positionX = x;
+        this.positionY = y;
+        this.width = width;
+        this.height = height;
         this.loadImgs(this.IMAGES);
+        this.setMax(10);
         this.setPercentage(0);
     }
 
     addCoin() {
-        if (this.coinsCollected < this.maxCoins) {
-            this.coinsCollected++;
-            let percentage = (this.coinsCollected / this.maxCoins) * 100;
-            this.setPercentage(percentage);
-        }
+        this.addItem();
     }
 }

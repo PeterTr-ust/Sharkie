@@ -25,6 +25,13 @@ const level1 = new Level(
         new Coin(1550, 350),
     ],
     [
+        new Poison(445, 210),
+        new Poison(695, 100),
+        new Poison(945, 160),
+        new Poison(1325, 130),
+        new Poison(1325, 230),
+    ],
+    [
         new BackgroundObject('img/game-background/game-background-1.png', 0),
         new BackgroundObject('img/game-background/game-background-element-1.png', 0),
         new BackgroundObject('img/game-background/game-background-element-2.png', 0),

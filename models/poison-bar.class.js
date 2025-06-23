@@ -12,15 +12,18 @@ class PoisonBar extends StatusBar {
         'img/status-bars/poison-bar/100-poison-bar.png'
     ];
 
-    constructor(x, y, width, height) {
+    constructor(x = 460, y = 10, width = 200, height = 60) {
         super().loadImg(this.IMAGES[0]);
-        
-        this.positionX = x || 20;
-        this.positionY = y || 110;
-        this.width = width || 200;
-        this.height = height || 60;
-        
+        this.positionX = x;
+        this.positionY = y;
+        this.width = width;
+        this.height = height;
         this.loadImgs(this.IMAGES);
+        this.setMax(5);
         this.setPercentage(0);
+    }
+
+    addPoison() {
+        this.addItem();
     }
 }

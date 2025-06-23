@@ -39,7 +39,7 @@ class World {
     run() {
         setInterval(() => {
             this.checkEnemyCollisions();
-            this.checkCoinCollection();
+            this.checkCollectablesCollisions();
             this.checkThrowObjects();
         }, 50)
     }
@@ -59,19 +59,33 @@ class World {
     }
 
     /**
-    * Checks for collisions between the character and coins.
-    * Removes collected coins and updates the coin bar.
+    * Checks for collisions between the character and all collectable objects.
+    * Handles collection of coins and poison items.
     */
-    checkCoinCollection() {
-        this.level.coins.forEach((coin, index) => {
-            if (!coin.isBeingCollected && this.character.isColliding(coin)) {
-                this.soundManager.play('collectedCoin');
-                this.coinBar.addCoin();
-                coin.collectCoinAnimation().then(() => {
-                    this.level.coins.splice(index, 1);
+    checkCollectablesCollisions() {
+        this.checkCollection(this.level.coins, 'collectedCoin', this.coinBar.addCoin.bind(this.coinBar));
+        this.checkCollection(this.level.poisonBottles, 'collectedPoison', this.poisonBar.addPoison.bind(this.poisonBar));
+    }
+
+    /**
+    * Generic method for detecting and processing collectable item collisions.
+    * Plays a sound, updates the corresponding bar, triggers collection animation, and removes the item.
+    *
+    * @param {Object[]} objects - The array of collectable game objects (e.g., coins, poison).
+    * @param {string} soundKey - The key for the sound to be played when collected.
+    * @param {Function} onCollect - Callback function executed after successful collection (e.g., update UI).
+    */
+    checkCollection(objects, soundKey, onCollect) {
+        for (let i = objects.length - 1; i >= 0; i--) {
+            const obj = objects[i];
+            if (!obj.isBeingCollected && this.character.isColliding(obj)) {
+                this.soundManager.play(soundKey);
+                onCollect();
+                obj.collectAnimation().then(() => {
+                    objects.splice(i, 1);
                 });
             }
-        });
+        }
     }
 
     /**
@@ -85,21 +99,22 @@ class World {
     }
 
     /**
-    * Draws the current coin count inside the coin bar (e.g. "3 / 10").
+    * Renders a collectable counter (e.g., "3 / 10") on the canvas at a specified position.
+    * Displays the current collected count out of the total available.
+    *
+    * @param {Object} bar - The bar object containing the collectable status.
+    * @param {number} bar.collected - The current number of collected items.
+    * @param {number} bar.max - The total number of collectable items.
+    * @param {number} x - The x-coordinate on the canvas where the text is drawn.
+    * @param {number} y - The y-coordinate on the canvas where the text is drawn.
     */
-    drawCoinCounter() {
-        const collected = this.coinBar.coinsCollected;
-        const total = this.coinBar.maxCoins;
-        const text = `${collected} / ${total}`;
+    drawCollectableCounter(bar, x, y) {
+        const text = `${bar.collected} / ${bar.max}`;
 
         this.ctx.font = '20px Arial';
         this.ctx.fillStyle = 'white';
         this.ctx.strokeStyle = 'black';
         this.ctx.lineWidth = 2;
-
-        const x = 100;
-        const y = 101;
-
         this.ctx.textAlign = 'left';
         this.ctx.textBaseline = 'middle';
 
@@ -119,13 +134,15 @@ class World {
         this.addObjectsToMap(this.level.enemies);
         this.addObjectsToMap(this.throwableObjects);
         this.addObjectsToMap(this.level.coins);
+        this.addObjectsToMap(this.level.poisonBottles);
         this.addToMap(this.character);
         this.ctx.translate(-this.cameraX, 0);
         //  Space for fixed objects
         this.addToMap(this.lifeBar);
         this.addToMap(this.coinBar);
-        this.drawCoinCounter();
+        this.drawCollectableCounter(this.coinBar, 325, 51);
         this.addToMap(this.poisonBar);
+        this.drawCollectableCounter(this.poisonBar, 550, 51);
         this.ctx.translate(this.cameraX, 0);
         this.ctx.translate(-this.cameraX, 0);
         //draw() wird immer wieder aufgerufen. Durch requestAnimationFrame() wird die Leistung der Grafikkarte berücksichtig.

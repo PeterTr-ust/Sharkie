@@ -12,14 +12,12 @@ class LifeBar extends StatusBar {
         'img/status-bars/life-bar/100-life-bar.png',
     ];
 
-    constructor(x, y, width, height) {
+    constructor(x = 20, y = 10, width = 200, height = 60) {
         super().loadImg(this.IMAGES[5]);
-        
-        this.positionX = x || 20;
-        this.positionY = y || 10;
-        this.width = width || 200;
-        this.height = height || 60;
-        
+        this.positionX = x;
+        this.positionY = y;
+        this.width = width;
+        this.height = height;
         this.loadImgs(this.IMAGES);
         this.setPercentage(100);
     }

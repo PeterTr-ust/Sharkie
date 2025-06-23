@@ -3,6 +3,7 @@ class SoundManager {
         this.sounds = {
             swim: new Audio('audio/swim.mp3'),
             collectedCoin: new Audio('audio/collect-coin.mp3'),
+            collectedPoison: new Audio('audio/collect-poison.mp3'),
         };
 
         for (const key in this.sounds) {
