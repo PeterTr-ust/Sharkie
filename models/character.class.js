@@ -103,7 +103,7 @@ class Character extends MovableObject {
     /**
     * Sets up a global inactivity timer that resets on any key press.
     *
-    * @returns {{ getInactivityDuration: function(): number, reset: function(): void }}
+    * @returns {{ getInactivityDuration: function(): number, resetInactivityTimer: function(): void }}
     */
     setupInactivityTimer() {
         let lastInputTime = Date.now();
@@ -116,7 +116,7 @@ class Character extends MovableObject {
 
         return {
             getInactivityDuration: () => Date.now() - lastInputTime,
-            reset: resetInactivityTimer
+            resetInactivityTimer
         };
     }
 
@@ -124,7 +124,7 @@ class Character extends MovableObject {
    * Handles character movement and animation updates.
    */
     animate() {
-        const { getInactivityDuration, reset } = this.setupInactivityTimer();
+        const { getInactivityDuration, resetInactivityTimer } = this.setupInactivityTimer();
 
         setInterval(() => {
             const kb = this.world?.keyboard;
@@ -133,24 +133,28 @@ class Character extends MovableObject {
                     this.moveRight();
                     this.otherDirection = false;
                     this.soundManager.play('swim');
-                    reset();
+                    resetInactivityTimer();
                 }
+
                 if (kb.LEFT && this.positionX > 0) {
                     this.moveLeft();
                     this.otherDirection = true;
                     this.soundManager.play('swim');
-                    reset();
+                    resetInactivityTimer();
                 }
+
                 if (kb.UP && this.isOnTop()) {
                     this.moveUp();
                     this.soundManager.play('swim');
-                    reset();
+                    resetInactivityTimer();
                 }
+
                 if (kb.DOWN && this.isOnBottom()) {
                     this.moveDown();
                     this.soundManager.play('swim');
-                    reset();
+                    resetInactivityTimer();
                 }
+
                 this.world.cameraX = -this.positionX;
             }
         }, 1000 / 60);
@@ -159,7 +163,7 @@ class Character extends MovableObject {
             if (this.isDead()) {
                 this.playAnimation(this.IMAGES_DEAD);
             } else if (this.isHurt()) {
-                reset(); // auch hier
+                resetInactivityTimer();
                 const enemy = this.lastHitByEnemy;
                 if (enemy instanceof PufferFish) {
                     this.playAnimation(this.IMAGES_HURT_BY_PUFFERFISH);
