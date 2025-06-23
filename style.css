@@ -1,6 +1,16 @@
+@font-face {
+    font-family: 'Modak';
+    src: url('fonts/Modak/Modak-Regular.ttf') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+}
+
 body {
+    margin: 0;
+    font-family: 'Modak', sans-serif;
     height: 100vh;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     margin: 0;
@@ -16,6 +26,14 @@ body::before {
     background-repeat: no-repeat;
     filter: brightness(50%);
     z-index: -1;
+}
+
+h1 {
+    color: rgb(199, 227, 247);
+    font-size: 100px;
+    font-weight: 400;
+    margin: 0;
+    line-height: normal;
 }
 
 canvas {
