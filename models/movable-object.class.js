@@ -204,6 +204,26 @@ class MovableObject extends DrawableObject {
     }
 
     /**
+     * Plays an animation sequence once and triggers an optional callback after completion.
+    * @param {string[]} images - Array of image paths.
+    * @param {Function} [onFinish] - Callback function after animation ends.
+    */
+    playAnimationOnce(images, onFinish) {
+        if (!images?.length) return;
+        let frame = 0;
+
+        const interval = setInterval(() => {
+            this.img = this.imageCache[images[frame]];
+            frame++;
+
+            if (frame >= images.length) {
+                clearInterval(interval);
+                if (onFinish) onFinish();
+            }
+        }, 150);
+    }
+
+    /**
      * Checks if the object is dead (energy depleted).
      * @returns {boolean}
      */

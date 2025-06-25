@@ -7,7 +7,7 @@ class Endboss extends MovableObject {
     width = 400;
     positionX = 1750;
     positionY = 0;
-    
+
     IMAGES_SPAWNING = [
         'img/endboss/spawn/1.png',
         'img/endboss/spawn/2.png',
@@ -61,16 +61,17 @@ class Endboss extends MovableObject {
     isAttacking = false;
     isReturning = false;
     lastAttackTime = 0;
-    attackSpeed = 20; // Geschwindigkeit der Bewegung nach links
-    returnSpeed = 30; // Geschwindigkeit der Rückkehr
-    originalX = 1750; // Ursprungsposition für die Rückkehr
-    attackDistance = 400; // Wie weit der Boss sich nach links bewegt
+    attackSpeed = 20;
+    returnSpeed = 30;
+    originalX = 1750;
+    attackDistance = 400;
     offset = {
         top: -200,
         left: -30,
         right: -40,
         bottom: -80
     };
+    isDead = false;
 
     constructor() {
         super().loadImg('');
@@ -84,24 +85,28 @@ class Endboss extends MovableObject {
     }
 
     /**
-     * Startet einen Timer für die Attack-Bewegung alle 15 Sekunden
+    * Starts a recurring timer that initiates the Endboss attack behavior
+    * every 10 seconds, as long as the spawn animation is completed and 
+    * the boss is not already attacking or returning.
      */
     startAttackTimer() {
         setInterval(() => {
             if (this.spawnAnimationCompleted && !this.isAttacking && !this.isReturning) {
                 this.startAttack();
             }
-        }, 10000); // 15 Sekunden
+        }, 8000);
     }
 
     /**
-     * Startet die Attack-Bewegung
+     * Initiates the boss's attack phase, marking it as attacking
+     * and triggering the return phase after 2 seconds.
      */
     startAttack() {
+        if (this.isDead) return;
+        world.soundManager.playLoop('endbossBite');
         this.isAttacking = true;
         this.lastAttackTime = Date.now();
 
-        // Attack dauert etwa 2 Sekunden, dann Rückkehr
         setTimeout(() => {
             this.isAttacking = false;
             this.startReturn();
@@ -109,28 +114,37 @@ class Endboss extends MovableObject {
     }
 
     /**
-     * Startet die Rückkehr zur ursprünglichen Position
+     * Moves the boss back to its original X position.
+     * Continues moving right until the original position is reached,
+     * then stops the return behavior.
      */
     startReturn() {
+        if (this.isDead) return;
+        world.soundManager.stop('endbossBite');
         this.isReturning = true;
 
-        // Rückkehr dauert so lange bis die ursprüngliche Position erreicht ist
         const returnInterval = setInterval(() => {
             if (this.positionX >= this.originalX) {
-                this.positionX = this.originalX; // Exakte Position setzen
+                this.positionX = this.originalX; // Snap to original position
                 this.isReturning = false;
                 clearInterval(returnInterval);
             }
         }, 50);
     }
 
+    /**
+    * Applies damage to the Endboss and triggers the hurt animation.
+    * If energy drops to 0 or below, initiates the death sequence.
+     * 
+     * @param {number} damage - The amount of damage to inflict.
+    */
     hit(damage) {
+        if (this.isDead) return;
         if (this.energy > 0) {
             this.energy -= damage;
             this.playAnimation(this.IMAGES_HURT);
             this.lastHitTime = Date.now();
 
-            // Optional: Überprüfen, ob der Boss tot ist
             if (this.energy <= 0) {
                 this.energy = 0;
                 this.die();
@@ -138,15 +152,52 @@ class Endboss extends MovableObject {
         }
     }
 
+    /**
+     * Triggers the death animation sequence once and then sets
+     * the Endboss to a final floating state with a static image.
+     */
+    die() {
+        if (this.isDead) return;
+        this.isDead = true;
+
+        this.playAnimationOnce(this.IMAGES_DEAD, () => {
+            this.loadImg('img/endboss/dead/endboss-dead-5.png');
+            this.startFloating();
+        });
+    }
+
+    /**
+     * Causes the Endboss to float smoothly up and down after death
+     * in a looping sinusoidal motion for visual effect.
+     */
+    startFloating() {
+        const amplitude = 10;
+        const frequency = 0.05;
+        const baseY = this.positionY;
+        let time = 0;
+
+        setInterval(() => {
+            this.positionY = baseY + Math.sin(time) * amplitude;
+            time += frequency;
+        }, 30);
+    }
 
     /**
      * Controls the animation and interaction with the player.
      */
     animate() {
         let i = 0;
+        let deadAnimationPlayed = false;
 
-        setInterval(() => {
-            // Spawn Animation
+        const animationInterval = setInterval(() => {
+            if (this.isDead) {
+                if (!deadAnimationPlayed) {
+                    this.playAnimation(this.IMAGES_DEAD);
+                    deadAnimationPlayed = true;
+                }
+                return;
+            }
+
             if (world.character.positionX > 1250 && !this.hadFirstContact) {
                 i = 0;
                 this.hadFirstContact = true;
@@ -158,15 +209,12 @@ class Endboss extends MovableObject {
                 this.spawnAnimationCompleted = true;
             }
 
-            // Animation Logic nach dem Spawning
             if (this.spawnAnimationCompleted) {
                 if (this.isAttacking) {
                     this.playAnimation(this.IMAGES_ATTACK);
-                    // Bewegung nach links während des Angriffs
                     this.positionX -= this.attackSpeed;
                 } else if (this.isReturning) {
                     this.playAnimation(this.IMAGES_IDLE);
-                    // Bewegung nach rechts zurück zur ursprünglichen Position
                     this.positionX += this.returnSpeed;
                 } else {
                     this.playAnimation(this.IMAGES_IDLE);

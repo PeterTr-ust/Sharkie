@@ -8,7 +8,8 @@ class SoundManager {
             finSlap: new Audio('audio/hit.mp3'),
             bubbleAttack: new Audio('audio/bubble.mp3'),
             allPoisenCollected: new Audio('audio/all-poisen-collected.mp3'),
-            
+            bubbleHit: new Audio('audio/bubble-hit.mp3'),
+            endbossBite: new Audio('audio/endboss-bite.mp3'),
         };
 
         for (const key in this.sounds) {

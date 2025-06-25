@@ -86,7 +86,7 @@ class World {
     checkBubbleEndbossCollision() {
         const endboss = this.level.enemies.find(enemy => enemy instanceof Endboss);
 
-        if (!endboss || endboss.isDead()) {
+        if (!endboss || endboss.isDead) {
             return;
         }
 
@@ -95,9 +95,7 @@ class World {
                 console.log('Poison bubble hit Endboss!');
                 endboss.hit(20);
                 bubble.markForRemoval = true;
-
-                // Optional: Sound abspielen
-                // this.soundManager.play('endbossHit');
+                this.soundManager.play('bubbleHit');
             }
         });
     }
