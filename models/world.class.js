@@ -45,6 +45,7 @@ class World {
             this.checkCollectablesCollisions();
             this.checkThrowObjects();
             this.checkAttack();
+            this.checkBubbleEnemyCollision();
             this.removeMarkedThrowables();
         }, 50)
     }
@@ -67,6 +68,20 @@ class World {
             }
         });
     }
+
+    checkBubbleEnemyCollision() {
+        this.throwableObjects.forEach((bubble) => {
+            this.level.enemies.forEach((enemy) => {
+                if (enemy instanceof JellyFish || enemy instanceof DangerousJellyFish) {
+                    if (!enemy.isFlyingAway && bubble.isColliding(enemy)) {
+                        enemy.dead();
+                        bubble.markForRemoval = true;
+                    }
+                }
+            });
+        });
+    }
+
 
     /**
     * Checks for collisions between the character and all collectable objects.
@@ -135,7 +150,7 @@ class World {
     checkAttack() {
         if (this.keyboard.SPACE && !this.spaceKeyPressed && !this.character.isAttacking) {
             this.spaceKeyPressed = true;
-            this.character.attack();
+            this.character.finAttack();
         }
 
         if (!this.keyboard.SPACE) {

@@ -132,7 +132,7 @@ class Character extends MovableObject {
     * - Detects and triggers fly-away behavior on any enemy within the attack zone.
     * - Restores the original offset and attack state after a short delay.
     */
-    attack() {
+    finAttack() {
         this.isAttacking = true;
         this.playAnimation(this.IMAGES_FIN_SLAP);
         this.soundManager.play?.('finSlap');
@@ -144,7 +144,7 @@ class Character extends MovableObject {
 
         const hitEnemies = this.world.level.enemies.filter(enemy => !enemy.isFlyingAway && this.isColliding(enemy));
         hitEnemies.forEach(enemy => {
-            enemy.enemyDeathAnimation();
+            enemy.playPufferDeathAnimation();
         });
 
         setTimeout(() => {

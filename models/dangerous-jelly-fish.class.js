@@ -9,6 +9,12 @@ class DangerousJellyFish extends MovableObject {
         'img/enemies/jelly-fish/dangerous/idle/dangerous-jelly-fish-idle-3.png',
         'img/enemies/jelly-fish/dangerous/idle/dangerous-jelly-fish-idle-4.png',
     ];
+    IMAGES_DEAD = [
+        'img/enemies/jelly-fish/dangerous/dead/dangerous-jelly-fish-dead-1.png',
+        'img/enemies/jelly-fish/dangerous/dead/dangerous-jelly-fish-dead-2.png',
+        'img/enemies/jelly-fish/dangerous/dead/dangerous-jelly-fish-dead-3.png',
+        'img/enemies/jelly-fish/dangerous/dead/dangerous-jelly-fish-dead-4.png',
+    ];
     offset = {
         top: -15,
         left: -10,
@@ -19,27 +25,43 @@ class DangerousJellyFish extends MovableObject {
     height = 100;
     width = 100;
     damage = 20;
+    isDead = false;
+    isFlyingAway = false;
 
     constructor(x, y) {
         super().loadImg('img/enemies/jelly-fish/dangerous/idle/dangerous-jelly-fish-idle-1.png');
         this.positionX = x;
         this.positionY = y;
-
         this.loadImgs(this.IMAGES_IDLE);
+        this.loadImgs(this.IMAGES_DEAD);
         this.speed = 0.25 + Math.random() * 2;
         this.animate();
     }
 
     /**
-     * Starts the movement and animation intervals.
-     * Moves the fish up and down.
-     */
+    * Triggers the jellyfish death animation.
+    * Plays the death frames and initiates the fly-away effect.
+    */
+    dead() {
+        this.playJellyDeathAnimation(this.IMAGES_DEAD);
+    }
+
+    /**
+    * Starts the movement and animation intervals.
+    * Moves the fish up and down.
+    */
     animate() {
-        setInterval(() => {
-            this.playAnimation(this.IMAGES_IDLE);
+        this.animationInterval = setInterval(() => {
+            if (this.isDead) {
+                this.playAnimation(this.IMAGES_DEAD);
+            } else {
+                this.playAnimation(this.IMAGES_IDLE);
+            }
         }, 150);
 
-        setInterval(() => {
+        this.movementInterval = setInterval(() => {
+            if (this.isFlyingAway) return;
+
             if (this.movingUp) {
                 this.moveDown();
                 if (this.positionY >= 380) {

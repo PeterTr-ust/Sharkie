@@ -17,18 +17,6 @@ class MovableObject extends DrawableObject {
     lastHit = 0;
 
     /**
-    * Applies gravity by updating vertical position and speed at intervals.
-    */
-    // applyGravity() {
-    //     setInterval(() => {
-    //         if (this.isAboveGround() || this.speedY > 0) {
-    //             this.positionY -= this.speedY;
-    //             this.speedY -= this.acceleration;
-    //         }
-    //     }, 1000 / 25);
-    // }
-
-    /**
     * Checks whether the object is above the ground level.
     * @returns {boolean}
     */
@@ -148,7 +136,7 @@ class MovableObject extends DrawableObject {
     * - Once fully faded or off-screen, marks the enemy for removal.
     * - Overrides the draw method to render rotation and transparency.
     */
-    enemyDeathAnimation() {
+    playPufferDeathAnimation() {
         if (this.isFlyingAway) return;
         this.isFlyingAway = true;
         this.markedForRemoval = false;
@@ -178,6 +166,41 @@ class MovableObject extends DrawableObject {
             ctx.drawImage(this.img, -this.width / 2, -this.height / 2, this.width, this.height);
             ctx.restore();
         };
+    }
+
+    /**
+    * Plays the jellyfish death animation sequence and triggers upward movement.
+    *
+    * - Prevents re-execution if the animation is already running or if no images are provided.
+    * - Iterates through the provided death animation frames at 150ms intervals.
+    * - After the animation completes, moves the jellyfish upward continuously until it exits the screen.
+    * - Marks the object for removal once it has left the visible area.
+    *
+    * @param {string[]} imagesDead - Array of image paths representing the death animation frames.
+    */
+    playJellyDeathAnimation(imagesDead) {
+        if (this.isFlyingAway || !imagesDead?.length) return;
+
+        this.isFlyingAway = true;
+        this.isDead = true;
+        let frameIndex = 0;
+
+        const deadInterval = setInterval(() => {
+            if (frameIndex < imagesDead.length) {
+                this.img = this.imageCache[imagesDead[frameIndex]];
+                frameIndex++;
+            } else {
+                clearInterval(deadInterval);
+
+                const flyInterval = setInterval(() => {
+                    this.positionY -= 5;
+                    if (this.positionY < -100) {
+                        clearInterval(flyInterval);
+                        this.markedForRemoval = true;
+                    }
+                }, 1000 / 60);
+            }
+        }, 150);
     }
 
     /**
