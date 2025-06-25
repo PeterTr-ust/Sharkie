@@ -46,6 +46,7 @@ class World {
             this.checkThrowObjects();
             this.checkAttack();
             this.checkBubbleEnemyCollision();
+            this.checkBubbleEndbossCollision();
             this.removeMarkedThrowables();
         }, 50)
     }
@@ -74,16 +75,30 @@ class World {
             this.level.enemies.forEach((enemy) => {
                 if (enemy instanceof JellyFish || enemy instanceof DangerousJellyFish) {
                     if (!enemy.isFlyingAway && bubble.isColliding(enemy)) {
-                        // Prüfe ob es eine Gift-Bubble ist für mehr Schaden
-                        if (bubble.isPoisoned) {
-                            console.log('Poison bubble hit! Extra damage dealt.');
-                            // Hier könntest du extra Schaden oder Effekte hinzufügen
-                        }
                         enemy.dead();
                         bubble.markForRemoval = true;
                     }
                 }
             });
+        });
+    }
+
+    checkBubbleEndbossCollision() {
+        const endboss = this.level.enemies.find(enemy => enemy instanceof Endboss);
+
+        if (!endboss || endboss.isDead()) {
+            return;
+        }
+
+        this.throwableObjects.forEach((bubble) => {
+            if (bubble.isPoisoned && bubble.isColliding(endboss)) {
+                console.log('Poison bubble hit Endboss!');
+                endboss.hit(20);
+                bubble.markForRemoval = true;
+
+                // Optional: Sound abspielen
+                // this.soundManager.play('endbossHit');
+            }
         });
     }
 
@@ -117,13 +132,13 @@ class World {
             left: 50%;
             transform: translate(-50%, -50%);
             background: rgba(88, 101, 240, 0.9);
-            color: white;
+            color: rgba(92, 241, 102, 0.9);;
             padding: 20px;
             border-radius: 10px;
             font-size: 24px;
-            font-weight: bold;
+            font-weight: 100;
             z-index: 1000;
-            animation: fadeInOut 3s ease-in-out;
+            animation: fadeInOut 4s ease-in-out;
         `;
 
         document.body.appendChild(notification);
