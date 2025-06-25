@@ -72,6 +72,16 @@ class Character extends MovableObject {
         'img/character/attacks/bubble/bubble-attack-7.png',
         'img/character/attacks/bubble/bubble-attack-8.png',
     ];
+    IMAGES_POISON_BUBBLE_ATTACK = [
+        'img/character/attacks/bubble/poison-bubble-attack-1.png',
+        'img/character/attacks/bubble/poison-bubble-attack-2.png',
+        'img/character/attacks/bubble/poison-bubble-attack-3.png',
+        'img/character/attacks/bubble/poison-bubble-attack-4.png',
+        'img/character/attacks/bubble/poison-bubble-attack-5.png',
+        'img/character/attacks/bubble/poison-bubble-attack-6.png',
+        'img/character/attacks/bubble/poison-bubble-attack-7.png',
+        'img/character/attacks/bubble/poison-bubble-attack-8.png',
+    ];
     IMAGES_DEAD = [
         'img/character/dead/1.png',
         'img/character/dead/2.png',
@@ -108,6 +118,8 @@ class Character extends MovableObject {
         bottom: -50
     };
     isAttacking = false;
+    poisonBottlesCollected = 0;
+    maxPoisonBottles = 5;
 
     constructor(soundManager) {
         super().loadImg('img/character/idle/1.png');
@@ -116,6 +128,7 @@ class Character extends MovableObject {
         this.loadImgs(this.IMAGES_SWIM);
         this.loadImgs(this.IMAGES_FIN_SLAP);
         this.loadImgs(this.IMAGES_BUBBLE_ATTACK);
+        this.loadImgs(this.IMAGES_POISON_BUBBLE_ATTACK);
         this.loadImgs(this.IMAGES_DEAD);
         this.loadImgs(this.IMAGES_HURT_BY_PUFFERFISH);
         this.loadImgs(this.IMAGES_HURT_BY_JELLYFISH);
@@ -154,15 +167,38 @@ class Character extends MovableObject {
     }
 
     /**
+     * Überprüft, ob alle Poison Bottles gesammelt wurden
+     * @returns {boolean} True wenn alle 5 Poison Bottles gesammelt wurden
+     */
+    hasAllPoisonBottles() {
+        return this.poisonBottlesCollected >= this.maxPoisonBottles;
+    }
+
+    /**
+     * Erhöht den Counter für gesammelte Poison Bottles
+     */
+    collectPoisonBottle() {
+        if (this.poisonBottlesCollected < this.maxPoisonBottles) {
+            this.poisonBottlesCollected++;
+            this.soundManager.play?.('collectPoison');
+        }
+    }
+
+    /**
     * Performs the bubble attack animation and spawns a bubble after animation delay.
     * @param {Function} onComplete - Callback to execute after animation finishes.
     */
     bubbleAttack(onComplete) {
         this.isAttacking = true;
-        this.playAnimation(this.IMAGES_BUBBLE_ATTACK);
+
+        const animationImages = this.hasAllPoisonBottles()
+            ? this.IMAGES_POISON_BUBBLE_ATTACK
+            : this.IMAGES_BUBBLE_ATTACK;
+
+        this.playAnimation(animationImages);
         this.soundManager.play?.('bubbleAttack');
 
-        const totalDuration = this.IMAGES_BUBBLE_ATTACK.length * 100;
+        const totalDuration = animationImages.length * 100;
         const bubbleSpawnTime = totalDuration * 0.2;
 
         setTimeout(() => {

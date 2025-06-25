@@ -74,6 +74,11 @@ class World {
             this.level.enemies.forEach((enemy) => {
                 if (enemy instanceof JellyFish || enemy instanceof DangerousJellyFish) {
                     if (!enemy.isFlyingAway && bubble.isColliding(enemy)) {
+                        // Prüfe ob es eine Gift-Bubble ist für mehr Schaden
+                        if (bubble.isPoisoned) {
+                            console.log('Poison bubble hit! Extra damage dealt.');
+                            // Hier könntest du extra Schaden oder Effekte hinzufügen
+                        }
                         enemy.dead();
                         bubble.markForRemoval = true;
                     }
@@ -82,14 +87,50 @@ class World {
         });
     }
 
-
     /**
     * Checks for collisions between the character and all collectable objects.
     * Handles collection of coins and poison items.
     */
     checkCollectablesCollisions() {
         this.checkCollection(this.level.coins, 'collectedCoin', this.coinBar.addCoin.bind(this.coinBar));
-        this.checkCollection(this.level.poisonBottles, 'collectedPoison', this.poisonBar.addPoison.bind(this.poisonBar));
+        this.checkCollection(this.level.poisonBottles, 'collectedPoison', () => {
+            this.handlePoisonCollection();
+        });
+    }
+
+    handlePoisonCollection() {
+        this.character.collectPoisonBottle();
+        this.poisonBar.addPoison();
+
+        if (this.character.hasAllPoisonBottles()) {
+            this.soundManager.play?.('allPoisenCollected');
+            this.showPowerUpNotification();
+        }
+    }
+
+    showPowerUpNotification() {
+        const notification = document.createElement('div');
+        notification.textContent = 'POISON BUBBLES UNLOCKED!';
+        notification.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(88, 101, 240, 0.9);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            font-size: 24px;
+            font-weight: bold;
+            z-index: 1000;
+            animation: fadeInOut 3s ease-in-out;
+        `;
+
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            document.body.removeChild(notification);
+        }, 3000);
     }
 
     /**
@@ -134,7 +175,8 @@ class World {
                 const bubble = new ThrowableObject(
                     this.character.positionX + offsetX,
                     this.character.positionY + offsetY,
-                    directionRight
+                    directionRight,
+                    this.character
                 );
                 this.throwableObjects.push(bubble);
             });
