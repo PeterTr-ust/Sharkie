@@ -6,10 +6,13 @@ class ThrowableObject extends MovableObject {
     height = 70;
     width = 70;
 
-    constructor(positionX, positionY) {
+    constructor(positionX, positionY, directionRight) {
         super().loadImg('img/character/attacks/bubble/bubble.png');
         this.positionX = positionX;
         this.positionY = positionY;
+        this.directionRight = directionRight;
+        this.startX = positionX; 
+        this.maxDistance = 400;
         this.throw();
     }
 
@@ -18,10 +21,14 @@ class ThrowableObject extends MovableObject {
      * Moves it to the right at a fixed interval.
      */
     throw() {
-        this.positionX = positionX;
-        this.positionY = positionY;
-        setInterval( () => {
-            this.positionX += 4;
-        }, 10)
+        this.throwInterval = setInterval(() => {
+            this.positionX += this.directionRight ? 4 : -4;
+
+            const distance = Math.abs(this.positionX - this.startX);
+            if (distance >= this.maxDistance) {
+                clearInterval(this.throwInterval);
+                this.markForRemoval = true;
+            }
+        }, 16);
     }
 }

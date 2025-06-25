@@ -6,6 +6,7 @@ class SoundManager {
             collectedPoison: new Audio('audio/collect-poison.mp3'),
             snoring: new Audio('audio/snoring.mp3'),
             finSlap: new Audio('audio/hit.mp3'),
+            bubbleAttack: new Audio('audio/bubble.mp3'),
             
         };
 

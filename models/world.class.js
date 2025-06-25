@@ -15,6 +15,8 @@ class World {
     poisonBar = new PoisonBar();
     throwableObjects = [];
     spaceKeyPressed = false;
+    lastBubbleTime = 0;
+    bubbleCooldown = 1000;
 
     constructor(canvas, keyboard) {
         this.ctx = canvas.getContext('2d');
@@ -43,6 +45,7 @@ class World {
             this.checkCollectablesCollisions();
             this.checkThrowObjects();
             this.checkAttack();
+            this.removeMarkedThrowables();
         }, 50)
     }
 
@@ -96,14 +99,33 @@ class World {
     }
 
     /**
+    * Removes all throwable objects that have been marked for removal
+    * (e.g., due to exceeding the maximum allowed distance).
+    */
+    removeMarkedThrowables() {
+        this.throwableObjects = this.throwableObjects.filter(obj => !obj.markForRemoval);
+    }
+
+    /**
      * Checks if the player pressed the 'D' key and throws a bubble if so.
      */
     checkThrowObjects() {
-        if (this.keyboard.D) {
-            let bubble = new ThrowableObject(this.character.positionX, this.character.positionY);
-            this.throwableObjects.push(bubble);
+        if (this.keyboard.D && !this.character.isAttacking) {
+            let directionRight = !this.character.otherDirection;
+            const offsetX = directionRight ? 120 : -10;
+            const offsetY = 90;
+
+            this.character.bubbleAttack(() => {
+                const bubble = new ThrowableObject(
+                    this.character.positionX + offsetX,
+                    this.character.positionY + offsetY,
+                    directionRight
+                );
+                this.throwableObjects.push(bubble);
+            });
         }
     }
+
 
     /**
     * Checks if the SPACE key was pressed to initiate an attack.

@@ -62,6 +62,16 @@ class Character extends MovableObject {
         'img/character/attacks/fin-slap/fin-slap-7.png',
         'img/character/attacks/fin-slap/fin-slap-8.png',
     ];
+    IMAGES_BUBBLE_ATTACK = [
+        'img/character/attacks/bubble/bubble-attack-1.png',
+        'img/character/attacks/bubble/bubble-attack-2.png',
+        'img/character/attacks/bubble/bubble-attack-3.png',
+        'img/character/attacks/bubble/bubble-attack-4.png',
+        'img/character/attacks/bubble/bubble-attack-5.png',
+        'img/character/attacks/bubble/bubble-attack-6.png',
+        'img/character/attacks/bubble/bubble-attack-7.png',
+        'img/character/attacks/bubble/bubble-attack-8.png',
+    ];
     IMAGES_DEAD = [
         'img/character/dead/1.png',
         'img/character/dead/2.png',
@@ -105,6 +115,7 @@ class Character extends MovableObject {
         this.loadImgs(this.IMAGES_INACTIVE);
         this.loadImgs(this.IMAGES_SWIM);
         this.loadImgs(this.IMAGES_FIN_SLAP);
+        this.loadImgs(this.IMAGES_BUBBLE_ATTACK);
         this.loadImgs(this.IMAGES_DEAD);
         this.loadImgs(this.IMAGES_HURT_BY_PUFFERFISH);
         this.loadImgs(this.IMAGES_HURT_BY_JELLYFISH);
@@ -140,6 +151,29 @@ class Character extends MovableObject {
             this.offset = originalOffset;
             this.isAttacking = false;
         }, 150);
+    }
+
+    /**
+    * Performs the bubble attack animation and spawns a bubble after animation delay.
+    * @param {Function} onComplete - Callback to execute after animation finishes.
+    */
+    bubbleAttack(onComplete) {
+        this.isAttacking = true;
+        this.playAnimation(this.IMAGES_BUBBLE_ATTACK);
+        this.soundManager.play?.('bubbleAttack');
+
+        const totalDuration = this.IMAGES_BUBBLE_ATTACK.length * 100;
+        const bubbleSpawnTime = totalDuration * 0.2;
+
+        setTimeout(() => {
+            if (typeof onComplete === 'function') {
+                onComplete();
+            }
+        }, bubbleSpawnTime);
+
+        setTimeout(() => {
+            this.isAttacking = false;
+        }, totalDuration);
     }
 
     /**
