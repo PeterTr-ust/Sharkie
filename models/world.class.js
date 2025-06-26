@@ -17,6 +17,8 @@ class World {
     spaceKeyPressed = false;
     lastBubbleTime = 0;
     bubbleCooldown = 1000;
+    _endScreenTriggered = false;
+    _pendingEndScreen = null;
 
     constructor(canvas, keyboard) {
         this.ctx = canvas.getContext('2d');
@@ -260,10 +262,21 @@ class World {
         this.drawCollectableCounter(this.poisonBar, 550, 41);
         this.ctx.translate(this.cameraX, 0);
         this.ctx.translate(-this.cameraX, 0);
-        let self = this;
-        requestAnimationFrame(function () {
-            self.draw();
-        });
+        // Check for end conditions before drawing next frame
+        const endboss = this.level.enemies.find(enemy => enemy instanceof Endboss);
+        if (!this._endScreenTriggered) {
+            if (!this._pendingEndScreen) {
+                if (this.character.isDead()) {
+                    this.triggerEndScreen(false, this.coinBar.collected);
+                } else if (endboss && endboss.isDead) {
+                    this.triggerEndScreen(true, this.coinBar.collected);
+                }
+            }
+            let self = this;
+            requestAnimationFrame(function () {
+                self.draw();
+            });
+        }
     };
 
     /**
@@ -312,5 +325,14 @@ class World {
     flipImageBack(objectToAdd) {
         objectToAdd.positionX = objectToAdd.positionX * -1;
         this.ctx.restore();
+    }
+
+    triggerEndScreen(win, coins) {
+        if (this._endScreenTriggered || this._pendingEndScreen) return;
+        this._pendingEndScreen = setTimeout(() => {
+            showEndScreen({ win, coins });
+            this._endScreenTriggered = true;
+            this._pendingEndScreen = null;
+        }, win ? 4750 : 4000); // 750ms for animation + 4s delay for win, 4s for lose
     }
 }

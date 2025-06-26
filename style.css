@@ -64,6 +64,50 @@ canvas {
     transform: scale(1.1);
 }
 
+#end-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+#end-screen-content {
+    background: rgba(255,255,255,0.95);
+    border-radius: 20px;
+    padding: 40px 30px;
+    text-align: center;
+    box-shadow: 0 0 30px rgba(0,0,0,0.7);
+    min-width: 320px;
+}
+#end-screen-title {
+    font-size: 2.5em;
+    margin: 0 0 10px 0;
+    color: #2a7bbd;
+    font-family: 'Modak', sans-serif;
+}
+#end-screen-coins {
+    font-size: 1.3em;
+    margin-bottom: 20px;
+    color: #333;
+}
+#end-screen-restart {
+    font-size: 1.2em;
+    padding: 10px 30px;
+    border: none;
+    border-radius: 8px;
+    background: #2a7bbd;
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+#end-screen-restart:hover {
+    background: #1a4e7a;
+}
 
 @media only screen and (max-width: 760px) {
     canvas {
