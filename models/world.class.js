@@ -207,8 +207,6 @@ class World {
         }
     }
 
-
-
     /**
     * Checks if the SPACE key was pressed to initiate an attack.
     * Ensures the attack is triggered only once per key press.
