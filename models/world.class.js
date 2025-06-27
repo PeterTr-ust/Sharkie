@@ -85,20 +85,24 @@ class World {
 
     checkBubbleEndbossCollision() {
         const endboss = this.level.enemies.find(enemy => enemy instanceof Endboss);
+        if (!endboss || endboss.isDead()) return;
 
-        if (!endboss || endboss.isDead) {
-            return;
-        }
+        this.throwableObjects.forEach((bubble, index) => {
+            if (bubble.isPoisoned) {
+                console.log(`Poisoned bubble ${index} checking collision...`);
+                console.log('Bubble position:', bubble.positionX, bubble.positionY);
+                console.log('Endboss position:', endboss.positionX, endboss.positionY);
 
-        this.throwableObjects.forEach((bubble) => {
-            if (bubble.isPoisoned && bubble.isColliding(endboss)) {
-                console.log('Poison bubble hit Endboss!');
-                endboss.hit(20);
-                bubble.markForRemoval = true;
-                this.soundManager.play('bubbleHit');
+                if (bubble.isColliding(endboss)) {
+                    console.log('🔥 HIT DETECTED!');
+                    endboss.hit(20);
+                    bubble.markForRemoval = true;
+                    this.soundManager.play('bubbleHit');
+                }
             }
         });
     }
+
 
     /**
     * Checks for collisions between the character and all collectable objects.
@@ -185,16 +189,24 @@ class World {
             const offsetY = 90;
 
             this.character.bubbleAttack(() => {
+                const hasAllPoison = this.character.hasAllPoisonBottles();
+                console.log('🔫 Creating bubble:');
+                console.log('  - Character has all poison bottles:', hasAllPoison);
+                console.log('  - Bubble will be poisoned:', hasAllPoison);
+
                 const bubble = new ThrowableObject(
                     this.character.positionX + offsetX,
                     this.character.positionY + offsetY,
-                    directionRight,
-                    this.character
+                    this.character.otherDirection !== true,
+                    hasAllPoison
                 );
+
+                console.log('  - Created bubble isPoisoned:', bubble.isPoisoned);
                 this.throwableObjects.push(bubble);
             });
         }
     }
+
 
 
     /**

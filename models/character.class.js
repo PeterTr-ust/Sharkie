@@ -120,6 +120,7 @@ class Character extends MovableObject {
     isAttacking = false;
     poisonBottlesCollected = 0;
     maxPoisonBottles = 5;
+    finalDeadImage = 'img/character/dead/8.png';
 
     constructor(soundManager) {
         super().loadImg('img/character/idle/1.png');
@@ -292,6 +293,9 @@ class Character extends MovableObject {
     handleAnimations() {
         const kb = this.world?.keyboard;
 
+        if (this.hasDied) {
+            return;
+        }
         if (this.isDead()) {
             this.playAnimation(this.IMAGES_DEAD);
         } else if (this.isHurt()) {

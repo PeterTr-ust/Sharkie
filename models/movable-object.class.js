@@ -15,6 +15,8 @@ class MovableObject extends DrawableObject {
     };
     energy = 100;
     lastHit = 0;
+    floatingInterval;
+    hasDied = false;
 
     /**
     * Checks whether the object is above the ground level.
@@ -139,6 +141,7 @@ class MovableObject extends DrawableObject {
         this.energy -= damage;
         if (this.energy < 0) {
             this.energy = 0;
+            this.die();
         } else {
             this.lastHit = Date.now();
         }
@@ -261,5 +264,37 @@ class MovableObject extends DrawableObject {
         let timePassed = new Date().getTime() - this.lastHit
         timePassed = timePassed / 1000;
         return timePassed < 1;
+    }
+
+    /**
+     * Triggers the death animation and floating logic.
+     * Subclasses must set this.IMAGES_DEAD and this.finalDeadImage.
+     */
+    die() {
+        if (this.hasDied) return;
+        this.hasDied = true;
+
+        this.energy = 0;
+        this.playAnimationOnce(this.IMAGES_DEAD, () => {
+            if (this.finalDeadImage) {
+                this.loadImg(this.finalDeadImage);
+            }
+            this.startFloating();
+        });
+    }
+
+    /**
+     * Makes the object float up and down smoothly after death.
+     */
+    startFloating() {
+        const amplitude = 10;
+        const frequency = 0.05;
+        const baseY = this.positionY;
+        let time = 0;
+
+        this.floatingInterval = setInterval(() => {
+            this.positionY = baseY + Math.sin(time) * amplitude;
+            time += frequency;
+        }, 30);
     }
 }

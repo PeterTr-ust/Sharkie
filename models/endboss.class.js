@@ -72,7 +72,7 @@ class Endboss extends MovableObject {
         bottom: -80
     };
     damage = 40;
-    isDead = false;
+    finalDeadImage = 'img/endboss/dead/endboss-dead-5.png';
 
     constructor() {
         super().loadImg('');
@@ -103,7 +103,7 @@ class Endboss extends MovableObject {
      * and triggering the return phase after 2 seconds.
      */
     startAttack() {
-        if (this.isDead) return;
+        if (this.isDead()) return;
         world.soundManager.playLoop('endbossBite');
         this.isAttacking = true;
         this.lastAttackTime = Date.now();
@@ -120,7 +120,7 @@ class Endboss extends MovableObject {
      * then stops the return behavior.
      */
     startReturn() {
-        if (this.isDead) return;
+        if (this.isDead()) return;
         world.soundManager.stop('endbossBite');
         this.isReturning = true;
 
@@ -140,7 +140,7 @@ class Endboss extends MovableObject {
      * @param {number} damage - The amount of damage to inflict.
     */
     hit(damage) {
-        if (this.isDead) return;
+        if (this.isDead()) return;
         if (this.energy > 0) {
             this.energy -= damage;
             this.playAnimation(this.IMAGES_HURT);
@@ -154,36 +154,6 @@ class Endboss extends MovableObject {
     }
 
     /**
-     * Triggers the death animation sequence once and then sets
-     * the Endboss to a final floating state with a static image.
-     */
-    die() {
-        if (this.isDead) return;
-        this.isDead = true;
-
-        this.playAnimationOnce(this.IMAGES_DEAD, () => {
-            this.loadImg('img/endboss/dead/endboss-dead-5.png');
-            this.startFloating();
-        });
-    }
-
-    /**
-     * Causes the Endboss to float smoothly up and down after death
-     * in a looping sinusoidal motion for visual effect.
-     */
-    startFloating() {
-        const amplitude = 10;
-        const frequency = 0.05;
-        const baseY = this.positionY;
-        let time = 0;
-
-        setInterval(() => {
-            this.positionY = baseY + Math.sin(time) * amplitude;
-            time += frequency;
-        }, 30);
-    }
-
-    /**
      * Controls the animation and interaction with the player.
      */
     animate() {
@@ -191,7 +161,7 @@ class Endboss extends MovableObject {
         let deadAnimationPlayed = false;
 
         const animationInterval = setInterval(() => {
-            if (this.isDead) {
+            if (this.isDead()) {
                 if (!deadAnimationPlayed) {
                     this.playAnimation(this.IMAGES_DEAD);
                     deadAnimationPlayed = true;

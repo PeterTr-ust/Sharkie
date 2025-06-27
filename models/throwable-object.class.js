@@ -6,18 +6,19 @@ class ThrowableObject extends MovableObject {
     height = 70;
     width = 70;
 
-    constructor(positionX, positionY, directionRight, character) {
-        const bubbleImage = character && character.hasAllPoisonBottles()
+    constructor(positionX, positionY, directionRight, isPoisoned) {
+        const bubbleImage = isPoisoned
             ? 'img/character/attacks/bubble/poisoned-bubble.png'
             : 'img/character/attacks/bubble/bubble.png';
 
-        super().loadImg(bubbleImage);
+        super();
+        this.loadImg(bubbleImage);
         this.positionX = positionX;
         this.positionY = positionY;
         this.directionRight = directionRight;
         this.startX = positionX;
         this.maxDistance = 400;
-        this.isPoisoned = character && character.hasAllPoisonBottles();
+        this.isPoisoned = isPoisoned;
         this.throw();
     }
 
