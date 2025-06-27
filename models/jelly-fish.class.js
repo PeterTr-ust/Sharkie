@@ -24,7 +24,7 @@ class JellyFish extends MovableObject {
     movingUp = true;
     height = 80;
     width = 80;
-    damage = 5;
+    damage = 10;
     isDead = false;
 
     constructor(x, y) {

@@ -21,7 +21,7 @@ class PufferFish extends MovableObject {
         'img/enemies/puffer-fish/idle/puffer-fish-idle-19.png',
         'img/enemies/puffer-fish/idle/puffer-fish-idle-20.png',
     ];
-    damage = 5;
+    damage = 10;
     currentImage = 0;
     direction = 'left';
 

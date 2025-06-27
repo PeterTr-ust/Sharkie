@@ -107,18 +107,40 @@ class MovableObject extends DrawableObject {
             width: this.width + o.left + o.right,
             height: this.height + o.top + o.bottom
         };
-    } 0
+    }
 
     /**
-    * Applies damage to the object, updates the hit timestamp,
-    * and remembers the enemy that caused the hit.
+    * Determines whether the object is currently able to take damage.
+    * The object becomes temporarily invulnerable after being hit,
+    * based on the duration of the hurt animation.
+    *
+    * @returns {boolean} True if the object can take damage, otherwise false.
     */
+    canTakeDamage() {
+        const now = Date.now();
+        const timeSinceLastHit = now - (this.lastHit || 0);
+        const hurtAnimationDuration = 2000;
+
+        return timeSinceLastHit > hurtAnimationDuration;
+    }
+
+    /**
+     * Applies damage to the object. If damage is taken, the object's energy is reduced,
+     * the time of the hit is recorded, and the source of the damage (enemy) is remembered.
+     *
+     * @param {number} damage - The amount of damage to apply.
+     * @param {Object|null} enemy - The enemy object responsible for the hit (optional).
+     */
     hit(damage, enemy = null) {
+        if (!this.canTakeDamage()) return;
+
+        console.log('Enemy:', enemy, 'Damage:', enemy?.damage);
+
         this.energy -= damage;
         if (this.energy < 0) {
             this.energy = 0;
         } else {
-            this.lastHit = new Date().getTime();
+            this.lastHit = Date.now();
         }
 
         if (enemy) {
@@ -228,7 +250,7 @@ class MovableObject extends DrawableObject {
      * @returns {boolean}
      */
     isDead() {
-        return this.energy == 0;
+        return this.energy <= 0;
     }
 
     /**

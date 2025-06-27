@@ -71,6 +71,7 @@ class Endboss extends MovableObject {
         right: -40,
         bottom: -80
     };
+    damage = 40;
     isDead = false;
 
     constructor() {
