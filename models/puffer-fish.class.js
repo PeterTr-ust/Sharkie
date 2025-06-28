@@ -24,6 +24,10 @@ class PufferFish extends MovableObject {
     damage = 10;
     currentImage = 0;
     direction = 'left';
+    
+    // Animation-Kontrolle
+    animationIntervals = [];
+    animationsPaused = true; // Startet pausiert
 
     constructor() {
         super().loadImg('img/enemies/puffer-fish/idle/puffer-fish-idle-1.png');
@@ -32,7 +36,9 @@ class PufferFish extends MovableObject {
         this.loadImgs(this.IMAGES_IDLE);
         this.speed = 0.15 + Math.random() * 0.25;
         this.setDefaultOffset();
-        this.animate();
+        
+        // WICHTIG: animate() wird NICHT hier aufgerufen!
+        // this.animate(); // <- Entfernt!
     }
 
     /**
@@ -87,14 +93,46 @@ class PufferFish extends MovableObject {
      * Animates movement and sprite cycling.
      */
     animate() {
-        setInterval(() => {
+        if (this.animationsPaused) return; // Nicht starten wenn pausiert
+        
+        // Bewegungs-Interval
+        let movementInterval = setInterval(() => {
+            if (this.animationsPaused) return; // Check in jedem Frame
+            
             this.updateDirection();
             this.move();
         }, 1000 / 60);
+        
+        this.animationIntervals.push(movementInterval);
 
-        setInterval(() => {
+        // Sprite-Animation-Interval
+        let spriteInterval = setInterval(() => {
+            if (this.animationsPaused) return; // Check in jedem Frame
+            
             this.playAnimation(this.IMAGES_IDLE);
         }, 150);
+        
+        this.animationIntervals.push(spriteInterval);
+    }
+
+    /**
+     * Pausiert alle Animationen
+     */
+    pauseAnimations() {
+        this.animationsPaused = true;
+        // Optional: Intervals komplett stoppen (nicht unbedingt nötig)
+        // this.animationIntervals.forEach(interval => clearInterval(interval));
+        // this.animationIntervals = [];
+    }
+
+    /**
+     * Startet alle Animationen wieder
+     */
+    resumeAnimations() {
+        this.animationsPaused = false;
+        if (this.animationIntervals.length === 0) {
+            this.animate(); // Starte Animationen wenn noch nicht gestartet
+        }
     }
 
     /**

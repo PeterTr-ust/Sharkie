@@ -17,6 +17,7 @@ class World {
     spaceKeyPressed = false;
     lastBubbleTime = 0;
     bubbleCooldown = 1000;
+    gameRunning = false;
 
     constructor(canvas, keyboard) {
         this.ctx = canvas.getContext('2d');
@@ -24,8 +25,56 @@ class World {
         this.keyboard = keyboard;
         this.soundManager = soundManager;
         this.character = new Character(this.soundManager);
-        this.draw();
         this.setWorld();
+        this.pauseAllAnimations();
+    }
+
+    pauseAllAnimations() {
+        // Pausiere Character-Animationen
+        if (this.character && this.character.pauseAnimations) {
+            this.character.pauseAnimations();
+        }
+
+        // Pausiere alle Enemy-Animationen
+        this.level.enemies.forEach(enemy => {
+            if (enemy.pauseAnimations) {
+                enemy.pauseAnimations();
+            }
+        });
+
+        // Pausiere alle anderen animierten Objekte
+        [...this.level.coins, ...this.level.poisonBottles, ...this.level.lights].forEach(obj => {
+            if (obj.pauseAnimations) {
+                obj.pauseAnimations();
+            }
+        });
+    }
+
+    resumeAllAnimations() {
+        // Starte Character-Animationen
+        if (this.character && this.character.resumeAnimations) {
+            this.character.resumeAnimations();
+        }
+
+        // Starte alle Enemy-Animationen
+        this.level.enemies.forEach(enemy => {
+            if (enemy.resumeAnimations) {
+                enemy.resumeAnimations();
+            }
+        });
+
+        // Starte alle anderen animierten Objekte
+        [...this.level.coins, ...this.level.poisonBottles, ...this.level.lights].forEach(obj => {
+            if (obj.resumeAnimations) {
+                obj.resumeAnimations();
+            }
+        });
+    }
+
+    start() {
+        this.gameRunning = true;
+        this.resumeAllAnimations(); // Starte alle Animationen
+        this.draw();
         this.run();
     }
 
@@ -41,6 +90,8 @@ class World {
      */
     run() {
         setInterval(() => {
+            if (!this.gameRunning) return;
+            
             this.checkEnemyCollisions();
             this.checkCollectablesCollisions();
             this.checkThrowObjects();

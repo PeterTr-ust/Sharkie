@@ -169,7 +169,7 @@ class Endboss extends MovableObject {
                 return;
             }
 
-            if (world.character.positionX > 1250 && !this.hadFirstContact) {
+            if (world?.character.positionX > 1250 && !this.hadFirstContact) {
                 i = 0;
                 this.hadFirstContact = true;
             }
