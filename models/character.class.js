@@ -295,9 +295,6 @@ class Character extends MovableObject {
 
         if (this.hasDied) {
             return;
-        }
-        if (this.isDead()) {
-            this.playAnimation(this.IMAGES_DEAD);
         } else if (this.isHurt()) {
             this.inactivity.resetInactivityTimer();
             const enemy = this.lastHitByEnemy;
