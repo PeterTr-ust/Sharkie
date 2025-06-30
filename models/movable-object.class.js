@@ -17,6 +17,8 @@ class MovableObject extends DrawableObject {
     lastHit = 0;
     floatingInterval;
     hasDied = false;
+    animationIntervals = [];
+    animationsPaused = true;
 
     /**
     * Checks whether the object is above the ground level.
@@ -296,5 +298,41 @@ class MovableObject extends DrawableObject {
             this.positionY = baseY + Math.sin(time) * amplitude;
             time += frequency;
         }, 30);
+    }
+
+    /**
+    * Pausiert alle Animationen für dieses Objekt
+    */
+    pauseAnimations() {
+        this.animationsPaused = true;
+        // Optional: Intervals komplett stoppen (nicht unbedingt nötig)
+        // this.animationIntervals.forEach(interval => clearInterval(interval));
+        // this.animationIntervals = [];
+    }
+
+    /**
+     * Startet alle Animationen wieder für dieses Objekt
+     */
+    resumeAnimations() {
+        this.animationsPaused = false;
+        if (this.animationIntervals.length === 0) {
+            this.animate(); // Starte Animationen wenn noch nicht gestartet
+        }
+    }
+
+    /**
+     * Hilfsmethode um Intervals zu verwalten
+     * @param {Function} callback - Die Funktion die ausgeführt werden soll
+     * @param {number} delay - Delay in Millisekunden
+     * @returns {number} Interval ID
+     */
+    createAnimationInterval(callback, delay) {
+        const interval = setInterval(() => {
+            if (this.animationsPaused) return; // Check in jedem Frame
+            callback();
+        }, delay);
+
+        this.animationIntervals.push(interval);
+        return interval;
     }
 }

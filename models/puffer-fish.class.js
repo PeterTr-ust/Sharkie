@@ -24,7 +24,7 @@ class PufferFish extends MovableObject {
     damage = 10;
     currentImage = 0;
     direction = 'left';
-    
+
     // Animation-Kontrolle
     animationIntervals = [];
     animationsPaused = true; // Startet pausiert
@@ -36,7 +36,7 @@ class PufferFish extends MovableObject {
         this.loadImgs(this.IMAGES_IDLE);
         this.speed = 0.15 + Math.random() * 0.25;
         this.setDefaultOffset();
-        
+
         // WICHTIG: animate() wird NICHT hier aufgerufen!
         // this.animate(); // <- Entfernt!
     }
@@ -94,45 +94,17 @@ class PufferFish extends MovableObject {
      */
     animate() {
         if (this.animationsPaused) return; // Nicht starten wenn pausiert
-        
-        // Bewegungs-Interval
-        let movementInterval = setInterval(() => {
-            if (this.animationsPaused) return; // Check in jedem Frame
-            
+
+        // Bewegungs-Interval mit Hilfsmethode
+        this.createAnimationInterval(() => {
             this.updateDirection();
             this.move();
         }, 1000 / 60);
-        
-        this.animationIntervals.push(movementInterval);
 
-        // Sprite-Animation-Interval
-        let spriteInterval = setInterval(() => {
-            if (this.animationsPaused) return; // Check in jedem Frame
-            
+        // Sprite-Animation-Interval mit Hilfsmethode
+        this.createAnimationInterval(() => {
             this.playAnimation(this.IMAGES_IDLE);
         }, 150);
-        
-        this.animationIntervals.push(spriteInterval);
-    }
-
-    /**
-     * Pausiert alle Animationen
-     */
-    pauseAnimations() {
-        this.animationsPaused = true;
-        // Optional: Intervals komplett stoppen (nicht unbedingt nötig)
-        // this.animationIntervals.forEach(interval => clearInterval(interval));
-        // this.animationIntervals = [];
-    }
-
-    /**
-     * Startet alle Animationen wieder
-     */
-    resumeAnimations() {
-        this.animationsPaused = false;
-        if (this.animationIntervals.length === 0) {
-            this.animate(); // Starte Animationen wenn noch nicht gestartet
-        }
     }
 
     /**

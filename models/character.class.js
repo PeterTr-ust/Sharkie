@@ -237,13 +237,13 @@ class Character extends MovableObject {
     * Initializes main game loops for movement/audio and animation updates.
     */
     animate() {
-        setInterval(() => {
+        this.createAnimationInterval(() => {
             this.handleMovementAndSounds();
-        }, 1000 / 60);
+        }, 1000 / 60); // 60 FPS für Bewegung & Sound
 
-        setInterval(() => {
+        this.createAnimationInterval(() => {
             this.handleAnimations();
-        }, 150);
+        }, 150); // Standard-Animationsrate
     }
 
     /**
