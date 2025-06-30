@@ -25,7 +25,7 @@ body::before {
     content: "";
     position: absolute;
     inset: 0;
-    background-image: url('img/background.jpg');
+    background-color: #4B0082;
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -42,10 +42,26 @@ h1 {
     line-height: normal;
 }
 
+@keyframes flip-logo {
+    0% {
+        transform: scaleX(1);
+    }
+
+    50% {
+        transform: scaleX(-1);
+    }
+
+    100% {
+        transform: scaleX(1);
+    }
+}
+
 .logo {
     height: 256px;
     width: auto;
+    animation: flip-logo 6s infinite ease-in-out;
 }
+
 
 canvas {
     display: block;
@@ -78,7 +94,7 @@ canvas {
     position: absolute;
     width: 100%;
     height: 100%;
-    background: url('img/backgrounds/startscreen.jpg') center center / cover no-repeat;
+    background-color: #4B0082;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -109,10 +125,9 @@ canvas {
     align-items: center;
     margin: 4px 0 32px 0;
     gap: 15px;
-    background-color: #475573;
     padding: 20px;
     border-radius: 12px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
 }
 
 .control-group {
@@ -130,6 +145,13 @@ canvas {
     height: 30px;
 }
 
+#explanation-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
 .explanation-text {
     background-color: #4B0082;
     color: #73fcd6;
@@ -145,14 +167,14 @@ canvas {
     height: 24px;
 }
 
-.custom-play-button {
+.custom-button {
     font-family: 'Luckiest Guy', cursive;
     font-size: 36px;
     background-color: #73fcd6;
     color: #4B0082;
     border: 3px solid white;
     border-radius: 20px;
-    padding: 8px 45px;
+    padding: 8px 50px;
     cursor: pointer;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     transition: transform 0.2s ease;
