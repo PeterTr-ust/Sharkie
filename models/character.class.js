@@ -158,8 +158,11 @@ class Character extends MovableObject {
 
         const hitEnemies = this.world.level.enemies.filter(enemy => !enemy.isFlyingAway && this.isColliding(enemy));
         hitEnemies.forEach(enemy => {
-            enemy.playPufferDeathAnimation();
+            if (enemy instanceof PufferFish) {
+                enemy.playPufferDeathAnimation();
+            }
         });
+
 
         setTimeout(() => {
             this.offset = originalOffset;
