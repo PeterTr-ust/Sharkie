@@ -9,6 +9,14 @@
     display: none !important;
 }
 
+button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    z-index: 100;
+}
+
 body {
     margin: 0;
     padding: 0;
@@ -62,11 +70,14 @@ h1 {
     animation: flip-logo 6s infinite ease-in-out;
 }
 
-
 canvas {
     display: block;
+    width: 100%;
+    height: 100%;
     box-shadow: 0 0 30px rgba(0, 0, 0, 0.6);
     border-radius: 10px;
+    margin: 0 auto;
+    background-color: black;
 }
 
 #canvas-wrapper {
@@ -76,14 +87,14 @@ canvas {
 }
 
 #fullscreen-icon {
-    position: absolute;
-    bottom: 5px;
-    right: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    transition: transform 0.3s ease;
+    z-index: 100;
     width: 24px;
     height: 24px;
-    cursor: pointer;
-    transition: transform 0.3s ease;
-    z-index: 2;
 }
 
 #fullscreen-icon:hover {
@@ -185,20 +196,9 @@ canvas {
     transform: scale(1.05);
 }
 
-#mute-button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    position: absolute;
-    top: 24px;
-    right: 16px;
-    padding: 0;
-    z-index: 100;
-}
-
 #mute-button img {
-    width: 32px;
-    height: 32px;
+    width: 24px;
+    height: 24px;
     transition: transform 0.2s ease;
 }
 
@@ -206,7 +206,26 @@ canvas {
     transform: scale(1.1);
 }
 
+.game-options {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    position: absolute;
+    top: 28px;
+    right: 18px;
+}
 
+.fullscreen-active .game-options {
+    gap: 32px;
+    top: 66px;
+    right: 200px;
+}
+
+.fullscreen-active #mute-button img,
+.fullscreen-active #fullscreen-button img {
+    width: 48px;
+    height: 48px;
+}
 
 @media only screen and (max-width: 760px) {
     canvas {

@@ -91,7 +91,7 @@ class World {
     run() {
         setInterval(() => {
             if (!this.gameRunning) return;
-            
+
             this.checkEnemyCollisions();
             this.checkCollectablesCollisions();
             this.checkThrowObjects();
@@ -287,7 +287,7 @@ class World {
     drawCollectableCounter(bar, x, y) {
         const text = `${bar.collected} / ${bar.max}`;
 
-        this.ctx.font = '20px Arial';
+        this.ctx.font = '18px Luckiest Guy';
         this.ctx.fillStyle = 'white';
         this.ctx.strokeStyle = 'black';
         this.ctx.lineWidth = 2;
@@ -316,9 +316,9 @@ class World {
         this.ctx.translate(-this.cameraX, 0);
         this.addToMap(this.lifeBar);
         this.addToMap(this.coinBar);
-        this.drawCollectableCounter(this.coinBar, 325, 41);
+        this.drawCollectableCounter(this.coinBar, 310, 42);
         this.addToMap(this.poisonBar);
-        this.drawCollectableCounter(this.poisonBar, 550, 41);
+        this.drawCollectableCounter(this.poisonBar, 515, 42);
         this.ctx.translate(this.cameraX, 0);
         this.ctx.translate(-this.cameraX, 0);
         let self = this;

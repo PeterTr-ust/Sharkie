@@ -1,26 +1,53 @@
 function toggleFullscreen() {
-    const canvas = document.getElementById('canvas');
-    const icon = document.getElementById('fullscreen-icon');
+    const wrapper = document.getElementById('canvas-wrapper');
 
     if (!document.fullscreenElement) {
-        // Fullscreen aktivieren für das Canvas
-        if (canvas.requestFullscreen) {
-            canvas.requestFullscreen();
-        } else if (canvas.webkitRequestFullscreen) {
-            canvas.webkitRequestFullscreen();
-        } else if (canvas.msRequestFullscreen) {
-            canvas.msRequestFullscreen();
-        }
+        wrapper.requestFullscreen?.();
+
+        document.addEventListener('fullscreenchange', () => {
+            if (document.fullscreenElement === wrapper) {
+                wrapper.classList.add('fullscreen-active');
+                resizeCanvasToFullscreen(canvas);
+            }
+        }, { once: true });
+
     } else {
-        // Fullscreen verlassen
-        if (document.exitFullscreen) {
-            document.exitFullscreen();
-        } else if (document.webkitExitFullscreen) {
-            document.webkitExitFullscreen();
-        } else if (document.msExitFullscreen) {
-            document.msExitFullscreen();
-        }
+        document.exitFullscreen?.();
+
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement) {
+                wrapper.classList.remove('fullscreen-active');
+                canvas.style.width = '720px';
+                canvas.style.height = '480px';
+            }
+        }, { once: true });
     }
+}
+
+function resizeCanvasToFullscreen(canvas, desiredAspect = 720 / 480) {
+    const fullscreenEl = document.fullscreenElement || document.webkitFullscreenElement;
+    const screenW = fullscreenEl ? fullscreenEl.clientWidth : window.innerWidth;
+    const screenH = fullscreenEl ? fullscreenEl.clientHeight : window.innerHeight;
+    const screenAspect = screenW / screenH;
+
+    let newWidth, newHeight;
+
+    if (screenAspect > desiredAspect) {
+        newHeight = screenH;
+        newWidth = newHeight * desiredAspect;
+    } else {
+        newWidth = screenW;
+        newHeight = newWidth / desiredAspect;
+    }
+
+    canvas.style.width = `${newWidth}px`;
+    canvas.style.height = `${newHeight}px`;
+}
+
+
+function resetCanvasSize(canvas) {
+    canvas.width = 720;
+    canvas.height = 480;
 }
 
 const startBtn = document.getElementById('start-button');
@@ -50,15 +77,15 @@ const muteBtn = document.getElementById('mute-button');
 const muteIcon = document.getElementById('mute-icon');
 
 muteBtn.addEventListener('click', () => {
-  soundManager.toggleMute();
+    soundManager.toggleMute();
 
-  if (soundManager.muted) {
-    muteIcon.src = 'img/icons/sound-off.png';
-    muteIcon.alt = 'Sound aus';
-  } else {
-    muteIcon.src = 'img/icons/sound-on.png';
-    muteIcon.alt = 'Sound an';
-  }
+    if (soundManager.muted) {
+        muteIcon.src = 'img/icons/sound-off.png';
+        muteIcon.alt = 'Sound aus';
+    } else {
+        muteIcon.src = 'img/icons/sound-on.png';
+        muteIcon.alt = 'Sound an';
+    }
 
-  muteBtn.blur();
+    muteBtn.blur();
 });
