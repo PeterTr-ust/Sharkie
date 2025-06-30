@@ -1,3 +1,14 @@
+const soundManager = new SoundManager();
+const savedMuted = localStorage.getItem('sharkie-muted') === 'true';
+soundManager.muted = savedMuted;
+
+// Auch alle Audio-Objekte korrekt muten
+for (const key in soundManager.sounds) {
+    soundManager.sounds[key].muted = savedMuted;
+}
+updateMuteIcon();
+
+
 function toggleFullscreen() {
     const wrapper = document.getElementById('canvas-wrapper');
 
@@ -36,6 +47,7 @@ function resizeCanvasToFullscreen(canvas, desiredAspect = 720 / 480) {
         newHeight = screenH;
         newWidth = newHeight * desiredAspect;
     } else {
+
         newWidth = screenW;
         newHeight = newWidth / desiredAspect;
     }
@@ -49,6 +61,8 @@ function resetCanvasSize(canvas) {
     canvas.width = 720;
     canvas.height = 480;
 }
+
+
 
 const startBtn = document.getElementById('start-button');
 const playBtn = document.getElementById('play-button');
@@ -79,6 +93,15 @@ const muteIcon = document.getElementById('mute-icon');
 muteBtn.addEventListener('click', () => {
     soundManager.toggleMute();
 
+    // Speichern im localStorage
+    localStorage.setItem('sharkie-muted', soundManager.muted);
+
+    // Icon updaten
+    updateMuteIcon();
+    muteBtn.blur();
+});
+
+function updateMuteIcon() {
     if (soundManager.muted) {
         muteIcon.src = 'img/icons/sound-off.png';
         muteIcon.alt = 'Sound aus';
@@ -86,6 +109,4 @@ muteBtn.addEventListener('click', () => {
         muteIcon.src = 'img/icons/sound-on.png';
         muteIcon.alt = 'Sound an';
     }
-
-    muteBtn.blur();
-});
+}

@@ -73,7 +73,8 @@ class World {
 
     start() {
         this.gameRunning = true;
-        this.resumeAllAnimations(); // Starte alle Animationen
+        this.resumeAllAnimations();
+        this.soundManager.playLoop('ambient');
         this.draw();
         this.run();
     }
@@ -92,6 +93,7 @@ class World {
         setInterval(() => {
             if (!this.gameRunning) return;
 
+            this.checkGameState();
             this.checkEnemyCollisions();
             this.checkCollectablesCollisions();
             this.checkThrowObjects();
@@ -100,6 +102,48 @@ class World {
             this.checkBubbleEndbossCollision();
             this.removeMarkedThrowables();
         }, 50)
+    }
+
+    checkGameState() {
+        const endboss = this.level.enemies.find(e => e instanceof Endboss);
+
+        if (!this.character?.isDead) return;
+
+        if (this.character.hasDied && this.gameRunning) {
+            this.endGame(false);
+        }
+
+
+        if (endboss && endboss.isDead() && this.gameRunning) {
+            this.endGame(true);
+        }
+    }
+
+
+    endGame(won) {
+        this.gameRunning = false;
+        setTimeout(() => {
+            this.soundManager.muteAll();
+            this.pauseAllAnimations();
+            this.showGameEndScreen(won ? 'win' : 'lose');
+        }, 3000);
+    }
+
+
+    showGameEndScreen(type) {
+        const screen = document.getElementById('game-end-screen');
+        const title = document.getElementById('end-title');
+        const message = document.getElementById('end-message');
+
+        if (type === 'win') {
+            title.textContent = 'Victory!';
+            message.textContent = 'You defeated the endboss – Sharkie is the hero!';
+        } else {
+            title.textContent = 'Game Over';
+            message.textContent = 'Sharkie was defeated… Try again!';
+        }
+
+        screen.classList.remove('d-none');
     }
 
     /**

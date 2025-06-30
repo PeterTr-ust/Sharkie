@@ -1,6 +1,7 @@
 class SoundManager {
     constructor() {
         this.sounds = {
+            ambient: new Audio('audio/underwater-ambient-sound.mp3'),
             swim: new Audio('audio/swim.mp3'),
             collectedCoin: new Audio('audio/collect-coin.mp3'),
             collectedPoison: new Audio('audio/collect-poison.mp3'),
@@ -33,6 +34,16 @@ class SoundManager {
             this.sounds[key].muted = this.muted;
         }
     }
+
+    muteAll() {
+        this.muted = true;
+        for (const key in this.sounds) {
+            const s = this.sounds[key];
+            s.pause();
+            s.isPlaying = false;
+        }
+    }
+
 
     play(name) {
         const sound = this.sounds[name];
