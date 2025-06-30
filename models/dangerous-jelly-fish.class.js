@@ -35,7 +35,6 @@ class DangerousJellyFish extends MovableObject {
         this.loadImgs(this.IMAGES_IDLE);
         this.loadImgs(this.IMAGES_DEAD);
         this.speed = 0.25 + Math.random() * 2;
-        this.animate();
     }
 
     /**
@@ -51,7 +50,10 @@ class DangerousJellyFish extends MovableObject {
     * Moves the fish up and down.
     */
     animate() {
-        this.animationInterval = setInterval(() => {
+        if (this.animationsPaused) return; // Nicht starten wenn pausiert
+
+        // Sprite-Animation-Interval mit Hilfsmethode
+        this.createAnimationInterval(() => {
             if (this.isDead) {
                 this.playAnimation(this.IMAGES_DEAD);
             } else {
@@ -59,7 +61,8 @@ class DangerousJellyFish extends MovableObject {
             }
         }, 150);
 
-        this.movementInterval = setInterval(() => {
+        // Bewegungs-Interval mit Hilfsmethode
+        this.createAnimationInterval(() => {
             if (this.isFlyingAway) return;
 
             if (this.movingUp) {

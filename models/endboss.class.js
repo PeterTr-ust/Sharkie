@@ -91,7 +91,7 @@ class Endboss extends MovableObject {
     * the boss is not already attacking or returning.
      */
     startAttackTimer() {
-        setInterval(() => {
+        this.createAnimationInterval(() => {
             if (this.spawnAnimationCompleted && !this.isAttacking && !this.isReturning) {
                 this.startAttack();
             }
@@ -160,7 +160,7 @@ class Endboss extends MovableObject {
         let i = 0;
         let deadAnimationPlayed = false;
 
-        const animationInterval = setInterval(() => {
+        this.createAnimationInterval(() => {
             if (this.isDead()) {
                 if (!deadAnimationPlayed) {
                     this.playAnimation(this.IMAGES_DEAD);
@@ -169,7 +169,7 @@ class Endboss extends MovableObject {
                 return;
             }
 
-            if (world.character.positionX > 1250 && !this.hadFirstContact) {
+            if (world?.character.positionX > 1250 && !this.hadFirstContact) {
                 i = 0;
                 this.hadFirstContact = true;
             }
@@ -187,6 +187,12 @@ class Endboss extends MovableObject {
                 } else if (this.isReturning) {
                     this.playAnimation(this.IMAGES_IDLE);
                     this.positionX += this.returnSpeed;
+
+                    if (this.positionX >= this.originalX) {
+                        this.positionX = this.originalX;
+                        this.isReturning = false;
+                        world.soundManager.stop('endbossBite');
+                    }
                 } else {
                     this.playAnimation(this.IMAGES_IDLE);
                 }

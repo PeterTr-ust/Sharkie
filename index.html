@@ -33,13 +33,18 @@
     <script src="./js/game.js"></script>
 </head>
 
-<body onload="init()">
-    <h1 id="titel">Sharkie</h1>
-    <div id="canvas-wrapper">
+<body>
+    <div id="start-screen">
+        <h1>Sharkie</h1>
+        <button id="start-button">Play Sharkie</button>
+    </div>
+    <div id="canvas-wrapper" style="display: none;">
         <canvas id="canvas" width="720" height="480"></canvas>
-        <img id="fullscreen-icon" src="img/icons/fullscreen.png" alt="Fullscreen" onclick="toggleFullscreen()">
+    </div>
+    <img id="fullscreen-icon" src="img/icons/fullscreen.png" alt="Fullscreen" onclick="toggleFullscreen()">
     </div>
 </body>
+
 
 
 </html>

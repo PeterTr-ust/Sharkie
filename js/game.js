@@ -2,16 +2,29 @@ let canvas;
 let soundManager;
 let world;
 let keyboard = new Keyboard();
+let gameStarted = false;
+
+function prepareGameStart() {
+    document.getElementById('start-button').addEventListener('click', () => {
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('canvas-wrapper').style.display = 'block';
+
+        gameStarted = true;
+        init();
+    });
+}
 
 /**
  * Initializes the game by setting up the canvas and world.
  */
 function init() {
     canvas = document.getElementById('canvas');
-    soundManager  = new SoundManager();
+    soundManager = new SoundManager();
     world = new World(canvas, keyboard, soundManager);
     console.log('My Character is', world.character);
+    world.start();
 }
+
 
 /**
  * Adds event listeners for keydown events.
@@ -45,6 +58,8 @@ window.addEventListener('keydown', (event) => {
  * Updates the keyboard object when keys are released.
  */
 window.addEventListener('keyup', (event) => {
+    if (!gameStarted) return;
+    
     switch (event.keyCode) {
         case 39:
             keyboard.RIGHT = false;
@@ -65,4 +80,8 @@ window.addEventListener('keyup', (event) => {
             keyboard.D = false;
             break;
     }
+});
+
+window.addEventListener('DOMContentLoaded', () => {
+    prepareGameStart();
 });
