@@ -184,8 +184,8 @@ class World {
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(88, 101, 240, 0.9);
-            color: rgba(92, 241, 102, 0.9);;
+            background: #73fcd6;
+            color: #4B0082;
             padding: 20px;
             border-radius: 10px;
             font-size: 24px;
