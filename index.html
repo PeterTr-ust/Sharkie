@@ -36,7 +36,34 @@
 <body>
     <div id="start-screen">
         <h1>Sharkie</h1>
-        <button id="start-button">Play Sharkie</button>
+        <img id="logo" class="logo" src="img/favicon-sharkie.png" alt="Sharkie Logo">
+        <button id="start-button">
+            <img src="img/start-button.png" alt="Play Sharkie">
+        </button>
+        <div id="controls-info" class="d-none">
+            <div class="control-group">
+                <img src="img/arrow keys.png" alt="Arrow Keys" class="key">
+                <img src="img/move title.png" alt="Move Title" class="title">
+            </div>
+            <div class="control-group">
+                <img src="img/d key.png" alt="D Key" class="key">
+                <img src="img/attack title.png" alt="Attack Title" class="title">
+            </div>
+            <div class="control-group">
+                <img src="img/space bar key.png" alt="Spacebar Key" class="key">
+                <img src="img/attack title.png" alt="Attack Title" class="title">
+            </div>
+        </div>
+        <button id="next-button" class="custom-play-button d-none">Next</button>
+        <div id="explanation-info" class="d-none">
+            <p class="explanation-text">
+                Collect all five poison bottles in the game, then you can shoot
+                poisoned bubbles.
+                <img src="img/collectables/poison/poison-1.png" alt="Poison Bottle" class="inline-icon">
+                Only with poisoned bubbles can you defeat the final boss.
+            </p>
+        </div>
+        <button id="play-button" class="custom-play-button d-none">PLAY</button>
     </div>
     <div id="canvas-wrapper" style="display: none;">
         <canvas id="canvas" width="720" height="480"></canvas>
@@ -44,7 +71,5 @@
     <img id="fullscreen-icon" src="img/icons/fullscreen.png" alt="Fullscreen" onclick="toggleFullscreen()">
     </div>
 </body>
-
-
 
 </html>

@@ -23,3 +23,25 @@ function toggleFullscreen() {
     }
 }
 
+const startBtn = document.getElementById('start-button');
+const playBtn = document.getElementById('play-button');
+const nextBtn = document.getElementById('next-button');
+const controls = document.getElementById('controls-info');
+const explanation = document.getElementById('explanation-info');
+const logo = document.getElementById('logo');
+
+startBtn.addEventListener('click', () => {
+    startBtn.classList.add('d-none');
+    controls.classList.remove('d-none');
+    nextBtn.classList.remove('d-none');
+    logo.classList.add('d-none');
+    nextBtn.focus();
+});
+
+nextBtn.addEventListener('click', () => {
+    controls.classList.add('d-none');
+    nextBtn.classList.add('d-none');
+    explanation.classList.remove('d-none');
+    playBtn.classList.remove('d-none');
+    playBtn.focus();
+});

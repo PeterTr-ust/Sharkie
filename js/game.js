@@ -5,7 +5,7 @@ let keyboard = new Keyboard();
 let gameStarted = false;
 
 function prepareGameStart() {
-    document.getElementById('start-button').addEventListener('click', () => {
+    document.getElementById('play-button').addEventListener('click', () => {
         document.getElementById('start-screen').style.display = 'none';
         document.getElementById('canvas-wrapper').style.display = 'block';
 
