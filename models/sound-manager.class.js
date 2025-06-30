@@ -12,6 +12,8 @@ class SoundManager {
             endbossBite: new Audio('audio/endboss-bite.mp3'),
         };
 
+        this.muted = false;
+
         for (const key in this.sounds) {
             this.sounds[key].volume = 0.3;
             this.sounds[key].preload = 'auto';
@@ -19,16 +21,22 @@ class SoundManager {
 
         this.cooldowns = {
             swim: 0,
-            jump: 500,
             hurt: 500
         };
 
         this.lastPlayed = {};
     }
 
+    toggleMute() {
+        this.muted = !this.muted;
+        for (const key in this.sounds) {
+            this.sounds[key].muted = this.muted;
+        }
+    }
+
     play(name) {
         const sound = this.sounds[name];
-        if (!sound) return;
+        if (!sound || this.muted) return;
 
         const now = Date.now();
         const lastTime = this.lastPlayed[name] || 0;
@@ -43,7 +51,7 @@ class SoundManager {
 
     playLoop(name) {
         const sound = this.sounds[name];
-        if (!sound) return;
+        if (!sound || this.muted) return;
         if (!sound.isPlaying) {
             sound.loop = true;
             sound.currentTime = 0;

@@ -45,3 +45,20 @@ nextBtn.addEventListener('click', () => {
     playBtn.classList.remove('d-none');
     playBtn.focus();
 });
+
+const muteBtn = document.getElementById('mute-button');
+const muteIcon = document.getElementById('mute-icon');
+
+muteBtn.addEventListener('click', () => {
+  soundManager.toggleMute();
+
+  if (soundManager.muted) {
+    muteIcon.src = 'img/icons/sound-off.png';
+    muteIcon.alt = 'Sound aus';
+  } else {
+    muteIcon.src = 'img/icons/sound-on.png';
+    muteIcon.alt = 'Sound an';
+  }
+
+  muteBtn.blur();
+});
