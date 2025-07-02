@@ -4,33 +4,27 @@ let world;
 let keyboard = new Keyboard();
 let gameStarted = false;
 
-function prepareGameStart() {
-    document.getElementById('play-button').addEventListener('click', () => {
-        document.getElementById('start-screen').style.display = 'none';
-        document.getElementById('canvas-wrapper').style.display = 'block';
-
-        gameStarted = true;
-        init();
-    });
-}
-
 /**
  * Initializes the game by setting up the canvas and world.
+ * Called directly from script.js when play button is clicked.
  */
 function init() {
     canvas = document.getElementById('canvas');
     soundManager = new SoundManager();
     world = new World(canvas, keyboard, soundManager);
     console.log('My Character is', world.character);
+    
+    gameStarted = true; // Set flag BEFORE starting world
     world.start();
 }
-
 
 /**
  * Adds event listeners for keydown events.
  * Updates the keyboard object based on key presses.
  */
 window.addEventListener('keydown', (event) => {
+    if (!gameStarted) return; // Prevent input before game starts
+    
     switch (event.keyCode) {
         case 39:
             keyboard.RIGHT = true;
@@ -80,8 +74,4 @@ window.addEventListener('keyup', (event) => {
             keyboard.D = false;
             break;
     }
-});
-
-window.addEventListener('DOMContentLoaded', () => {
-    prepareGameStart();
 });
