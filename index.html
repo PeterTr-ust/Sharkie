@@ -38,36 +38,45 @@
     <div id="start-screen">
         <h1>Sharkie</h1>
         <img id="logo" class="logo" src="img/favicon-sharkie.png" alt="Sharkie Logo">
-        <button id="start-button">
-            <img src="img/start-button.png" alt="Play Sharkie">
-        </button>
+        <div class="game-button-group">
+            <button id="play-button" class="custom-button">PLAY</button>
+            <button id="instructions-button" class="custom-button">Instructions</button>
+        </div>
         <a href="html/impressum.html" class="impressum-button">
             <span>Impressum</span>
         </a>
-        <div id="controls-info" class="d-none">
-            <div class="control-group">
-                <img src="img/arrow keys.png" alt="Arrow Keys" class="key">
-                <img src="img/move title.png" alt="Move Title" class="title">
-            </div>
-            <div class="control-group">
-                <img src="img/d key.png" alt="D Key" class="key">
-                <img src="img/attack title.png" alt="Attack Title" class="title">
-            </div>
-            <div class="control-group">
-                <img src="img/space bar key.png" alt="Spacebar Key" class="key">
-                <img src="img/attack title.png" alt="Attack Title" class="title">
+        <div id="instructions-dialog" class="dialog hide" role="dialog" aria-modal="true"
+            aria-labelledby="instructions-title">
+            <div class="dialog-content">
+                <button id="close-instructions" class="close-btn" aria-label="Schließen"><img src="/img/icons/close.png"
+                        alt=""></button>
+                <h2 id="instructions-title">Game Instructions</h2>
+
+                <div id="controls-info">
+                    <div class="control-group">
+                        <img src="img/arrow keys.png" alt="Pfeiltasten" class="key">
+                        <img src="img/move title.png" alt="Bewegen" class="title">
+                    </div>
+                    <div class="control-group">
+                        <img src="img/d key.png" alt="D-Taste" class="key">
+                        <img src="img/attack title.png" alt="Angreifen" class="title">
+                    </div>
+                    <div class="control-group">
+                        <img src="img/space bar key.png" alt="Leertaste" class="key">
+                        <img src="img/attack title.png" alt="Angreifen" class="title">
+                    </div>
+                </div>
+
+                <div id="explanation-info" style="margin-top: 1em;">
+                    <img src="img/collectables/poison/poison-1.png" alt="Giftflasche" class="inline-icon"
+                        style="vertical-align:middle; margin-right: 8px;">
+                    <p class="explanation-text" style="display: inline;">
+                        Collect all five poison bottles in the game, then you can shoot poisoned bubbles.
+                        Only with poisoned bubbles you can defeat the final boss.
+                    </p>
+                </div>
             </div>
         </div>
-        <button id="next-button" class="custom-button d-none">Next</button>
-        <div id="explanation-info" class="d-none">
-            <img src="img/collectables/poison/poison-1.png" alt="Poison Bottle" class="inline-icon">
-            <p class="explanation-text">
-                Collect all five poison bottles in the game, then you can shoot
-                poisoned bubbles.
-                Only with poisoned bubbles can you defeat the final boss.
-            </p>
-        </div>
-        <button id="play-button" class="custom-button d-none">PLAY</button>
     </div>
     <div id="canvas-wrapper" style="display: none;">
         <div class="game-options">
@@ -78,6 +87,7 @@
                 <img id="fullscreen-icon" src="img/icons/fullscreen.png" alt="Fullscreen" onclick="toggleFullscreen()">
             </button>
         </div>
+
         <div id="game-end-screen" class="d-none">
             <div class="end-box">
                 <h2 id="end-title"></h2>
@@ -87,7 +97,6 @@
                 </button>
             </div>
         </div>
-
         <canvas id="canvas" width="720" height="480"></canvas>
     </div>
 </body>

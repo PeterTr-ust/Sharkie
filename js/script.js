@@ -1,38 +1,50 @@
 window.addEventListener('DOMContentLoaded', () => {
-    const startBtn = document.getElementById('start-button');
-    const playBtn = document.getElementById('play-button');
-    const nextBtn = document.getElementById('next-button');
+    const playInitialBtn = document.getElementById('play-button');
+    const instructionsBtn = document.getElementById('instructions-button');
     const controls = document.getElementById('controls-info');
     const explanation = document.getElementById('explanation-info');
     const logo = document.getElementById('logo');
+    const startScreen = document.getElementById('start-screen');
+    const canvasWrapper = document.getElementById('canvas-wrapper');
     const muteBtn = document.getElementById('mute-button');
     const muteIcon = document.getElementById('mute-icon');
     const savedMuted = localStorage.getItem('sharkie-muted') === 'true';
+    const instructionsDialog = document.getElementById('instructions-dialog');
+    const closeInstructionsBtn = document.getElementById('close-instructions');
 
-    startBtn?.addEventListener('click', () => {
-        startBtn.classList.add('d-none');
-        controls.classList.remove('d-none');
-        nextBtn.classList.remove('d-none');
-        logo.classList.add('d-none');
-        nextBtn.focus();
+    playInitialBtn?.addEventListener('click', () => {
+        startScreen.style.display = 'none';
+        canvasWrapper.style.display = 'block';
+        init();
     });
 
-    nextBtn?.addEventListener('click', () => {
-        controls.classList.add('d-none');
-        nextBtn.classList.add('d-none');
-        explanation.classList.remove('d-none');
-        playBtn.classList.remove('d-none');
-        playBtn.focus();
+    instructionsBtn?.addEventListener('click', () => {
+        instructionsDialog.classList.remove('hide');
+        instructionsDialog.classList.add('show');
+    });
+
+    closeInstructionsBtn?.addEventListener('click', () => {
+        instructionsDialog.classList.remove('show');
+        setTimeout(() => {
+            instructionsDialog.classList.add('hide');
+        }, 300);
+    });
+
+    instructionsDialog.addEventListener('click', (event) => {
+        if (event.target === instructionsDialog) {
+            instructionsDialog.classList.remove('show');
+            setTimeout(() => {
+                instructionsDialog.classList.add('hide');
+            }, 300);
+        }
     });
 
     muteBtn?.addEventListener('click', () => {
         if (typeof soundManager !== 'undefined') {
             soundManager.toggleMute();
-
             for (const key in soundManager.sounds) {
                 soundManager.sounds[key].muted = soundManager.muted;
             }
-
             localStorage.setItem('sharkie-muted', soundManager.muted);
             updateMuteIcon();
             muteBtn.blur();
@@ -41,24 +53,16 @@ window.addEventListener('DOMContentLoaded', () => {
 
     function updateMuteIcon() {
         if (typeof soundManager === 'undefined') return;
-
-        if (soundManager.muted) {
-            muteIcon.src = 'img/icons/sound-off.png';
-            muteIcon.alt = 'Sound aus';
-        } else {
-            muteIcon.src = 'img/icons/sound-on.png';
-            muteIcon.alt = 'Sound an';
-        }
+        muteIcon.src = soundManager.muted ? 'img/icons/sound-off.png' : 'img/icons/sound-on.png';
+        muteIcon.alt = soundManager.muted ? 'Sound aus' : 'Sound an';
     }
 
     const waitForSoundManager = setInterval(() => {
         if (typeof soundManager !== 'undefined' && soundManager.sounds) {
             soundManager.muted = savedMuted;
-
             for (const key in soundManager.sounds) {
                 soundManager.sounds[key].muted = savedMuted;
             }
-
             updateMuteIcon();
             clearInterval(waitForSoundManager);
         }
@@ -67,20 +71,16 @@ window.addEventListener('DOMContentLoaded', () => {
 
 function toggleFullscreen() {
     const wrapper = document.getElementById('canvas-wrapper');
-
     if (!document.fullscreenElement) {
         wrapper.requestFullscreen?.();
-
         document.addEventListener('fullscreenchange', () => {
             if (document.fullscreenElement === wrapper) {
                 wrapper.classList.add('fullscreen-active');
                 resizeCanvasToFullscreen(canvas);
             }
         }, { once: true });
-
     } else {
         document.exitFullscreen?.();
-
         document.addEventListener('fullscreenchange', () => {
             if (!document.fullscreenElement) {
                 wrapper.classList.remove('fullscreen-active');
@@ -98,7 +98,6 @@ function resizeCanvasToFullscreen(canvas, desiredAspect = 720 / 480) {
     const screenAspect = screenW / screenH;
 
     let newWidth, newHeight;
-
     if (screenAspect > desiredAspect) {
         newHeight = screenH;
         newWidth = newHeight * desiredAspect;
