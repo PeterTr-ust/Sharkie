@@ -1,9 +1,6 @@
 window.addEventListener('DOMContentLoaded', () => {
     const playInitialBtn = document.getElementById('play-button');
     const instructionsBtn = document.getElementById('instructions-button');
-    const controls = document.getElementById('controls-info');
-    const explanation = document.getElementById('explanation-info');
-    const logo = document.getElementById('logo');
     const startScreen = document.getElementById('start-screen');
     const canvasWrapper = document.getElementById('canvas-wrapper');
     const muteBtn = document.getElementById('mute-button');
@@ -11,34 +8,38 @@ window.addEventListener('DOMContentLoaded', () => {
     const savedMuted = localStorage.getItem('sharkie-muted') === 'true';
     const instructionsDialog = document.getElementById('instructions-dialog');
     const closeInstructionsBtn = document.getElementById('close-instructions');
+    const tryAgainBtn = document.getElementById('try-again-button');
 
+    // Play button functionality
     playInitialBtn?.addEventListener('click', () => {
         startScreen.style.display = 'none';
         canvasWrapper.style.display = 'block';
         init();
     });
 
+    // Instructions dialog functionality
     instructionsBtn?.addEventListener('click', () => {
         instructionsDialog.classList.remove('hide');
         instructionsDialog.classList.add('show');
     });
 
     closeInstructionsBtn?.addEventListener('click', () => {
-        instructionsDialog.classList.remove('show');
-        setTimeout(() => {
-            instructionsDialog.classList.add('hide');
-        }, 300);
+        closeInstructionsDialog();
     });
 
-    instructionsDialog.addEventListener('click', (event) => {
+    instructionsDialog?.addEventListener('click', (event) => {
         if (event.target === instructionsDialog) {
-            instructionsDialog.classList.remove('show');
-            setTimeout(() => {
-                instructionsDialog.classList.add('hide');
-            }, 300);
+            closeInstructionsDialog();
         }
     });
 
+    // Try Again button functionality (improved)
+    tryAgainBtn?.addEventListener('click', (event) => {
+        event.preventDefault();
+        gameRestart(); // Use our custom restart function instead of location.reload()
+    });
+
+    // Mute functionality
     muteBtn?.addEventListener('click', () => {
         if (typeof soundManager !== 'undefined') {
             soundManager.toggleMute();
@@ -51,12 +52,22 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Helper function to close instructions dialog
+    function closeInstructionsDialog() {
+        instructionsDialog.classList.remove('show');
+        setTimeout(() => {
+            instructionsDialog.classList.add('hide');
+        }, 300);
+    }
+
+    // Helper function to update mute icon
     function updateMuteIcon() {
         if (typeof soundManager === 'undefined') return;
         muteIcon.src = soundManager.muted ? 'img/icons/sound-off.png' : 'img/icons/sound-on.png';
         muteIcon.alt = soundManager.muted ? 'Sound aus' : 'Sound an';
     }
 
+    // Wait for sound manager initialization
     const waitForSoundManager = setInterval(() => {
         if (typeof soundManager !== 'undefined' && soundManager.sounds) {
             soundManager.muted = savedMuted;
@@ -67,8 +78,18 @@ window.addEventListener('DOMContentLoaded', () => {
             clearInterval(waitForSoundManager);
         }
     }, 100);
+
+    // Add keyboard shortcuts for better UX
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+            if (!instructionsDialog.classList.contains('hide')) {
+                closeInstructionsDialog();
+            }
+        }
+    });
 });
 
+// Fullscreen functionality
 function toggleFullscreen() {
     const wrapper = document.getElementById('canvas-wrapper');
     if (!document.fullscreenElement) {

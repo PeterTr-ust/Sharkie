@@ -27,6 +27,19 @@ class World {
         this.character = new Character(this.soundManager);
         this.setWorld();
         this.pauseAllAnimations();
+        this.animationId = null;
+    }
+
+    stopGame() {
+        if (this.animationId) {
+            cancelAnimationFrame(this.animationId);
+            this.animationId = null;
+        }
+
+        // Clear any intervals used in the game
+        clearInterval(this.enemyInterval);
+        clearInterval(this.collectableInterval);
+        // ... clear other intervals
     }
 
     pauseAllAnimations() {
