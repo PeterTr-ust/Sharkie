@@ -1,0 +1,29 @@
+body {
+    background-color: #4B0082;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    color: white;
+    padding: 32px;
+    justify-content: start;
+    font-weight: 100;
+    font-size: 16px;
+    height: fit-content;
+}
+
+h4 {
+    font-size: 32px;
+    margin: 0 0 32px 0;
+}
+
+.back-button {
+    position: fixed;
+    bottom: 32px;
+    z-index: 999;
+    text-decoration: none;
+}
+
+a {
+    color: white;
+    font-weight: 100;
+}

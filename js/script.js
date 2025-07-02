@@ -9,7 +9,6 @@ window.addEventListener('DOMContentLoaded', () => {
     const muteIcon = document.getElementById('mute-icon');
     const savedMuted = localStorage.getItem('sharkie-muted') === 'true';
 
-    // Intro Navigation
     startBtn?.addEventListener('click', () => {
         startBtn.classList.add('d-none');
         controls.classList.remove('d-none');
@@ -26,7 +25,6 @@ window.addEventListener('DOMContentLoaded', () => {
         playBtn.focus();
     });
 
-    // Mute-Button
     muteBtn?.addEventListener('click', () => {
         if (typeof soundManager !== 'undefined') {
             soundManager.toggleMute();
@@ -53,7 +51,6 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Warten, bis soundManager verfügbar ist
     const waitForSoundManager = setInterval(() => {
         if (typeof soundManager !== 'undefined' && soundManager.sounds) {
             soundManager.muted = savedMuted;
@@ -67,11 +64,6 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     }, 100);
 });
-
-
-// =====================
-// Vollbild-Funktionalität
-// =====================
 
 function toggleFullscreen() {
     const wrapper = document.getElementById('canvas-wrapper');

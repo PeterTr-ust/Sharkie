@@ -1,0 +1,244 @@
+body::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-color: #4B0082;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    filter: brightness(50%);
+    z-index: -1;
+}
+
+@keyframes flip-logo {
+    0% {
+        transform: scaleX(1);
+    }
+
+    50% {
+        transform: scaleX(-1);
+    }
+
+    100% {
+        transform: scaleX(1);
+    }
+}
+
+.logo {
+    height: 256px;
+    width: auto;
+    animation: flip-logo 6s infinite ease-in-out;
+}
+
+canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.6);
+    border-radius: 10px;
+    margin: 0 auto;
+    background-color: black;
+}
+
+#canvas-wrapper {
+    position: relative;
+    width: 720px;
+    height: 480px;
+}
+
+#fullscreen-icon {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    transition: transform 0.3s ease;
+    z-index: 100;
+    width: 24px;
+    height: 24px;
+}
+
+#fullscreen-icon:hover {
+    transform: scale(1.1);
+}
+
+#start-screen {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    background-color: #4B0082;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    overflow: hidden;
+}
+
+#start-screen button:last-of-type {
+    position: absolute;
+    bottom: 16px;
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+}
+
+#start-screen span {
+    position: absolute;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    font-size: 20px;
+    transition: all 0.3s ease;
+}
+
+#start-screen span:hover {
+    transform: translateX(-50%) scale(1.05);
+}
+
+#start-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#start-button img {
+    display: block;
+    width: auto;
+    height: 64px;
+}
+
+#start-button:hover {
+    transform: scale(1.05);
+}
+
+#controls-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 4px 0 32px 0;
+    gap: 15px;
+    padding: 20px;
+    border-radius: 12px;
+}
+
+.control-group {
+    width: 500px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 48px;
+}
+
+.control-group img {
+    height: 48px;
+    object-fit: contain;
+}
+
+.control-group .title {
+    height: 30px;
+}
+
+#explanation-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.explanation-text {
+    background-color: #4B0082;
+    color: #73fcd6;
+    border-radius: 20px;
+    font-size: 24px;
+    text-align: center;
+    max-width: 600px;
+    padding: 8px;
+    margin: 24px 0 70px 0;
+}
+
+.explanation-text img {
+    height: 24px;
+}
+
+#mute-button img {
+    width: 24px;
+    height: 24px;
+    transition: transform 0.2s ease;
+}
+
+#mute-button:hover img {
+    transform: scale(1.1);
+}
+
+.game-options {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    position: absolute;
+    top: 28px;
+    right: 18px;
+}
+
+.fullscreen-active .game-options {
+    gap: 32px;
+    top: 66px;
+    right: 200px;
+}
+
+.fullscreen-active #mute-button img,
+.fullscreen-active #fullscreen-button img {
+    width: 48px;
+    height: 48px;
+}
+
+#game-end-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(15, 15, 30, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+}
+
+.end-box {
+    font-size: 32px;
+    text-align: center;
+    color: white;
+    background-color: #4B0082;
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 0 20px black;
+}
+
+#try-again-button img {
+    display: block;
+    width: auto;
+    height: 64px;
+}
+
+#try-again-button {
+    transition: all 0.3s ease;
+}
+
+#try-again-button:hover {
+    transform: scale(1.05);
+}
+
+@media only screen and (max-width: 760px) {
+    canvas {
+        width: 100%;
+    }
+}
+
+@media only screen and (max-height: 480px) {
+    canvas {
+        height: 100vh;
+    }
+}
