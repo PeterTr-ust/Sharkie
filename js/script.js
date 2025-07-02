@@ -1,13 +1,77 @@
-const soundManager = new SoundManager();
-const savedMuted = localStorage.getItem('sharkie-muted') === 'true';
-soundManager.muted = savedMuted;
+window.addEventListener('DOMContentLoaded', () => {
+    const startBtn = document.getElementById('start-button');
+    const playBtn = document.getElementById('play-button');
+    const nextBtn = document.getElementById('next-button');
+    const controls = document.getElementById('controls-info');
+    const explanation = document.getElementById('explanation-info');
+    const logo = document.getElementById('logo');
+    const muteBtn = document.getElementById('mute-button');
+    const muteIcon = document.getElementById('mute-icon');
+    const savedMuted = localStorage.getItem('sharkie-muted') === 'true';
 
-// Auch alle Audio-Objekte korrekt muten
-for (const key in soundManager.sounds) {
-    soundManager.sounds[key].muted = savedMuted;
-}
-updateMuteIcon();
+    // Intro Navigation
+    startBtn?.addEventListener('click', () => {
+        startBtn.classList.add('d-none');
+        controls.classList.remove('d-none');
+        nextBtn.classList.remove('d-none');
+        logo.classList.add('d-none');
+        nextBtn.focus();
+    });
 
+    nextBtn?.addEventListener('click', () => {
+        controls.classList.add('d-none');
+        nextBtn.classList.add('d-none');
+        explanation.classList.remove('d-none');
+        playBtn.classList.remove('d-none');
+        playBtn.focus();
+    });
+
+    // Mute-Button
+    muteBtn?.addEventListener('click', () => {
+        if (typeof soundManager !== 'undefined') {
+            soundManager.toggleMute();
+
+            for (const key in soundManager.sounds) {
+                soundManager.sounds[key].muted = soundManager.muted;
+            }
+
+            localStorage.setItem('sharkie-muted', soundManager.muted);
+            updateMuteIcon();
+            muteBtn.blur();
+        }
+    });
+
+    function updateMuteIcon() {
+        if (typeof soundManager === 'undefined') return;
+
+        if (soundManager.muted) {
+            muteIcon.src = 'img/icons/sound-off.png';
+            muteIcon.alt = 'Sound aus';
+        } else {
+            muteIcon.src = 'img/icons/sound-on.png';
+            muteIcon.alt = 'Sound an';
+        }
+    }
+
+    // Warten, bis soundManager verfügbar ist
+    const waitForSoundManager = setInterval(() => {
+        if (typeof soundManager !== 'undefined' && soundManager.sounds) {
+            soundManager.muted = savedMuted;
+
+            for (const key in soundManager.sounds) {
+                soundManager.sounds[key].muted = savedMuted;
+            }
+
+            updateMuteIcon();
+            clearInterval(waitForSoundManager);
+        }
+    }, 100);
+});
+
+
+// =====================
+// Vollbild-Funktionalität
+// =====================
 
 function toggleFullscreen() {
     const wrapper = document.getElementById('canvas-wrapper');
@@ -47,7 +111,6 @@ function resizeCanvasToFullscreen(canvas, desiredAspect = 720 / 480) {
         newHeight = screenH;
         newWidth = newHeight * desiredAspect;
     } else {
-
         newWidth = screenW;
         newHeight = newWidth / desiredAspect;
     }
@@ -56,57 +119,7 @@ function resizeCanvasToFullscreen(canvas, desiredAspect = 720 / 480) {
     canvas.style.height = `${newHeight}px`;
 }
 
-
 function resetCanvasSize(canvas) {
     canvas.width = 720;
     canvas.height = 480;
-}
-
-
-
-const startBtn = document.getElementById('start-button');
-const playBtn = document.getElementById('play-button');
-const nextBtn = document.getElementById('next-button');
-const controls = document.getElementById('controls-info');
-const explanation = document.getElementById('explanation-info');
-const logo = document.getElementById('logo');
-
-startBtn.addEventListener('click', () => {
-    startBtn.classList.add('d-none');
-    controls.classList.remove('d-none');
-    nextBtn.classList.remove('d-none');
-    logo.classList.add('d-none');
-    nextBtn.focus();
-});
-
-nextBtn.addEventListener('click', () => {
-    controls.classList.add('d-none');
-    nextBtn.classList.add('d-none');
-    explanation.classList.remove('d-none');
-    playBtn.classList.remove('d-none');
-    playBtn.focus();
-});
-
-const muteBtn = document.getElementById('mute-button');
-const muteIcon = document.getElementById('mute-icon');
-
-muteBtn.addEventListener('click', () => {
-    soundManager.toggleMute();
-
-    // Speichern im localStorage
-    localStorage.setItem('sharkie-muted', soundManager.muted);
-
-    // Icon updaten
-    updateMuteIcon();
-    muteBtn.blur();
-});
-
-function updateMuteIcon() {
-    if (soundManager.muted) {
-        muteIcon.src = 'img/icons/sound-off.png';
-        muteIcon.alt = 'Sound aus';
-    } else {
-        muteIcon.src = 'img/icons/sound-on.png';
-        muteIcon.alt = 'Sound an';
-    }
 }
