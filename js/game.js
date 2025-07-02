@@ -11,74 +11,78 @@ let gameLoopId = null; // Store animation frame ID for cleanup
 function init() {
     canvas = document.getElementById('canvas');
     soundManager = new SoundManager();
-    world = new World(canvas, keyboard, soundManager);
-    console.log('My Character is', world.character);
-    
+    window.soundManager = soundManager;
+    const level = createLevel1();
+
+    world = new World(canvas, keyboard, soundManager, level);
     gameStarted = true;
     world.start();
 }
+
 
 /**
  * Resets the game to initial state
  */
 function gameReset() {
-    console.log('Resetting game...');
-    
-    // 1. Stop the current game loop
-    if (world && world.stopGame) {
+    console.log('Resetting game…');
+
+    // 1) Stoppe alle laufenden Loops und Animationen
+    if (world?.stopGame) {
         world.stopGame();
     }
-    
-    // 2. Clear any running intervals/timeouts
-    if (gameLoopId) {
-        cancelAnimationFrame(gameLoopId);
-        gameLoopId = null;
-    }
-    
-    // 3. Reset game state variables
+
+    // 2) Spiel-Status & Keyboard resetten
     gameStarted = false;
-    
-    // 4. Reset keyboard state
-    keyboard.RIGHT = false;
-    keyboard.LEFT = false;
-    keyboard.UP = false;
-    keyboard.DOWN = false;
-    keyboard.SPACE = false;
-    keyboard.D = false;
-    
-    // 5. Clear canvas
+    keyboard.reset();
+
+    // 3) Status-Bars zurücksetzen (nur wenn world noch existiert)
+    if (world) {
+        world.lifeBar.setPercentage(100);
+
+        // Falls du diese Werte als Konstanten definierst, 
+        // kannst du hier darauf referenzieren (z.B. INITIAL_COINS)
+        world.coinBar.max = 10;
+        world.coinBar.reset();
+
+        world.poisonBar.max = 5;
+        world.poisonBar.reset();
+    }
+
+    // 4) Canvas leeren
     if (canvas) {
         const ctx = canvas.getContext('2d');
         ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
-    
-    // 6. Reset world and sound manager
-    if (soundManager && soundManager.stopAllSounds) {
-        soundManager.stopAllSounds();
-    }
-    
+
+    // 5) Sounds stoppen
+    soundManager?.stop('ambient');
+    soundManager?.stop('swim');
+    soundManager?.stopAllSounds();
+
+    // 6) Alte Referenzen löschen
     world = null;
     soundManager = null;
-    
-    // 7. Hide game elements and show start screen
+
+    // 7) UI auf Start-Screen umschalten
     document.getElementById('canvas-wrapper').style.display = 'none';
     document.getElementById('game-end-screen').classList.add('d-none');
     document.getElementById('start-screen').style.display = 'block';
-    
+
     console.log('Game reset complete');
 }
+
 
 /**
  * Restarts the game (reset + immediate start)
  */
 function gameRestart() {
     gameReset();
-    
-    // Small delay to ensure cleanup is complete
+
+    // kurze Pause, dann neu starten
     setTimeout(() => {
         document.getElementById('start-screen').style.display = 'none';
         document.getElementById('canvas-wrapper').style.display = 'block';
-        init();
+        init();   // baut neue World + Level auf
     }, 100);
 }
 
@@ -87,7 +91,7 @@ function gameRestart() {
  */
 window.addEventListener('keydown', (event) => {
     if (!gameStarted) return;
-    
+
     switch (event.keyCode) {
         case 39:
             keyboard.RIGHT = true;
@@ -119,7 +123,7 @@ window.addEventListener('keydown', (event) => {
  */
 window.addEventListener('keyup', (event) => {
     if (!gameStarted) return;
-    
+
     switch (event.keyCode) {
         case 39:
             keyboard.RIGHT = false;

@@ -4,7 +4,6 @@
  */
 class World {
     character;
-    level = level1;
     canvas;
     ctx;
     keyboard;
@@ -19,7 +18,8 @@ class World {
     bubbleCooldown = 1000;
     gameRunning = false;
 
-    constructor(canvas, keyboard) {
+    constructor(canvas, keyboard, soundManager, level) {
+        this.level = level;
         this.ctx = canvas.getContext('2d');
         this.canvas = canvas;
         this.keyboard = keyboard;
@@ -30,17 +30,53 @@ class World {
         this.animationId = null;
     }
 
+    /**
+    * Stops all running loops, intervals, animations and sounds
+    * so that ein anschließender Neustart eine komplett frische Welt erhält.
+    *
+    * @returns {void}
+    */
     stopGame() {
-        if (this.animationId) {
-            cancelAnimationFrame(this.animationId);
-            this.animationId = null;
-        }
+        // 1) Render-Loop stoppen
+        cancelAnimationFrame(this.drawFrameId);
+        this.drawFrameId = null;
 
-        // Clear any intervals used in the game
-        clearInterval(this.enemyInterval);
-        clearInterval(this.collectableInterval);
-        // ... clear other intervals
+        // 2) Game-Logic-Loop stoppen
+        clearInterval(this.runInterval);
+        this.runInterval = null;
+
+        // 3) Character-Animationen & Floating beenden
+        this.character.clearAllAnimationIntervals();
+        clearInterval(this.character.floatingInterval);
+
+        // 4) Gegner & Endboss: alle Animation-Intervals + Floats + Return-Timer löschen
+        this.level.enemies.forEach(enemy => {
+            enemy.clearAllAnimationIntervals?.();
+            clearInterval(enemy.floatingInterval);
+
+            // falls du in startReturn() das Intervall als this.returnInterval speicherst
+            clearInterval(enemy.returnInterval);
+        });
+
+        // 5) Throwable Objects aufräumen (falls sie eigene Animationen/Floats haben)
+        this.throwableObjects.forEach(obj => {
+            obj.clearAllAnimationIntervals?.();
+            clearInterval(obj.floatingInterval);
+        });
+
+        // 6) Münzen, Giftflaschen & Lichter aufräumen
+        [...this.level.coins, ...this.level.poisonBottles, ...this.level.lights]
+            .forEach(obj => {
+                obj.clearAllAnimationIntervals?.();
+                clearInterval(obj.floatingInterval);
+            });
+
+        // 7) Alle Sounds stoppen
+        this.soundManager.stop('ambient');
+        this.soundManager.stop('swim');
+        this.soundManager.stopAllSounds();
     }
+
 
     pauseAllAnimations() {
         // Pausiere Character-Animationen
@@ -103,7 +139,10 @@ class World {
      * Starts recurring game logic checks like collision and throwing.
      */
     run() {
-        setInterval(() => {
+        if (this.runInterval) {
+            clearInterval(this.runInterval);
+        }
+        this.runInterval = setInterval(() => {
             if (!this.gameRunning) return;
 
             this.checkGameState();
@@ -356,33 +395,50 @@ class World {
     }
 
     /**
-     * Clears and redraws the entire game scene.
-     * Uses animation frames for smooth updates.
-     */
+ * Clears the canvas, draws the world (background, enemies, player, etc.) 
+ * with the current camera offset, then draws the UI (status bars).
+ * This method schedules itself on the next animation frame.
+ *
+ * @returns {void}
+ */
     draw() {
+        // 1) Clear full canvas
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        // 2) Save context and apply camera transform
+        this.ctx.save();
         this.ctx.translate(this.cameraX, 0);
+
+        // 3) Draw background and world objects
         this.addObjectsToMap(this.level.backgroundObjects);
         this.addObjectsToMap(this.level.lights);
-        this.level.enemies = this.level.enemies.filter(enemy => !enemy.markedForRemoval);
+
+        // remove enemies that flew away or died
+        this.level.enemies = this.level.enemies.filter(e => !e.markedForRemoval);
         this.addObjectsToMap(this.level.enemies);
+
+        // draw active throwables, coins, poison bottles
         this.addObjectsToMap(this.throwableObjects);
         this.addObjectsToMap(this.level.coins);
         this.addObjectsToMap(this.level.poisonBottles);
+
+        // draw the main character
         this.addToMap(this.character);
-        this.ctx.translate(-this.cameraX, 0);
+
+        // 4) Restore context to remove camera transform
+        this.ctx.restore();
+
+        // 5) Draw UI on top (life, coins, poison)
         this.addToMap(this.lifeBar);
         this.addToMap(this.coinBar);
         this.drawCollectableCounter(this.coinBar, 310, 42);
         this.addToMap(this.poisonBar);
         this.drawCollectableCounter(this.poisonBar, 515, 42);
-        this.ctx.translate(this.cameraX, 0);
-        this.ctx.translate(-this.cameraX, 0);
-        let self = this;
-        requestAnimationFrame(function () {
-            self.draw();
-        });
-    };
+
+        // 6) Schedule next frame
+        this.drawFrameId = requestAnimationFrame(() => this.draw());
+    }
+
 
     /**
      * Adds multiple drawable objects to the canvas.

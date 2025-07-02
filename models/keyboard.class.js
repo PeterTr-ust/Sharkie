@@ -7,8 +7,10 @@ class Keyboard {
     UP = false;
     DOWN = false;
     SPACE = false;
-    W = false;
-    A = false;
-    S = false;
     D = false;
+
+    reset() {
+        this.RIGHT = this.LEFT = this.UP = this.DOWN =
+            this.SPACE = this.D = false;
+    }
 }

@@ -22,75 +22,55 @@ class MovableObject extends DrawableObject {
 
     /**
     * Checks whether the object is above the ground level.
-    * @returns {boolean}
+    * @returns {boolean} True if object can fall further.
     */
     isOnBottom() {
         return this.positionY < 300;
     }
 
     /**
-   * Checks whether the object is under the top level.
-   * @returns {boolean}
-   */
+     * Checks whether the object is below the upper bound.
+     * @returns {boolean} True if object can move up.
+     */
     isOnTop() {
-        return this.positionY > - 30;
+        return this.positionY > -30;
     }
 
-    /**
-     * Moves the object to the right.
-     */
-    moveRight() {
-        this.positionX += this.speed;
-    }
+    /** @returns {void} Moves the object to the right. */
+    moveRight() { this.positionX += this.speed; }
+
+    /** @returns {void} Moves the object to the left. */
+    moveLeft() { this.positionX -= this.speed; }
+
+    /** @returns {void} Moves the object upward. */
+    moveUp() { this.positionY -= this.speed; }
+
+    /** @returns {void} Moves the object downward. */
+    moveDown() { this.positionY += this.speed; }
 
     /**
-     * Moves the object to the left.
-     */
-    moveLeft() {
-        this.positionX -= this.speed;
-    }
-
-    /**
-     * Moves the object up.
-     */
-    moveUp() {
-        this.positionY -= this.speed;
-    }
-
-    /**
-     * Moves the object down.
-     */
-    moveDown() {
-        this.positionY += this.speed;
-    }
-
-    /**
-     * Plays an animation by cycling through an array of images.
-     * @param {string[]} imagesToPlay - List of image paths.
+     * Plays a looping animation by cycling through image frames.
+     * @param {string[]} imagesToPlay - Array of image URLs to cycle.
      */
     playAnimation(imagesToPlay) {
-        let index = this.currentImage % imagesToPlay.length;
-        let path = imagesToPlay[index];
-        this.img = this.imageCache[path];
+        const index = this.currentImage % imagesToPlay.length;
+        this.img = this.imageCache[imagesToPlay[index]];
         this.currentImage++;
     }
 
-    /**
-     * Makes the object jump by setting vertical speed.
-     */
+    /** @returns {void} Makes the object jump by setting vertical speed. */
     jump() {
         this.speedY = 30;
     }
 
     /**
-     * Checks if this object collides with another movable object.
-     * @param {MovableObject} mo - The other object.
-     * @returns {boolean}
+     * Checks collision with another MovableObject using bounding boxes.
+     * @param {MovableObject} mo - The other object to test.
+     * @returns {boolean} True if collision detected.
      */
     isColliding(mo) {
         const a = this.getCollisionFrame();
         const b = mo.getCollisionFrame();
-
         return (
             a.x < b.x + b.width &&
             a.x + a.width > b.x &&
@@ -100,11 +80,11 @@ class MovableObject extends DrawableObject {
     }
 
     /**
-     * Calculates the collision bounding box with applied offset.
+     * Calculates the collision bounding box, adjusted by offset.
      * @returns {{x: number, y: number, width: number, height: number}}
      */
     getCollisionFrame() {
-        const o = this.offset || { top: 0, left: 0, right: 0, bottom: 0 };
+        const o = this.offset;
         return {
             x: this.positionX - o.left,
             y: this.positionY - o.top,
@@ -114,55 +94,36 @@ class MovableObject extends DrawableObject {
     }
 
     /**
-    * Determines whether the object is currently able to take damage.
-    * The object becomes temporarily invulnerable after being hit,
-    * based on the duration of the hurt animation.
-    *
-    * @returns {boolean} True if the object can take damage, otherwise false.
-    */
+     * Determines if the object is invulnerable (recently hit).
+     * @returns {boolean} True if time since last hit < hurt duration.
+     */
     canTakeDamage() {
         const now = Date.now();
-        const timeSinceLastHit = now - (this.lastHit || 0);
-        const hurtAnimationDuration = 2000;
-
-        return timeSinceLastHit > hurtAnimationDuration;
+        return now - this.lastHit > 2000;
     }
 
     /**
-     * Applies damage to the object. If damage is taken, the object's energy is reduced,
-     * the time of the hit is recorded, and the source of the damage (enemy) is remembered.
-     *
-     * @param {number} damage - The amount of damage to apply.
-     * @param {Object|null} enemy - The enemy object responsible for the hit (optional).
+     * Applies damage, updates energy, and triggers death or hit state.
+     * @param {number} damage - Amount of damage to apply.
+     * @param {Object|null} enemy - The source enemy (optional).
      */
     hit(damage, enemy = null) {
         if (!this.canTakeDamage()) return;
-
-        console.log('Enemy:', enemy, 'Damage:', enemy?.damage);
-
         this.energy -= damage;
-        if (this.energy < 0) {
+        if (this.energy <= 0) {
             this.energy = 0;
             this.die();
         } else {
             this.lastHit = Date.now();
         }
-
-        if (enemy) {
-            this.lastHitByEnemy = enemy;
-        }
+        if (enemy) this.lastHitByEnemy = enemy;
     }
 
     /**
-    * Triggers the enemy's death animation by making it fly upwards,
-    * rotate, and fade out gradually over time.
-    *
-    * - Prevents re-triggering if already in animation.
-    * - Applies upward velocity and simulates gravity.
-    * - Gradually reduces opacity and increases rotation.
-    * - Once fully faded or off-screen, marks the enemy for removal.
-    * - Overrides the draw method to render rotation and transparency.
-    */
+     * Plays the puffer-fish death animation (spiral fly-away + fade).
+     * Stores its interval so it can be cleared on reset.
+     * @returns {void}
+     */
     playPufferDeathAnimation() {
         if (this.isFlyingAway) return;
         this.isFlyingAway = true;
@@ -185,40 +146,48 @@ class MovableObject extends DrawableObject {
             }
         }, 30);
 
+        // Track interval for cleanup
+        this.animationIntervals.push(interval);
+
+        // Override draw to include rotation & opacity
         this.draw = function (ctx) {
             ctx.save();
             ctx.globalAlpha = this.opacity;
-            ctx.translate(this.positionX + this.width / 2, this.positionY + this.height / 2);
-            ctx.rotate(rotation * Math.PI / 180);
-            ctx.drawImage(this.img, -this.width / 2, -this.height / 2, this.width, this.height);
+            ctx.translate(
+                this.positionX + this.width / 2,
+                this.positionY + this.height / 2
+            );
+            ctx.rotate((rotation * Math.PI) / 180);
+            ctx.drawImage(
+                this.img,
+                -this.width / 2,
+                -this.height / 2,
+                this.width,
+                this.height
+            );
             ctx.restore();
         };
     }
 
     /**
-    * Plays the jellyfish death animation sequence and triggers upward movement.
-    *
-    * - Prevents re-execution if the animation is already running or if no images are provided.
-    * - Iterates through the provided death animation frames at 150ms intervals.
-    * - After the animation completes, moves the jellyfish upward continuously until it exits the screen.
-    * - Marks the object for removal once it has left the visible area.
-    *
-    * @param {string[]} imagesDead - Array of image paths representing the death animation frames.
-    */
+     * Plays a jellyfish death animation, then floats it upward until removal.
+     * @param {string[]} imagesDead - Frames for death animation.
+     * @returns {void}
+     */
     playJellyDeathAnimation(imagesDead) {
         if (this.isFlyingAway || !imagesDead?.length) return;
-
         this.isFlyingAway = true;
         this.isDead = true;
         let frameIndex = 0;
 
+        // Play death frames
         const deadInterval = setInterval(() => {
             if (frameIndex < imagesDead.length) {
-                this.img = this.imageCache[imagesDead[frameIndex]];
-                frameIndex++;
+                this.img = this.imageCache[imagesDead[frameIndex++]];
             } else {
                 clearInterval(deadInterval);
 
+                // After death, float up
                 const flyInterval = setInterval(() => {
                     this.positionY -= 5;
                     if (this.positionY < -100) {
@@ -226,113 +195,112 @@ class MovableObject extends DrawableObject {
                         this.markedForRemoval = true;
                     }
                 }, 1000 / 60);
+
+                this.animationIntervals.push(flyInterval);
             }
         }, 150);
+
+        this.animationIntervals.push(deadInterval);
     }
 
     /**
-     * Plays an animation sequence once and triggers an optional callback after completion.
-    * @param {string[]} images - Array of image paths.
-    * @param {Function} [onFinish] - Callback function after animation ends.
-    */
+     * Plays a one-off animation sequence, then calls onFinish callback.
+     * @param {string[]} images - Frames to display.
+     * @param {Function} [onFinish] - Callback after last frame.
+     */
     playAnimationOnce(images, onFinish) {
         if (!images?.length) return;
         let frame = 0;
-
         const interval = setInterval(() => {
-            this.img = this.imageCache[images[frame]];
-            frame++;
-
+            this.img = this.imageCache[images[frame++]];
             if (frame >= images.length) {
                 clearInterval(interval);
                 if (onFinish) onFinish();
             }
         }, 150);
+        this.animationIntervals.push(interval);
     }
 
-    /**
-     * Checks if the object is dead (energy depleted).
-     * @returns {boolean}
-     */
+    /** @returns {boolean} True if energy is depleted. */
     isDead() {
         return this.energy <= 0;
     }
 
-    /**
-     * Checks if the object was recently hit.
-     * @returns {boolean}
-     */
+    /** @returns {boolean} True if object was hit in last second. */
     isHurt() {
-        let timePassed = new Date().getTime() - this.lastHit
-        timePassed = timePassed / 1000;
-        return timePassed < 1;
+        return (Date.now() - this.lastHit) / 1000 < 1;
     }
 
     /**
-     * Triggers the death animation and floating logic.
-     * Subclasses must set this.IMAGES_DEAD and this.finalDeadImage.
+     * Triggers death animation and then floating motion.
+     * Subclasses must define IMAGES_DEAD and finalDeadImage.
      */
     die() {
         if (this.hasDied) return;
         this.hasDied = true;
-
         this.energy = 0;
         this.playAnimationOnce(this.IMAGES_DEAD, () => {
-            if (this.finalDeadImage) {
-                this.loadImg(this.finalDeadImage);
-            }
+            if (this.finalDeadImage) this.loadImg(this.finalDeadImage);
             this.startFloating();
         });
     }
 
     /**
-     * Makes the object float up and down smoothly after death.
+     * Begins a gentle up-and-down floating effect after death.
+     * Interval is tracked for cleanup.
      */
     startFloating() {
         const amplitude = 10;
         const frequency = 0.05;
         const baseY = this.positionY;
         let time = 0;
-
         this.floatingInterval = setInterval(() => {
             this.positionY = baseY + Math.sin(time) * amplitude;
             time += frequency;
         }, 30);
+        this.animationIntervals.push(this.floatingInterval);
     }
 
     /**
-    * Pausiert alle Animationen für dieses Objekt
-    */
+     * Pauses all animations by skipping callbacks in intervals.
+     * @returns {void}
+     */
     pauseAnimations() {
         this.animationsPaused = true;
-        // Optional: Intervals komplett stoppen (nicht unbedingt nötig)
-        // this.animationIntervals.forEach(interval => clearInterval(interval));
-        // this.animationIntervals = [];
     }
 
     /**
-     * Startet alle Animationen wieder für dieses Objekt
+     * Resumes animations; if none are running, triggers animate().
+     * @returns {void}
      */
     resumeAnimations() {
         this.animationsPaused = false;
-        if (this.animationIntervals.length === 0) {
-            this.animate(); // Starte Animationen wenn noch nicht gestartet
+        if (!this.animationIntervals.length) {
+            this.animate();
         }
     }
 
     /**
-     * Hilfsmethode um Intervals zu verwalten
-     * @param {Function} callback - Die Funktion die ausgeführt werden soll
-     * @param {number} delay - Delay in Millisekunden
-     * @returns {number} Interval ID
+     * Sets up a managed interval and tracks its ID for cleanup.
+     * @param {Function} callback - Function to run each tick.
+     * @param {number} delay - Milliseconds between ticks.
+     * @returns {number} The interval ID.
      */
     createAnimationInterval(callback, delay) {
-        const interval = setInterval(() => {
-            if (this.animationsPaused) return; // Check in jedem Frame
-            callback();
+        const id = setInterval(() => {
+            if (!this.animationsPaused) callback();
         }, delay);
+        this.animationIntervals.push(id);
+        return id;
+    }
 
-        this.animationIntervals.push(interval);
-        return interval;
+    /**
+     * Clears and removes all tracked intervals (animations, floats).
+     * @returns {void}
+     */
+    clearAllAnimationIntervals() {
+        this.animationIntervals.forEach(clearInterval);
+        this.animationIntervals.length = 0;
+
     }
 }
