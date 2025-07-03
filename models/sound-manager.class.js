@@ -13,13 +13,15 @@ class SoundManager {
             endbossBite: new Audio('audio/endboss-bite.mp3'),
         };
 
-        this.muted = false;
+        // Initialisiere mit dem localStorage-Wert
+        this.muted = localStorage.getItem('sharkie-muted') === 'true';
 
         Object.values(this.sounds).forEach(s => {
             s.volume = 0.3;
             s.preload = 'auto';
             s.loop = false;
             s.isPlaying = false;
+            s.muted = this.muted;
         });
 
         this.cooldowns = {
@@ -31,18 +33,37 @@ class SoundManager {
     }
 
     /**
-     * Toggles mute flag (keine Löschung der Loops, nur Stummschaltung).
+     * Setzt den globalen Mute-Zustand und wendet ihn auf alle Sounds an.
      */
-    toggleMute() {
-        this.muted = !this.muted;
-        Object.values(this.sounds).forEach(s => s.muted = this.muted);
+    setMute(muted) {
+        this.muted = muted;
+        
+        // Synchronisation mit localStorage
+        localStorage.setItem('sharkie-muted', muted);
+
+        Object.values(this.sounds).forEach(s => {
+            s.muted = muted;
+            // Bei Mute alle Sounds stoppen
+            if (muted) {
+                s.pause();
+                s.currentTime = 0;
+                s.isPlaying = false;
+            }
+        });
     }
 
     /**
-     * Pauses all sounds, rewinds them und setzt Loop-Flags zurück.
+     * Wechselt zwischen stumm/an.
+     */
+    toggleMute() {
+        this.setMute(!this.muted);
+    }
+
+    /**
+     * Pausiert und stoppt alle Sounds, setzt Loops zurück.
      */
     muteAll() {
-        this.muted = true;
+        this.setMute(true);
         Object.values(this.sounds).forEach(s => {
             s.pause();
             s.currentTime = 0;
@@ -52,7 +73,7 @@ class SoundManager {
     }
 
     /**
-     * Stops _und_ rewinds alle Sounds (für einen echten Reset).
+     * Stoppt und rewound alle Sounds vollständig.
      */
     stopAllSounds() {
         Object.keys(this.sounds).forEach(name => this.stop(name));

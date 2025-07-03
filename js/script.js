@@ -1,33 +1,15 @@
 // script.js
 
-// Clone the original start-screen DOM for full reset
 let startTemplate = null;
 
-// Load saved mute state
-const savedMuted = localStorage.getItem('sharkie-muted') === 'true';
-
 window.addEventListener('DOMContentLoaded', () => {
-    // 1) Clone start-screen for later restores
     const startScreen = document.getElementById('start-screen');
     startTemplate = startScreen.cloneNode(true);
 
-    // 2) Bind all UI listeners
     bindUIListeners();
-
-    // 3) Once SoundManager exists, apply saved mute setting
-    const waitSM = setInterval(() => {
-        if (typeof soundManager !== 'undefined' && soundManager.sounds) {
-            soundManager.muted = savedMuted;
-            Object.values(soundManager.sounds).forEach(s => s.muted = savedMuted);
-            updateMuteIcon();
-            clearInterval(waitSM);
-        }
-    }, 50);
+    updateMuteIcon();
 });
 
-/**
- * Attach UI event listeners: play, instructions, try again, back to start, mute, esc.
- */
 function bindUIListeners() {
     const startScreen = document.getElementById('start-screen');
     const canvasWrapper = document.getElementById('canvas-wrapper');
@@ -39,47 +21,38 @@ function bindUIListeners() {
     const backToStartBtn = document.getElementById('back-to-start-button');
     const muteBtn = document.getElementById('mute-button');
 
-    // PLAY: hide menu, show game, start
     playBtn?.addEventListener('click', () => {
         startScreen.style.display = 'none';
         canvasWrapper.style.display = 'block';
         init();
     });
 
-    // INSTRUCTIONS dialog
     instructionsBtn?.addEventListener('click', () => {
         instructionsDialog.classList.remove('hide');
         instructionsDialog.classList.add('show');
     });
+
     closeInstrBtn?.addEventListener('click', closeInstructionsDialog);
     instructionsDialog?.addEventListener('click', e => {
         if (e.target === instructionsDialog) closeInstructionsDialog();
     });
 
-    // TRY AGAIN: reset + immediate restart
     tryAgainBtn?.addEventListener('click', e => {
         e.preventDefault();
         gameRestart();
     });
 
-    // BACK TO START: reset + restore original start screen
     backToStartBtn?.addEventListener('click', e => {
         e.preventDefault();
         gameReset();
         restoreStartScreen();
     });
 
-    // MUTE toggle: use global soundManager var
     muteBtn?.addEventListener('click', () => {
-        if (typeof soundManager === 'undefined' || !soundManager) return;
-        soundManager.toggleMute();
-        Object.values(soundManager.sounds).forEach(s => s.muted = soundManager.muted);
-        localStorage.setItem('sharkie-muted', soundManager.muted);
-        updateMuteIcon();
+        toggleMute();
         muteBtn.blur();
     });
 
-    // ESC closes instructions
     document.addEventListener('keydown', e => {
         if (e.key === 'Escape' && !instructionsDialog.classList.contains('hide')) {
             closeInstructionsDialog();
@@ -87,29 +60,49 @@ function bindUIListeners() {
     });
 }
 
-/**
- * Replace #start-screen with its original clone and rebind listeners.
- */
 function restoreStartScreen() {
     const old = document.getElementById('start-screen');
     const clone = startTemplate.cloneNode(true);
     old.replaceWith(clone);
     bindUIListeners();
+    updateMuteIcon();
 }
 
-/** Fade-out the instructions dialog. */
 function closeInstructionsDialog() {
     const dlg = document.getElementById('instructions-dialog');
     dlg.classList.remove('show');
     setTimeout(() => dlg.classList.add('hide'), 300);
 }
 
-/** Update the mute-button icon based on current mute state. */
+/**
+ * Zentrale Funktion für das Mute-Toggle
+ */
+function toggleMute() {
+    const currentMuted = localStorage.getItem('sharkie-muted') === 'true';
+    const newMuteState = !currentMuted;
+    
+    // Status in localStorage speichern
+    localStorage.setItem('sharkie-muted', newMuteState);
+    
+    // SoundManager aktualisieren, falls vorhanden
+    if (typeof soundManager !== 'undefined' && soundManager) {
+        soundManager.setMute(newMuteState);
+    }
+    
+    // Icon aktualisieren
+    updateMuteIcon();
+}
+
+/**
+ * Aktualisiert das Mute-Icon basierend auf dem localStorage-Status
+ */
 function updateMuteIcon() {
     const icon = document.getElementById('mute-icon');
-    if (!icon || typeof soundManager === 'undefined' || !soundManager) return;
-    icon.src = soundManager.muted ? 'img/icons/sound-off.png' : 'img/icons/sound-on.png';
-    icon.alt = soundManager.muted ? 'Sound off' : 'Sound on';
+    if (!icon) return;
+    
+    const isMuted = localStorage.getItem('sharkie-muted') === 'true';
+    icon.src = isMuted ? 'img/icons/sound-off.png' : 'img/icons/sound-on.png';
+    icon.alt = isMuted ? 'Sound off' : 'Sound on';
 }
 
 function toggleFullscreen() {

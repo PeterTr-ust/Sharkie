@@ -8,17 +8,27 @@ let gameLoopId = null; // Store animation frame ID for cleanup
 /**
  * Initializes the game by setting up the canvas and world.
  */
-function init() {
+function init(forceMute = null) {
     canvas = document.getElementById('canvas');
     soundManager = new SoundManager();
-    window.soundManager = soundManager;
-    const level = createLevel1();
 
+    // Mute-Status korrekt laden und anwenden
+    const muteState = (forceMute !== null) 
+        ? forceMute 
+        : localStorage.getItem('sharkie-muted') === 'true';
+
+    // Wichtig: setMute erst nach der vollständigen Initialisierung
+    setTimeout(() => {
+        soundManager.setMute(muteState);
+        window.soundManager = soundManager;
+        updateMuteIcon();
+    }, 50);
+
+    const level = createLevel1();
     world = new World(canvas, keyboard, soundManager, level);
     gameStarted = true;
     world.start();
 }
-
 
 /**
  * Resets the game to initial state
@@ -38,12 +48,8 @@ function gameReset() {
     // 3) Status-Bars zurücksetzen (nur wenn world noch existiert)
     if (world) {
         world.lifeBar.setPercentage(100);
-
-        // Falls du diese Werte als Konstanten definierst, 
-        // kannst du hier darauf referenzieren (z.B. INITIAL_COINS)
         world.coinBar.max = 10;
         world.coinBar.reset();
-
         world.poisonBar.max = 5;
         world.poisonBar.reset();
     }
@@ -71,18 +77,20 @@ function gameReset() {
     console.log('Game reset complete');
 }
 
-
 /**
  * Restarts the game (reset + immediate start)
  */
 function gameRestart() {
+    // Mute-Status vor dem Reset sichern
+    const wasMuted = soundManager?.muted ?? localStorage.getItem('sharkie-muted') === 'true';
+
     gameReset();
 
-    // kurze Pause, dann neu starten
     setTimeout(() => {
         document.getElementById('start-screen').style.display = 'none';
         document.getElementById('canvas-wrapper').style.display = 'block';
-        init();   // baut neue World + Level auf
+        init(wasMuted);
+        bindUIListeners();
     }, 100);
 }
 
@@ -110,10 +118,6 @@ window.addEventListener('keydown', (event) => {
             break;
         case 68:
             keyboard.D = true;
-            break;
-        case 82: // R key for quick restart
-            event.preventDefault();
-            gameRestart();
             break;
     }
 });
