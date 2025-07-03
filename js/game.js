@@ -1,5 +1,4 @@
 let canvas;
-let soundManager;
 let world;
 let keyboard = new Keyboard();
 let gameStarted = false;
@@ -10,25 +9,21 @@ let gameLoopId = null; // Store animation frame ID for cleanup
  */
 function init(forceMute = null) {
     canvas = document.getElementById('canvas');
-    soundManager = new SoundManager();
-
-    // Mute-Status korrekt laden und anwenden
-    const muteState = (forceMute !== null) 
-        ? forceMute 
+    resetCanvasSize(canvas);
+    // 2) Mute-Status ermitteln und anwenden
+    const muteState = forceMute !== null
+        ? forceMute
         : localStorage.getItem('sharkie-muted') === 'true';
+    soundManager.setMute(muteState);
+    updateMuteIcon();
 
-    // Wichtig: setMute erst nach der vollständigen Initialisierung
-    setTimeout(() => {
-        soundManager.setMute(muteState);
-        window.soundManager = soundManager;
-        updateMuteIcon();
-    }, 50);
-
+    // 3) Welt und Game-Loop starten
     const level = createLevel1();
     world = new World(canvas, keyboard, soundManager, level);
     gameStarted = true;
     world.start();
 }
+
 
 /**
  * Resets the game to initial state
@@ -36,8 +31,9 @@ function init(forceMute = null) {
 function gameReset() {
     console.log('Resetting game…');
 
-    // 1) Stoppe alle laufenden Loops und Animationen
-    if (world?.stopGame) {
+    // 1) Stoppe alle laufenden Loops, Animationen und lösche Endgame-Timeout
+    if (world) {
+        clearTimeout(world.endGameTimeout);
         world.stopGame();
     }
 
@@ -45,7 +41,7 @@ function gameReset() {
     gameStarted = false;
     keyboard.reset();
 
-    // 3) Status-Bars zurücksetzen (nur wenn world noch existiert)
+    // 3) Status-Bars zurücksetzen
     if (world) {
         world.lifeBar.setPercentage(100);
         world.coinBar.max = 10;
@@ -61,13 +57,10 @@ function gameReset() {
     }
 
     // 5) Sounds stoppen
-    soundManager?.stop('ambient');
-    soundManager?.stop('swim');
     soundManager?.stopAllSounds();
 
     // 6) Alte Referenzen löschen
     world = null;
-    soundManager = null;
 
     // 7) UI auf Start-Screen umschalten
     document.getElementById('canvas-wrapper').style.display = 'none';
@@ -77,22 +70,21 @@ function gameReset() {
     console.log('Game reset complete');
 }
 
+
 /**
  * Restarts the game (reset + immediate start)
  */
 function gameRestart() {
-    // Mute-Status vor dem Reset sichern
-    const wasMuted = soundManager?.muted ?? localStorage.getItem('sharkie-muted') === 'true';
-
+    const wasMuted = soundManager.muted;
     gameReset();
 
     setTimeout(() => {
         document.getElementById('start-screen').style.display = 'none';
         document.getElementById('canvas-wrapper').style.display = 'block';
         init(wasMuted);
-        bindUIListeners();
     }, 100);
 }
+
 
 /**
  * Adds event listeners for keydown events.
