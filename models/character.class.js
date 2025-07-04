@@ -121,6 +121,7 @@ class Character extends MovableObject {
     poisonBottlesCollected = 0;
     maxPoisonBottles = 5;
     finalDeadImage = 'img/character/dead/8.png';
+    hasPlayedHurtSound = false;
 
     constructor(soundManager) {
         super().loadImg('img/character/idle/1.png');
@@ -304,14 +305,24 @@ class Character extends MovableObject {
             const images = enemy instanceof PufferFish
                 ? this.IMAGES_HURT_BY_PUFFERFISH
                 : this.IMAGES_HURT_BY_JELLYFISH;
-            this.soundManager?.play('hurt');
+
+            if (!this.hasPlayedHurtSound) {
+                this.soundManager?.play('hurt');
+                this.hasPlayedHurtSound = true;
+            }
+
             this.playAnimation(images);
-        } else if (kb?.RIGHT || kb?.LEFT || kb?.UP || kb?.DOWN) {
-            this.playAnimation(this.IMAGES_SWIM);
-        } else if (this.inactivity.getInactivityDuration() > 15000) {
-            this.playAnimation(this.IMAGES_INACTIVE);
         } else {
-            this.playAnimation(this.IMAGES_IDLE);
+            this.hasPlayedHurtSound = false;
+
+            if (kb?.RIGHT || kb?.LEFT || kb?.UP || kb?.DOWN) {
+                this.playAnimation(this.IMAGES_SWIM);
+            } else if (this.inactivity.getInactivityDuration() > 15000) {
+                this.playAnimation(this.IMAGES_INACTIVE);
+            } else {
+                this.playAnimation(this.IMAGES_IDLE);
+            }
         }
     }
+
 }
