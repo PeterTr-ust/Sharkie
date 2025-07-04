@@ -1,3 +1,15 @@
+/**
+ * Creates and returns a new instance of Level 1 for the game.
+ * The level includes predefined sets of enemies, lights, collectibles, hazards,
+ * and background elements placed at specific coordinates.
+ *
+ * @returns {Level} The Level 1 instance containing:
+ *  - Enemies: Multiple PufferFish, JellyFish, DangerousJellyFish, and one Endboss.
+ *  - Lights: A single light object.
+ *  - Coins: Ten coin collectibles placed at strategic positions.
+ *  - Poisons: Five poisonous items serving as environmental hazards.
+ *  - BackgroundObjects: Layered game background graphics spanning across screen widths.
+ */
 function createLevel1() {
     return new Level(
         [
