@@ -192,10 +192,24 @@ canvas {
     box-shadow: 0 0 20px black;
 }
 
+.game-end-screen-buttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+}
+
+#back-to-start-button {
+    font-size: 24px;
+    border-radius: 12px;
+    padding: 6px 48px;
+    border: 2px solid white;
+}
+
 #try-again-button img {
     display: block;
     width: auto;
-    height: 64px;
+    height: 48px;
 }
 
 #try-again-button {
