@@ -10,14 +10,11 @@ let gameLoopId = null; // Store animation frame ID for cleanup
 function init(forceMute = null) {
     canvas = document.getElementById('canvas');
     resetCanvasSize(canvas);
-    // 2) Mute-Status ermitteln und anwenden
     const muteState = forceMute !== null
         ? forceMute
         : localStorage.getItem('sharkie-muted') === 'true';
     soundManager.setMute(muteState);
     updateMuteIcon();
-
-    // 3) Welt und Game-Loop starten
     const level = createLevel1();
     world = new World(canvas, keyboard, soundManager, level);
     gameStarted = true;
