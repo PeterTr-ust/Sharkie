@@ -62,7 +62,7 @@ class Endboss extends MovableObject {
     isReturning = false;
     lastAttackTime = 0;
     attackSpeed = 20;
-    returnSpeed = 30;
+    returnSpeed = 10;
     originalX = 1750;
     attackDistance = 400;
     offset = {
@@ -122,24 +122,19 @@ class Endboss extends MovableObject {
     startReturn() {
         if (this.isDead()) return;
 
-        // Stop the bite sound and mark as returning
         world.soundManager.stop('endbossBite');
         this.isReturning = true;
 
-        // Store the interval so we can clear it later in stopGame()
         this.returnInterval = setInterval(() => {
             if (this.positionX >= this.originalX) {
-                // Snap to original position, stop returning, clear this interval
                 this.positionX = this.originalX;
                 this.isReturning = false;
                 clearInterval(this.returnInterval);
             } else {
-                // Otherwise move right by returnSpeed
                 this.positionX += this.returnSpeed;
             }
         }, 50);
 
-        // Track this interval for cleanup
         this.animationIntervals.push(this.returnInterval);
     }
 
