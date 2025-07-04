@@ -1,73 +1,101 @@
+// script.js
+
+let startTemplate = null;
+
+// 1) Einmalige globale Instanziierung
+const soundManager = new SoundManager();
+window.soundManager = soundManager;
+
 window.addEventListener('DOMContentLoaded', () => {
-    const playInitialBtn = document.getElementById('play-button');
-    const instructionsBtn = document.getElementById('instructions-button');
-    const controls = document.getElementById('controls-info');
-    const explanation = document.getElementById('explanation-info');
-    const logo = document.getElementById('logo');
-    const startScreen = document.getElementById('start-screen');
-    const canvasWrapper = document.getElementById('canvas-wrapper');
-    const muteBtn = document.getElementById('mute-button');
-    const muteIcon = document.getElementById('mute-icon');
-    const savedMuted = localStorage.getItem('sharkie-muted') === 'true';
-    const instructionsDialog = document.getElementById('instructions-dialog');
-    const closeInstructionsBtn = document.getElementById('close-instructions');
+  const startScreen = document.getElementById('start-screen');
+  startTemplate = startScreen.cloneNode(true);
 
-    playInitialBtn?.addEventListener('click', () => {
-        startScreen.style.display = 'none';
-        canvasWrapper.style.display = 'block';
-        init();
-    });
-
-    instructionsBtn?.addEventListener('click', () => {
-        instructionsDialog.classList.remove('hide');
-        instructionsDialog.classList.add('show');
-    });
-
-    closeInstructionsBtn?.addEventListener('click', () => {
-        instructionsDialog.classList.remove('show');
-        setTimeout(() => {
-            instructionsDialog.classList.add('hide');
-        }, 300);
-    });
-
-    instructionsDialog.addEventListener('click', (event) => {
-        if (event.target === instructionsDialog) {
-            instructionsDialog.classList.remove('show');
-            setTimeout(() => {
-                instructionsDialog.classList.add('hide');
-            }, 300);
-        }
-    });
-
-    muteBtn?.addEventListener('click', () => {
-        if (typeof soundManager !== 'undefined') {
-            soundManager.toggleMute();
-            for (const key in soundManager.sounds) {
-                soundManager.sounds[key].muted = soundManager.muted;
-            }
-            localStorage.setItem('sharkie-muted', soundManager.muted);
-            updateMuteIcon();
-            muteBtn.blur();
-        }
-    });
-
-    function updateMuteIcon() {
-        if (typeof soundManager === 'undefined') return;
-        muteIcon.src = soundManager.muted ? 'img/icons/sound-off.png' : 'img/icons/sound-on.png';
-        muteIcon.alt = soundManager.muted ? 'Sound aus' : 'Sound an';
-    }
-
-    const waitForSoundManager = setInterval(() => {
-        if (typeof soundManager !== 'undefined' && soundManager.sounds) {
-            soundManager.muted = savedMuted;
-            for (const key in soundManager.sounds) {
-                soundManager.sounds[key].muted = savedMuted;
-            }
-            updateMuteIcon();
-            clearInterval(waitForSoundManager);
-        }
-    }, 100);
+  bindUIListeners();
+  updateMuteIcon();
 });
+
+function bindUIListeners() {
+  const startScreen        = document.getElementById('start-screen');
+  const canvasWrapper      = document.getElementById('canvas-wrapper');
+  const instructionsDialog = document.getElementById('instructions-dialog');
+  const playBtn            = document.getElementById('play-button');
+  const instructionsBtn    = document.getElementById('instructions-button');
+  const closeInstrBtn      = document.getElementById('close-instructions');
+  const tryAgainBtn        = document.getElementById('try-again-button');
+  const backToStartBtn     = document.getElementById('back-to-start-button');
+  const muteBtn            = document.getElementById('mute-button');
+
+  playBtn?.addEventListener('click', () => {
+    startScreen.style.display      = 'none';
+    canvasWrapper.style.display    = 'block';
+    init();
+  });
+
+  instructionsBtn?.addEventListener('click', () => {
+    instructionsDialog.classList.remove('hide');
+    instructionsDialog.classList.add('show');
+  });
+  closeInstrBtn?.addEventListener('click', closeInstructionsDialog);
+  instructionsDialog?.addEventListener('click', e => {
+    if (e.target === instructionsDialog) closeInstructionsDialog();
+  });
+
+  // 2) Try Again erhält normalen Listener (kein {once:true})
+  tryAgainBtn?.addEventListener('click', e => {
+    e.preventDefault();
+    gameRestart();
+  });
+
+  backToStartBtn?.addEventListener('click', e => {
+    e.preventDefault();
+    gameReset();
+  });
+
+  muteBtn?.addEventListener('click', () => {
+    toggleMute();
+    muteBtn.blur();
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && !instructionsDialog.classList.contains('hide')) {
+      closeInstructionsDialog();
+    }
+  });
+}
+
+function restoreStartScreen() {
+  const old   = document.getElementById('start-screen');
+  const clone = startTemplate.cloneNode(true);
+  old.replaceWith(clone);
+  bindUIListeners();
+  updateMuteIcon();
+}
+
+function closeInstructionsDialog() {
+  const dlg = document.getElementById('instructions-dialog');
+  dlg.classList.remove('show');
+  setTimeout(() => dlg.classList.add('hide'), 300);
+}
+
+function toggleMute() {
+  const currentMuted = localStorage.getItem('sharkie-muted') === 'true';
+  const newMuteState = !currentMuted;
+
+  localStorage.setItem('sharkie-muted', newMuteState);
+  soundManager.setMute(newMuteState);
+  updateMuteIcon();
+}
+
+function updateMuteIcon() {
+  const icon = document.getElementById('mute-icon');
+  if (!icon) return;
+
+  const isMuted = localStorage.getItem('sharkie-muted') === 'true';
+  icon.src = isMuted ? 'img/icons/sound-off.png' : 'img/icons/sound-on.png';
+  icon.alt = isMuted ? 'Sound off' : 'Sound on';
+}
+
+// Fullscreen- und Canvas-Resizing-Funktionen…
 
 function toggleFullscreen() {
     const wrapper = document.getElementById('canvas-wrapper');

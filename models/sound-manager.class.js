@@ -13,12 +13,16 @@ class SoundManager {
             endbossBite: new Audio('audio/endboss-bite.mp3'),
         };
 
-        this.muted = false;
+        // Initialisiere mit dem localStorage-Wert
+        this.muted = localStorage.getItem('sharkie-muted') === 'true';
 
-        for (const key in this.sounds) {
-            this.sounds[key].volume = 0.3;
-            this.sounds[key].preload = 'auto';
-        }
+        Object.values(this.sounds).forEach(s => {
+            s.volume = 0.3;
+            s.preload = 'auto';
+            s.loop = false;
+            s.isPlaying = false;
+            s.muted = this.muted;
+        });
 
         this.cooldowns = {
             swim: 0,
@@ -28,55 +32,81 @@ class SoundManager {
         this.lastPlayed = {};
     }
 
+    /**
+     * Setzt den globalen Mute-Zustand und wendet ihn auf alle Sounds an.
+     */
+    setMute(muted) {
+        this.muted = muted;
+        
+        // Synchronisation mit localStorage
+        localStorage.setItem('sharkie-muted', muted);
+
+        Object.values(this.sounds).forEach(s => {
+            s.muted = muted;
+            // Bei Mute alle Sounds stoppen
+            if (muted) {
+                s.pause();
+                s.currentTime = 0;
+                s.isPlaying = false;
+            }
+        });
+    }
+
+    /**
+     * Wechselt zwischen stumm/an.
+     */
     toggleMute() {
-        this.muted = !this.muted;
-        for (const key in this.sounds) {
-            this.sounds[key].muted = this.muted;
-        }
+        this.setMute(!this.muted);
     }
 
+    /**
+     * Pausiert und stoppt alle Sounds, setzt Loops zurück.
+     */
     muteAll() {
-        this.muted = true;
-        for (const key in this.sounds) {
-            const s = this.sounds[key];
+        this.setMute(true);
+        Object.values(this.sounds).forEach(s => {
             s.pause();
+            s.currentTime = 0;
             s.isPlaying = false;
-        }
+            s.loop = false;
+        });
     }
 
+    /**
+     * Stoppt und rewound alle Sounds vollständig.
+     */
+    stopAllSounds() {
+        Object.keys(this.sounds).forEach(name => this.stop(name));
+    }
 
     play(name) {
-        const sound = this.sounds[name];
-        if (!sound || this.muted) return;
-
+        const s = this.sounds[name];
+        if (!s || this.muted) return;
         const now = Date.now();
-        const lastTime = this.lastPlayed[name] || 0;
-        const cooldown = this.cooldowns[name] || 0;
-
-        if (now - lastTime >= cooldown) {
-            sound.currentTime = 0;
-            sound.play();
+        if ((now - (this.lastPlayed[name] || 0)) >= (this.cooldowns[name] || 0)) {
+            s.currentTime = 0;
+            s.play();
             this.lastPlayed[name] = now;
         }
     }
 
     playLoop(name) {
-        const sound = this.sounds[name];
-        if (!sound || this.muted) return;
-        if (!sound.isPlaying) {
-            sound.loop = true;
-            sound.currentTime = 0;
-            sound.play();
-            sound.isPlaying = true;
+        const s = this.sounds[name];
+        if (!s || this.muted) return;
+        if (!s.isPlaying) {
+            s.loop = true;
+            s.currentTime = 0;
+            s.play();
+            s.isPlaying = true;
         }
     }
 
     stop(name) {
-        const sound = this.sounds[name];
-        if (!sound) return;
-        sound.pause();
-        sound.currentTime = 0;
-        sound.isPlaying = false;
+        const s = this.sounds[name];
+        if (!s) return;
+        s.pause();
+        s.currentTime = 0;
+        s.isPlaying = false;
+        s.loop = false;
     }
-
 }

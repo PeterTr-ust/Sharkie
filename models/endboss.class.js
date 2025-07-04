@@ -95,7 +95,7 @@ class Endboss extends MovableObject {
             if (this.spawnAnimationCompleted && !this.isAttacking && !this.isReturning) {
                 this.startAttack();
             }
-        }, 8000);
+        }, 5000);
     }
 
     /**
@@ -115,23 +115,34 @@ class Endboss extends MovableObject {
     }
 
     /**
-     * Moves the boss back to its original X position.
-     * Continues moving right until the original position is reached,
-     * then stops the return behavior.
-     */
+     * Moves the boss back to its original X position, then stops the return loop.
+    *
+    * @returns {void}
+    */
     startReturn() {
         if (this.isDead()) return;
+
+        // Stop the bite sound and mark as returning
         world.soundManager.stop('endbossBite');
         this.isReturning = true;
 
-        const returnInterval = setInterval(() => {
+        // Store the interval so we can clear it later in stopGame()
+        this.returnInterval = setInterval(() => {
             if (this.positionX >= this.originalX) {
-                this.positionX = this.originalX; // Snap to original position
+                // Snap to original position, stop returning, clear this interval
+                this.positionX = this.originalX;
                 this.isReturning = false;
-                clearInterval(returnInterval);
+                clearInterval(this.returnInterval);
+            } else {
+                // Otherwise move right by returnSpeed
+                this.positionX += this.returnSpeed;
             }
         }, 50);
+
+        // Track this interval for cleanup
+        this.animationIntervals.push(this.returnInterval);
     }
+
 
     /**
     * Applies damage to the Endboss and triggers the hurt animation.
