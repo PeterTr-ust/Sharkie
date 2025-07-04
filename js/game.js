@@ -28,7 +28,6 @@ let gameStarted = false;
  */
 let gameLoopId = null;
 
-
 /**
  * Initializes the game by configuring canvas, audio, and world.
  * 
@@ -54,6 +53,16 @@ function setupCanvas(id) {
     const canvas = document.getElementById(id);
     resetCanvasSize(canvas);
     return canvas;
+}
+
+/**
+ * Resets the size of the given canvas element to a fixed width and height.
+ *
+ * @param {HTMLCanvasElement} canvas - The canvas element whose dimensions will be reset.
+ */
+function resetCanvasSize(canvas) {
+  canvas.width = 720;
+  canvas.height = 480;
 }
 
 /**
