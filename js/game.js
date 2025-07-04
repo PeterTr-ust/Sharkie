@@ -1,72 +1,166 @@
-let canvas;
-let world;
-let keyboard = new Keyboard();
-let gameStarted = false;
-let gameLoopId = null; // Store animation frame ID for cleanup
+/**
+ * The HTML canvas element used for rendering the game.
+ * @type {HTMLCanvasElement|null}
+ */
+let canvas = null;
 
 /**
- * Initializes the game by setting up the canvas and world.
+ * The current game world instance.
+ * @type {World|null}
+ */
+let world = null;
+
+/**
+ * Handles player input through keyboard events.
+ * @type {Keyboard}
+ */
+let keyboard = new Keyboard();
+
+/**
+ * Indicates whether the game has started.
+ * @type {boolean}
+ */
+let gameStarted = false;
+
+/**
+ * Holds the ID of the active game loop interval or requestAnimationFrame.
+ * @type {number|null}
+ */
+let gameLoopId = null;
+
+
+/**
+ * Initializes the game by configuring canvas, audio, and world.
+ * 
+ * @param {boolean|null} forceMute - Optional mute override for sound settings.
  */
 function init(forceMute = null) {
-    canvas = document.getElementById('canvas');
-    resetCanvasSize(canvas);
-    const muteState = forceMute !== null
-        ? forceMute
-        : localStorage.getItem('sharkie-muted') === 'true';
+    canvas = setupCanvas('canvas');
+    const muteState = getMuteState(forceMute);
     soundManager.setMute(muteState);
     updateMuteIcon();
-    const level = createLevel1();
-    world = new World(canvas, keyboard, soundManager, level);
+    world = setupWorld(canvas, keyboard, soundManager);
     gameStarted = true;
     world.start();
 }
 
+/**
+ * Sets up the canvas element and adjusts its size.
+ * 
+ * @param {string} id - The ID of the canvas element in the DOM.
+ * @returns {HTMLCanvasElement} The configured canvas element.
+ */
+function setupCanvas(id) {
+    const canvas = document.getElementById(id);
+    resetCanvasSize(canvas);
+    return canvas;
+}
 
 /**
- * Resets the game to initial state
+ * Determines the mute state based on the provided value or local storage.
+ * 
+ * @param {boolean|null} forceMute - Optional override for mute setting.
+ * @returns {boolean} True if muted, false otherwise.
+ */
+function getMuteState(forceMute) {
+    return forceMute !== null
+        ? forceMute
+        : localStorage.getItem('sharkie-muted') === 'true';
+}
+
+/**
+ * Creates and returns a new game world.
+ * 
+ * @param {HTMLCanvasElement} canvas - The canvas element for rendering.
+ * @param {Keyboard} keyboard - The keyboard input handler.
+ * @param {SoundManager} soundManager - The sound manager for game audio.
+ * @returns {World} The initialized game world object.
+ */
+function setupWorld(canvas, keyboard, soundManager) {
+    const level = createLevel1();
+    return new World(canvas, keyboard, soundManager, level);
+}
+
+/**
+ * Resets the game to its initial state by clearing game logic,
+ * resetting HUD and canvas, and updating UI elements.
  */
 function gameReset() {
     console.log('Resetting game…');
 
-    // 1) Stoppe alle laufenden Loops, Animationen und lösche Endgame-Timeout
-    if (world) {
-        clearTimeout(world.endGameTimeout);
-        world.stopGame();
-    }
+    if (world) stopRunningGame(world);
 
-    // 2) Spiel-Status & Keyboard resetten
-    gameStarted = false;
-    keyboard.reset();
+    resetGameState();
 
-    // 3) Status-Bars zurücksetzen
-    if (world) {
-        world.lifeBar.setPercentage(100);
-        world.coinBar.max = 10;
-        world.coinBar.reset();
-        world.poisonBar.max = 5;
-        world.poisonBar.reset();
-    }
+    if (world) resetStatusBars(world);
 
-    // 4) Canvas leeren
-    if (canvas) {
-        const ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-    }
+    if (canvas) clearCanvas(canvas);
 
-    // 5) Sounds stoppen
-    soundManager?.stopAllSounds();
+    stopAllGameSounds(soundManager);
 
-    // 6) Alte Referenzen löschen
     world = null;
 
-    // 7) UI auf Start-Screen umschalten
-    document.getElementById('canvas-wrapper').style.display = 'none';
-    document.getElementById('game-end-screen').classList.add('d-none');
-    document.getElementById('start-screen').style.display = 'block';
+    updateUiOnGameReset();
 
     console.log('Game reset complete');
 }
 
+/**
+ * Stops the current game logic and clears any scheduled actions.
+ */
+function stopRunningGame(world) {
+    clearTimeout(world.endGameTimeout);
+    world.stopGame();
+}
+
+/**
+ * Resets game flags and input handlers.
+ */
+function resetGameState() {
+    gameStarted = false;
+    keyboard.reset();
+}
+
+/**
+ * Resets the HUD elements (life, coin, poison bars) to default values.
+ * 
+ * @param {World} world - The current game world instance.
+ */
+function resetStatusBars(world) {
+    world.lifeBar.setPercentage(100);
+    world.coinBar.max = 10;
+    world.coinBar.reset();
+    world.poisonBar.max = 5;
+    world.poisonBar.reset();
+}
+
+/**
+ * Clears the canvas drawing area.
+ * 
+ * @param {HTMLCanvasElement} canvas - The canvas to be cleared.
+ */
+function clearCanvas(canvas) {
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+/**
+ * Stops all active game sounds.
+ * 
+ * @param {SoundManager} soundManager - The game's sound manager.
+ */
+function stopAllGameSounds(soundManager) {
+    soundManager?.stopAllSounds();
+}
+
+/**
+ * Updates the visibility of main UI elements during game reset.
+ */
+function updateUiOnGameReset() {
+    document.getElementById('canvas-wrapper').classList.add('d-none');
+    document.getElementById('game-end-screen').classList.add('d-none');
+    document.getElementById('start-screen').classList.add('d-none');
+}
 
 /**
  * Restarts the game (reset + immediate start)
@@ -76,12 +170,11 @@ function gameRestart() {
     gameReset();
 
     setTimeout(() => {
-        document.getElementById('start-screen').style.display = 'none';
-        document.getElementById('canvas-wrapper').style.display = 'block';
+        document.getElementById('start-screen').classList.add('d-none');
+        document.getElementById('canvas-wrapper').classList.remove('d-none');
         init(wasMuted);
     }, 100);
 }
-
 
 /**
  * Adds event listeners for keydown events.

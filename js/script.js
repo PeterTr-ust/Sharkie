@@ -15,19 +15,19 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 function bindUIListeners() {
-  const startScreen        = document.getElementById('start-screen');
-  const canvasWrapper      = document.getElementById('canvas-wrapper');
+  const startScreen = document.getElementById('start-screen');
+  const canvasWrapper = document.getElementById('canvas-wrapper');
   const instructionsDialog = document.getElementById('instructions-dialog');
-  const playBtn            = document.getElementById('play-button');
-  const instructionsBtn    = document.getElementById('instructions-button');
-  const closeInstrBtn      = document.getElementById('close-instructions');
-  const tryAgainBtn        = document.getElementById('try-again-button');
-  const backToStartBtn     = document.getElementById('back-to-start-button');
-  const muteBtn            = document.getElementById('mute-button');
+  const playBtn = document.getElementById('play-button');
+  const instructionsBtn = document.getElementById('instructions-button');
+  const closeInstrBtn = document.getElementById('close-instructions');
+  const tryAgainBtn = document.getElementById('try-again-button');
+  const backToStartBtn = document.getElementById('back-to-start-button');
+  const muteBtn = document.getElementById('mute-button');
 
   playBtn?.addEventListener('click', () => {
-    startScreen.style.display      = 'none';
-    canvasWrapper.style.display    = 'block';
+    startScreen.classList.add('d-none');
+    canvasWrapper.classList.remove('d-none');
     init();
   });
 
@@ -64,7 +64,7 @@ function bindUIListeners() {
 }
 
 function restoreStartScreen() {
-  const old   = document.getElementById('start-screen');
+  const old = document.getElementById('start-screen');
   const clone = startTemplate.cloneNode(true);
   old.replaceWith(clone);
   bindUIListeners();
@@ -98,47 +98,47 @@ function updateMuteIcon() {
 // Fullscreen- und Canvas-Resizing-Funktionen…
 
 function toggleFullscreen() {
-    const wrapper = document.getElementById('canvas-wrapper');
-    if (!document.fullscreenElement) {
-        wrapper.requestFullscreen?.();
-        document.addEventListener('fullscreenchange', () => {
-            if (document.fullscreenElement === wrapper) {
-                wrapper.classList.add('fullscreen-active');
-                resizeCanvasToFullscreen(canvas);
-            }
-        }, { once: true });
-    } else {
-        document.exitFullscreen?.();
-        document.addEventListener('fullscreenchange', () => {
-            if (!document.fullscreenElement) {
-                wrapper.classList.remove('fullscreen-active');
-                canvas.style.width = '720px';
-                canvas.style.height = '480px';
-            }
-        }, { once: true });
-    }
+  const wrapper = document.getElementById('canvas-wrapper');
+  if (!document.fullscreenElement) {
+    wrapper.requestFullscreen?.();
+    document.addEventListener('fullscreenchange', () => {
+      if (document.fullscreenElement === wrapper) {
+        wrapper.classList.add('fullscreen-active');
+        resizeCanvasToFullscreen(canvas);
+      }
+    }, { once: true });
+  } else {
+    document.exitFullscreen?.();
+    document.addEventListener('fullscreenchange', () => {
+      if (!document.fullscreenElement) {
+        wrapper.classList.remove('fullscreen-active');
+        canvas.style.width = '720px';
+        canvas.style.height = '480px';
+      }
+    }, { once: true });
+  }
 }
 
 function resizeCanvasToFullscreen(canvas, desiredAspect = 720 / 480) {
-    const fullscreenEl = document.fullscreenElement || document.webkitFullscreenElement;
-    const screenW = fullscreenEl ? fullscreenEl.clientWidth : window.innerWidth;
-    const screenH = fullscreenEl ? fullscreenEl.clientHeight : window.innerHeight;
-    const screenAspect = screenW / screenH;
+  const fullscreenEl = document.fullscreenElement || document.webkitFullscreenElement;
+  const screenW = fullscreenEl ? fullscreenEl.clientWidth : window.innerWidth;
+  const screenH = fullscreenEl ? fullscreenEl.clientHeight : window.innerHeight;
+  const screenAspect = screenW / screenH;
 
-    let newWidth, newHeight;
-    if (screenAspect > desiredAspect) {
-        newHeight = screenH;
-        newWidth = newHeight * desiredAspect;
-    } else {
-        newWidth = screenW;
-        newHeight = newWidth / desiredAspect;
-    }
+  let newWidth, newHeight;
+  if (screenAspect > desiredAspect) {
+    newHeight = screenH;
+    newWidth = newHeight * desiredAspect;
+  } else {
+    newWidth = screenW;
+    newHeight = newWidth / desiredAspect;
+  }
 
-    canvas.style.width = `${newWidth}px`;
-    canvas.style.height = `${newHeight}px`;
+  canvas.style.width = `${newWidth}px`;
+  canvas.style.height = `${newHeight}px`;
 }
 
 function resetCanvasSize(canvas) {
-    canvas.width = 720;
-    canvas.height = 480;
+  canvas.width = 720;
+  canvas.height = 480;
 }
