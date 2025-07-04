@@ -130,7 +130,7 @@ function handleCloseInstructionsClick() {
  */
 function handleDialogClickOutside(event, dialog) {
   if (event.target === dialog) {
-    closeInstructionsDialog();
+    closeInstructionsDialog(dialog);
   }
 }
 
