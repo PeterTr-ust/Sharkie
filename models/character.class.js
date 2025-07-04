@@ -242,11 +242,11 @@ class Character extends MovableObject {
     animate() {
         this.createAnimationInterval(() => {
             this.handleMovementAndSounds();
-        }, 1000 / 60); // 60 FPS für Bewegung & Sound
+        }, 1000 / 60);
 
         this.createAnimationInterval(() => {
             this.handleAnimations();
-        }, 150); // Standard-Animationsrate
+        }, 150);
     }
 
     /**
@@ -304,6 +304,7 @@ class Character extends MovableObject {
             const images = enemy instanceof PufferFish
                 ? this.IMAGES_HURT_BY_PUFFERFISH
                 : this.IMAGES_HURT_BY_JELLYFISH;
+            this.soundManager?.play('hurt');
             this.playAnimation(images);
         } else if (kb?.RIGHT || kb?.LEFT || kb?.UP || kb?.DOWN) {
             this.playAnimation(this.IMAGES_SWIM);

@@ -159,6 +159,7 @@ class Endboss extends MovableObject {
 
             if (this.energy <= 0) {
                 this.energy = 0;
+                world.soundManager.stop('endbossBite');
                 this.die();
             }
         }

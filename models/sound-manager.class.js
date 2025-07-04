@@ -11,6 +11,7 @@ class SoundManager {
             allPoisenCollected: new Audio('audio/all-poisen-collected.mp3'),
             bubbleHit: new Audio('audio/bubble-hit.mp3'),
             endbossBite: new Audio('audio/endboss-bite.mp3'),
+            hurt: new Audio('audio/hurt.mp3'),
         };
 
         // Initialisiere mit dem localStorage-Wert
