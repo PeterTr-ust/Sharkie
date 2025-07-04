@@ -168,7 +168,7 @@ function stopAllGameSounds(soundManager) {
 function updateUiOnGameReset() {
     document.getElementById('canvas-wrapper').classList.add('d-none');
     document.getElementById('game-end-screen').classList.add('d-none');
-    document.getElementById('start-screen').classList.add('d-none');
+    document.getElementById('start-screen').classList.remove('d-none');
 }
 
 /**
