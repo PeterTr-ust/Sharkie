@@ -38,7 +38,7 @@ class SoundManager {
      */
     setMute(muted) {
         this.muted = muted;
-        
+
         // Synchronisation mit localStorage
         localStorage.setItem('sharkie-muted', muted);
 
@@ -83,22 +83,38 @@ class SoundManager {
     play(name) {
         const s = this.sounds[name];
         if (!s || this.muted) return;
+
         const now = Date.now();
-        if ((now - (this.lastPlayed[name] || 0)) >= (this.cooldowns[name] || 0)) {
-            s.currentTime = 0;
-            s.play();
-            this.lastPlayed[name] = now;
+        if ((now - (this.lastPlayed[name] || 0)) < (this.cooldowns[name] || 0)) {
+            return;
         }
+
+        s.currentTime = 0;
+        const playPromise = s.play();
+        this.handlePlayPromise(playPromise, name);
+
+        this.lastPlayed[name] = now;
     }
 
     playLoop(name) {
         const s = this.sounds[name];
-        if (!s || this.muted) return;
-        if (!s.isPlaying) {
-            s.loop = true;
-            s.currentTime = 0;
-            s.play();
-            s.isPlaying = true;
+        if (!s || this.muted || s.isPlaying) return;
+
+        s.loop = true;
+        s.currentTime = 0;
+        const playPromise = s.play();
+        this.handlePlayPromise(playPromise, name);
+
+        s.isPlaying = true;
+    }
+
+    handlePlayPromise(playPromise, name) {
+        if (playPromise instanceof Promise) {
+            playPromise.catch(err => {
+                if (err.name !== 'AbortError') {
+                    console.error(`Sound "${name}" playback error:`, err);
+                }
+            });
         }
     }
 

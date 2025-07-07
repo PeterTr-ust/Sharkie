@@ -57,6 +57,8 @@ class World {
 
             // falls du in startReturn() das Intervall als this.returnInterval speicherst
             clearInterval(enemy.returnInterval);
+            clearTimeout(enemy.startReturnTimeout);
+            clearTimeout(enemy.patrolTimeout);
         });
 
         // 5) Throwable Objects aufräumen (falls sie eigene Animationen/Floats haben)
