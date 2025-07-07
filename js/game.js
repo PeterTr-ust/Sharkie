@@ -61,8 +61,8 @@ function setupCanvas(id) {
  * @param {HTMLCanvasElement} canvas - The canvas element whose dimensions will be reset.
  */
 function resetCanvasSize(canvas) {
-  canvas.width = 720;
-  canvas.height = 480;
+    canvas.width = 720;
+    canvas.height = 480;
 }
 
 /**
@@ -97,7 +97,10 @@ function setupWorld(canvas, keyboard, soundManager) {
 function gameReset() {
     console.log('Resetting game…');
 
-    if (world) stopRunningGame(world);
+    if (world) {
+        stopRunningGame(world);
+        world.level.enemies.length = 0;        // <— alle Gegner entfernen
+    }
 
     resetGameState();
 
@@ -175,15 +178,21 @@ function updateUiOnGameReset() {
  * Restarts the game (reset + immediate start)
  */
 function gameRestart() {
+    // Merke Dir, ob stumm geschaltet ist
     const wasMuted = soundManager.muted;
+
+    // Alle alten Loops / Sounds beenden, UI zurücksetzen
     gameReset();
 
-    setTimeout(() => {
-        document.getElementById('start-screen').classList.add('d-none');
-        document.getElementById('canvas-wrapper').classList.remove('d-none');
-        init(wasMuted);
-    }, 100);
+    // „Play“-Handler wiederverwenden: blendet das Start-Screen aus,
+    // zeigt das Canvas, ruft init() auf
+    handlePlayButtonClick();
+
+    // Mute-Status wiederherstellen (init() überschreibt das ja)
+    soundManager.setMute(wasMuted);
+    updateMuteIcon();
 }
+
 
 /**
  * Adds event listeners for keydown events.
