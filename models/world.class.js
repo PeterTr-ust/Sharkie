@@ -177,14 +177,19 @@ class World {
     endGame(won) {
         this.gameRunning = false;
 
-        this.stopGame();
-
         clearTimeout(this.endGameTimeout);
 
+        // Zeige nach 500ms den Endscreen
         setTimeout(() => {
             this.showGameEndScreen(won ? 'win' : 'lose');
-        }, 500);
+        }, 3000);
+
+        // Stoppe das Spiel erst nach 1000ms (z. B. nach Animation)
+        setTimeout(() => {
+            this.stopGame();
+        }, 3500);
     }
+
 
     showGameEndScreen(type) {
         const screen = document.getElementById('game-end-screen');
