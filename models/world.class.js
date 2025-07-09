@@ -80,7 +80,6 @@ class World {
         this.soundManager.stopAllSounds();
     }
 
-
     pauseAllAnimations() {
         // Pausiere Character-Animationen
         if (this.character && this.character.pauseAnimations) {

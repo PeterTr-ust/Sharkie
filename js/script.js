@@ -112,10 +112,12 @@ function handlePlayButtonClick() {
   hideElement('start-screen');
   showElement('canvas-wrapper');
   init();
+  checkOrientationAndShowWarning();
+  enableOrientationMonitoring();
 
   requestAnimationFrame(() => {
     setTimeout(() => {
-       adjustCanvasLayout();
+      adjustCanvasLayout();
     }, 100);
   });
 }

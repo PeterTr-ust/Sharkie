@@ -333,6 +333,85 @@ canvas {
     }
 }
 
+#mobile-controls {
+    display: flex;
+    align-items: center;
+    background-color: #4B0082;
+    border-radius: 8px;
+    padding: 4px;
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    gap: 8px;
+}
+
+.mobile-movements {
+    display: grid;
+    grid-template-columns: 16px 16px 16px;
+    grid-template-rows: 16px 16px 16px;
+}
+
+#btn-up {
+    grid-column: 2;
+    grid-row: 1;
+}
+
+#btn-left {
+    grid-column: 1;
+    grid-row: 2;
+}
+
+#btn-down {
+    grid-column: 2;
+    grid-row: 3;
+}
+
+#btn-right {
+    grid-column: 3;
+    grid-row: 2;
+}
+
+#mobile-controls img {
+    width: 16px;
+    height: auto;
+}
+
+.mobile-attacks {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.mobile-attack {
+    font-size: 16px;
+    border: none;
+    padding: 4px;
+}
+
+#mobile-controls {
+    display: none;
+}
+
+#rotate-warning {
+    position: fixed;
+    inset: 0;
+    background-color: #4B0082;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    font-size: 24px;
+    z-index: 9999;
+    padding: 20px;
+}
+
+@media (hover: none) and (pointer: coarse) {
+    #mobile-controls {
+        display: flex;
+    }
+}
+
 @media only screen and (max-width: 760px) {
     canvas {
         width: 100%;
