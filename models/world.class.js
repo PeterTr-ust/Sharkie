@@ -178,13 +178,10 @@ class World {
     endGame(won) {
         this.gameRunning = false;
 
-        // 1) Alte Loops und Sounds sofort beenden
         this.stopGame();
 
-        // 2) Alle noch wartenden Endgame-Timeouts löschen
         clearTimeout(this.endGameTimeout);
 
-        // 3) Nach kurzer Verzögerung den End-Bildschirm anzeigen
         setTimeout(() => {
             this.showGameEndScreen(won ? 'win' : 'lose');
         }, 500);

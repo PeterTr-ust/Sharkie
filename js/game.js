@@ -99,7 +99,7 @@ function gameReset() {
 
     if (world) {
         stopRunningGame(world);
-        world.level.enemies.length = 0;        // <— alle Gegner entfernen
+        world.level.enemies.length = 0;
     }
 
     resetGameState();
@@ -178,17 +178,10 @@ function updateUiOnGameReset() {
  * Restarts the game (reset + immediate start)
  */
 function gameRestart() {
-    // Merke Dir, ob stumm geschaltet ist
     const wasMuted = soundManager.muted;
 
-    // Alle alten Loops / Sounds beenden, UI zurücksetzen
     gameReset();
-
-    // „Play“-Handler wiederverwenden: blendet das Start-Screen aus,
-    // zeigt das Canvas, ruft init() auf
     handlePlayButtonClick();
-
-    // Mute-Status wiederherstellen (init() überschreibt das ja)
     soundManager.setMute(wasMuted);
     updateMuteIcon();
 }

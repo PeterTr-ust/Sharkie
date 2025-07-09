@@ -12,9 +12,12 @@ const soundManager = new SoundManager();
 window.soundManager = soundManager;
 
 /**
- * Executes UI setup logic once the HTML document has been fully loaded and parsed.
- * This includes binding event listeners to UI elements and updating the mute icon
- * to reflect the current sound state from localStorage.
+ * Executes initial UI setup once the HTML document has been fully loaded.
+ * 
+ * Tasks performed:
+ * - Binds all event listeners to UI elements.
+ * - Updates the mute icon to reflect the saved sound state.
+ * - Sets up window resize handling to dynamically adjust canvas and button layout.
  */
 window.addEventListener('DOMContentLoaded', () => {
   bindUIListeners();
@@ -95,13 +98,53 @@ function showElement(id) {
 }
 
 /**
- * Handles the play button click by hiding the start screen,
- * showing the canvas, and starting the game.
+ * Starts the game after the Play button is clicked.
+ * 
+ * Steps:
+ * 1. Hides the start screen.
+ * 2. Reveals the canvas wrapper.
+ * 3. Waits for the next frame and applies a short delay to ensure layout is fully rendered.
+ * 4. Synchronizes canvas and container sizes.
+ * 5. Correctly positions game option buttons within the canvas area.
+ * 6. Initializes and starts the game.
  */
 function handlePlayButtonClick() {
   hideElement('start-screen');
   showElement('canvas-wrapper');
   init();
+
+  requestAnimationFrame(() => {
+    setTimeout(() => {
+       adjustCanvasLayout();
+    }, 100);
+  });
+}
+
+/**
+ * Dynamically adjusts the canvas height to maintain a 3:2 aspect ratio 
+ * based on its current rendered width.
+ *
+ * This ensures consistent layout across different device sizes 
+ * and orientations. Should be called after the canvas becomes visible.
+ */
+function resizeCanvasHeight() {
+  const canvas = document.getElementById('canvas');
+  if (!canvas) return;
+
+  const height = getCanvasHeight();
+  canvas.style.height = `${height}px`;
+}
+
+
+function getCanvasHeight() {
+  const canvas = document.getElementById('canvas');
+  if (!canvas) return 0;
+
+  const width = canvas.clientWidth;
+  const maxHeight = window.innerHeight;
+  let height = width * 2 / 3;
+
+  return height > maxHeight ? maxHeight : height;
 }
 
 /**
@@ -213,114 +256,4 @@ function updateMuteIcon() {
   const isMuted = localStorage.getItem('sharkie-muted') === 'true';
   icon.src = isMuted ? 'img/icons/sound-off.png' : 'img/icons/sound-on.png';
   icon.alt = isMuted ? 'Sound off' : 'Sound on';
-}
-
-/**
- * Toggles fullscreen mode for the game canvas.
- */
-function toggleFullscreen() {
-  const wrapper = document.getElementById('canvas-wrapper');
-  if (!wrapper || !canvas) return;
-
-  document.fullscreenElement
-    ? exitFullscreen(wrapper, canvas)
-    : enterFullscreen(wrapper, canvas);
-}
-
-/**
- * Enters fullscreen mode for a given wrapper and resizes the canvas.
- * 
- * @param {HTMLElement} wrapper - The canvas wrapper element.
- * @param {HTMLCanvasElement} canvas - The game canvas element.
- */
-function enterFullscreen(wrapper, canvas) {
-  wrapper.requestFullscreen?.();
-
-  document.addEventListener('fullscreenchange', () => {
-    if (document.fullscreenElement === wrapper) {
-      wrapper.classList.add('fullscreen-active');
-      resizeCanvasToFullscreen(canvas);
-    }
-  }, { once: true });
-}
-
-/**
- * Exits fullscreen mode and restores canvas dimensions.
- * 
- * @param {HTMLElement} wrapper - The canvas wrapper element.
- * @param {HTMLCanvasElement} canvas - The game canvas element.
- */
-function exitFullscreen(wrapper, canvas) {
-  document.exitFullscreen?.();
-
-  document.addEventListener('fullscreenchange', () => {
-    if (!document.fullscreenElement) {
-      wrapper.classList.remove('fullscreen-active');
-      canvas.style.width = '720px';
-      canvas.style.height = '480px';
-    }
-  }, { once: true });
-}
-
-/**
- * Resizes the canvas element to maintain the desired aspect ratio
- * when entering fullscreen mode.
- * 
- * @param {HTMLCanvasElement} canvas - The canvas element to resize.
- * @param {number} desiredAspect - Aspect ratio (width / height). Default: 1.5.
- */
-function resizeCanvasToFullscreen(canvas, desiredAspect = 720 / 480) {
-  const container = getFullscreenContainer();
-  const { width: screenW, height: screenH } = getScreenDimensions(container);
-  const canvasSize = calculateCanvasSize(screenW, screenH, desiredAspect);
-  applyCanvasSize(canvas, canvasSize);
-}
-
-/**
- * Determines the fullscreen container element.
- * 
- * @returns {Element} The fullscreen element or the document element.
- */
-function getFullscreenContainer() {
-  return document.fullscreenElement || document.webkitFullscreenElement || document.documentElement;
-}
-
-/**
- * Calculates the current screen width, height and aspect ratio.
- * 
- * @param {Element} container - The fullscreen container element.
- * @returns {{ width: number, height: number, aspect: number }}
- */
-function getScreenDimensions(container) {
-  const width = container.clientWidth;
-  const height = container.clientHeight;
-  const aspect = width / height;
-  return { width, height, aspect };
-}
-
-/**
- * Calculates the optimal canvas size for fullscreen based on aspect ratio.
- * 
- * @param {number} screenW - Screen width.
- * @param {number} screenH - Screen height.
- * @param {number} desiredAspect - Target aspect ratio.
- * @returns {{ width: number, height: number }}
- */
-function calculateCanvasSize(screenW, screenH, desiredAspect) {
-  const screenAspect = screenW / screenH;
-
-  return screenAspect > desiredAspect
-    ? { width: screenH * desiredAspect, height: screenH }
-    : { width: screenW, height: screenW / desiredAspect };
-}
-
-/**
- * Applies the calculated size to the canvas element.
- * 
- * @param {HTMLCanvasElement} canvas 
- * @param {{ width: number, height: number }} size 
- */
-function applyCanvasSize(canvas, size) {
-  canvas.style.width = `${size.width}px`;
-  canvas.style.height = `${size.height}px`;
 }
