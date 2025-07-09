@@ -42,8 +42,10 @@ canvas {
 
 #canvas-wrapper {
     position: relative;
-    width: 720px;
-    height: 480px;
+    width: 100%;
+    aspect-ratio: 3 / 2;
+    max-width: 720px;
+    margin: auto;
 }
 
 #fullscreen-icon {
@@ -95,11 +97,14 @@ canvas {
 }
 
 #controls-info {
+    background-color: #4B0082;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 16px;
     margin: 32px 0 0 0;
+    padding: 8px;
+    border-radius: 8px;
 }
 
 .control-group {
@@ -284,6 +289,18 @@ canvas {
     margin: 0;
 }
 
+.persistent-buttons {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin: 24px 0 0 0;
+    
+}
+
+.persistent-buttons button {
+   font-size: 24px;
+}
+
 @media only screen and (max-width: 760px) {
     canvas {
         width: 100%;
@@ -293,5 +310,34 @@ canvas {
 @media only screen and (max-height: 480px) {
     canvas {
         height: 100vh;
+    }
+}
+
+@media only screen and (max-width: 430px) {
+    h1 {
+        font-size: 80px;
+    }
+
+    .custom-button {
+        font-size: 24px;
+    }
+
+    .dialog-content {
+        max-width: 300px;
+    }
+    #instructions-title {
+        font-size: 24px;
+    }
+
+    .control-group img {
+        height: 30px;
+    }
+
+    .control-group .title {
+        height: 24px;
+    }
+
+    #explanation-info img {
+        height: 80px;
     }
 }
