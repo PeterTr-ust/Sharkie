@@ -4,11 +4,12 @@ body {
     background-position: center;
     background-repeat: no-repeat;
     color: white;
-    padding: 32px;
+    padding: 32px 32px 100px 32px;
     justify-content: start;
     font-weight: 100;
     font-size: 16px;
     height: fit-content;
+    word-break: break-word;
 }
 
 h4 {
@@ -26,4 +27,10 @@ h4 {
 a {
     color: white;
     font-weight: 100;
+}
+
+@media only screen and (max-width: 430px) {
+    a.back-button {
+        font-size: 24px;
+    }
 }

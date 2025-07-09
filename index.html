@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="styles/game.css">
     <link rel="icon" type="image/png" href="img/favicon-sharkie.png">
@@ -31,10 +31,12 @@
     <script src="./models/world.class.js"></script>
     <script src="./levels/level1.js"></script>
     <script src="./js/game.js"></script>
+    <script src="./js/canvas-size.js"></script>
     <script src="./js/script.js"></script>
 </head>
 
 <body>
+    <div id="powerup-notification" class="d-none">POISON BUBBLES UNLOCKED!<br>FIGHT THE ENDBOSS!</div>
     <div id="start-screen">
         <h1>Sharkie</h1>
         <img id="logo" class="logo" src="img/favicon-sharkie.png" alt="Sharkie Logo">
@@ -79,15 +81,6 @@
         </div>
     </div>
     <div id="canvas-wrapper" class="d-none">
-        <div class="game-options">
-            <button id="mute-button">
-                <img id="mute-icon" src="img/icons/sound-on.png" alt="Toggle Sound" />
-            </button>
-            <button id="fullscreen-button">
-                <img id="fullscreen-icon" src="img/icons/fullscreen.png" alt="Fullscreen" onclick="toggleFullscreen()">
-            </button>
-        </div>
-
         <div id="game-end-screen" class="d-none">
             <div class="end-box">
                 <h2 id="end-title"></h2>
@@ -100,7 +93,22 @@
                 </div>
             </div>
         </div>
-        <canvas id="canvas" width="720" height="480"></canvas>
+        <div id="canvas-area">
+            <canvas id="canvas" width="720" height="480"></canvas>
+            <div class="game-options">
+                <button id="mute-button">
+                    <img id="mute-icon" src="img/icons/sound-on.png" alt="Toggle Sound" />
+                </button>
+                <button id="persistent-restart-button" onclick="gameRestart()"><img src="./img/icons/retry.png"
+                        alt="retry-button"></button>
+                <button id="persistent-startscreen-button" onclick="handleBackToStartClick(event)"><img
+                        src="./img/icons/home.png" alt="home-button"></button>
+                <button id="fullscreen-button">
+                    <img id="fullscreen-icon" src="img/icons/fullscreen.png" alt="Fullscreen"
+                        onclick="toggleFullscreen()">
+                </button>
+            </div>
+        </div>
     </div>
 </body>
 

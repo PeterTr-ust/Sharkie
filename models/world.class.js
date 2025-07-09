@@ -178,13 +178,10 @@ class World {
     endGame(won) {
         this.gameRunning = false;
 
-        // 1) Alte Loops und Sounds sofort beenden
         this.stopGame();
 
-        // 2) Alle noch wartenden Endgame-Timeouts löschen
         clearTimeout(this.endGameTimeout);
 
-        // 3) Nach kurzer Verzögerung den End-Bildschirm anzeigen
         setTimeout(() => {
             this.showGameEndScreen(won ? 'win' : 'lose');
         }, 500);
@@ -281,27 +278,13 @@ class World {
     }
 
     showPowerUpNotification() {
-        const notification = document.createElement('div');
-        notification.textContent = 'POISON BUBBLES UNLOCKED!';
-        notification.style.cssText = `
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: #73fcd6;
-            color: #4B0082;
-            padding: 20px;
-            border-radius: 10px;
-            font-size: 24px;
-            font-weight: 100;
-            z-index: 1000;
-            animation: fadeInOut 4s ease-in-out;
-        `;
+        const notification = document.getElementById('powerup-notification');
+        if (!notification) return;
 
-        document.body.appendChild(notification);
+        notification.classList.remove('d-none');
 
         setTimeout(() => {
-            document.body.removeChild(notification);
+            notification.classList.add('d-none');
         }, 3000);
     }
 
@@ -403,12 +386,12 @@ class World {
     }
 
     /**
- * Clears the canvas, draws the world (background, enemies, player, etc.) 
- * with the current camera offset, then draws the UI (status bars).
- * This method schedules itself on the next animation frame.
- *
- * @returns {void}
- */
+    * Clears the canvas, draws the world (background, enemies, player, etc.) 
+    * with the current camera offset, then draws the UI (status bars).
+    * This method schedules itself on the next animation frame.
+    *
+    * @returns {void}
+    */
     draw() {
         // 1) Clear full canvas
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
