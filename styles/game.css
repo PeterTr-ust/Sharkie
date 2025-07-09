@@ -298,6 +298,41 @@ canvas {
     margin: 0;
 }
 
+#powerup-notification {
+    position: fixed;
+    width: 80%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #73fcd6;
+    color: #4B0082;
+    padding: 20px;
+    border-radius: 10px;
+    font-size: 24px;
+    font-weight: 100;
+    text-align: center;
+    z-index: 1000;
+    animation: fadeInOut 4s ease-in-out;
+}
+
+@keyframes fadeInOut {
+    0% {
+        opacity: 0;
+    }
+
+    10% {
+        opacity: 1;
+    }
+
+    90% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
 @media only screen and (max-width: 760px) {
     canvas {
         width: 100%;
@@ -372,9 +407,9 @@ canvas {
 }
 
 @media (max-height: 335px) {
-   #start-screen {
-    padding: 0 0 24px 0;
-   }
+    #start-screen {
+        padding: 0 0 24px 0;
+    }
 }
 
 @media (max-height: 275px) {
