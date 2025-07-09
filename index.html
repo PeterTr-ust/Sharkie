@@ -32,10 +32,14 @@
     <script src="./levels/level1.js"></script>
     <script src="./js/game.js"></script>
     <script src="./js/canvas-size.js"></script>
+    <script src="./js/mobile-controls.js"></script>
     <script src="./js/script.js"></script>
 </head>
 
 <body>
+    <div id="rotate-warning" class="d-none">
+        <p>Please rotate your device to landscape mode to play.</p>
+    </div>
     <div id="powerup-notification" class="d-none">POISON BUBBLES UNLOCKED!<br>FIGHT THE ENDBOSS!</div>
     <div id="start-screen">
         <h1>Sharkie</h1>
@@ -95,6 +99,18 @@
         </div>
         <div id="canvas-area">
             <canvas id="canvas" width="720" height="480"></canvas>
+            <div id="mobile-controls">
+                <div class="mobile-movements">
+                    <button id="btn-up"><img src="./img/icons/up.png" alt="up"></button>
+                    <button id="btn-right"><img src="./img/icons/right.png" alt="right"></button>
+                    <button id="btn-down"><img src="./img/icons/down.png" alt="down"></button>
+                    <button id="btn-left"><img src="./img/icons/left.png" alt="left"></button>
+                </div>
+                <div class="mobile-attacks">
+                    <button id="mobile-fin-attack" class="custom-button mobile-attack">Fin</button>
+                    <button id="mobile-bubble-attack" class="custom-button mobile-attack">Bubble</button>
+                </div>
+            </div>
             <div class="game-options">
                 <button id="mute-button">
                     <img id="mute-icon" src="img/icons/sound-on.png" alt="Toggle Sound" />
