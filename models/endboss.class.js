@@ -7,7 +7,23 @@ class Endboss extends MovableObject {
     width = 400;
     positionX = 1750;
     positionY = 0;
-
+    hadFirstContact = false;
+    spawnAnimationCompleted = false;
+    isAttacking = false;
+    isReturning = false;
+    lastAttackTime = 0;
+    attackSpeed = 20;
+    returnSpeed = 10;
+    originalX = 1750;
+    attackDistance = 400;
+    offset = {
+        top: -200,
+        left: -30,
+        right: -40,
+        bottom: -80
+    };
+    damage = 40;
+    finalDeadImage = 'img/endboss/dead/endboss-dead-5.png';
     IMAGES_SPAWNING = [
         'img/endboss/spawn/1.png',
         'img/endboss/spawn/2.png',
@@ -56,23 +72,6 @@ class Endboss extends MovableObject {
         'img/endboss/dead/endboss-dead-4.png',
         'img/endboss/dead/endboss-dead-5.png',
     ];
-    hadFirstContact = false;
-    spawnAnimationCompleted = false;
-    isAttacking = false;
-    isReturning = false;
-    lastAttackTime = 0;
-    attackSpeed = 20;
-    returnSpeed = 10;
-    originalX = 1750;
-    attackDistance = 400;
-    offset = {
-        top: -200,
-        left: -30,
-        right: -40,
-        bottom: -80
-    };
-    damage = 40;
-    finalDeadImage = 'img/endboss/dead/endboss-dead-5.png';
 
     constructor() {
         super().loadImg('');
@@ -115,29 +114,74 @@ class Endboss extends MovableObject {
     }
 
     /**
-     * Moves the boss back to its original X position, then stops the return loop.
+    * Initiates the boss's return to its original X position.
+    * Stops any bite sound and starts a timed movement loop.
     *
     * @returns {void}
     */
     startReturn() {
         if (this.isDead()) return;
-
-        world.soundManager.stop('endbossBite');
+        this.stopBiteSound();
         this.isReturning = true;
-
-        this.returnInterval = setInterval(() => {
-            if (this.positionX >= this.originalX) {
-                this.positionX = this.originalX;
-                this.isReturning = false;
-                clearInterval(this.returnInterval);
-            } else {
-                this.positionX += this.returnSpeed;
-            }
-        }, 50);
-
+        this.returnInterval = this.startReturnInterval();
         this.animationIntervals.push(this.returnInterval);
     }
 
+    /**
+     * Stops the endboss bite sound effect.
+     */
+    stopBiteSound() {
+        if (world?.soundManager?.stop) {
+            world.soundManager.stop('endbossBite');
+        }
+    }
+
+    /**
+     * Starts the interval that moves the boss back to its original X position.
+     *
+     * @returns {number} The interval ID for later clearing.
+     */
+    startReturnInterval() {
+        return setInterval(() => {
+            if (this.hasReachedOriginalX()) {
+                this.snapToOriginalX();
+                this.stopReturning();
+            } else {
+                this.moveTowardOriginalX();
+            }
+        }, 50);
+    }
+
+    /**
+     * Checks whether the boss has reached or passed its original X position.
+     *
+     * @returns {boolean} True if the boss is at or beyond its original position.
+     */
+    hasReachedOriginalX() {
+        return this.positionX >= this.originalX;
+    }
+
+    /**
+     * Sets the boss's X position exactly to the original value.
+     */
+    snapToOriginalX() {
+        this.positionX = this.originalX;
+    }
+
+    /**
+     * Stops the return movement and clears the interval.
+     */
+    stopReturning() {
+        this.isReturning = false;
+        clearInterval(this.returnInterval);
+    }
+
+    /**
+     * Moves the boss incrementally toward its original X position.
+     */
+    moveTowardOriginalX() {
+        this.positionX += this.returnSpeed;
+    }
 
     /**
     * Applies damage to the Endboss and triggers the hurt animation.
@@ -161,51 +205,100 @@ class Endboss extends MovableObject {
     }
 
     /**
-     * Controls the animation and interaction with the player.
-     */
+    * Controls the animation and interaction with the player.
+    * Handles spawning, attacking, returning, and death animation states.
+    */
     animate() {
-        let i = 0;
         let deadAnimationPlayed = false;
+        this.spawnFrameCount = 0;
 
         this.createAnimationInterval(() => {
-            if (this.isDead()) {
-                if (!deadAnimationPlayed) {
-                    this.playAnimation(this.IMAGES_DEAD);
-                    deadAnimationPlayed = true;
-                }
+            if (this.handleDeathAnimation(deadAnimationPlayed)) {
+                deadAnimationPlayed = true;
                 return;
             }
 
-            if (world?.character.positionX > 1250 && !this.hadFirstContact) {
-                i = 0;
-                this.hadFirstContact = true;
-            }
+            this.checkFirstContact();
 
-            if (i < 10 && this.hadFirstContact) {
+            if (this.shouldPlaySpawningAnimation(this.spawnFrameCount)) {
                 this.playAnimation(this.IMAGES_SPAWNING);
-            } else if (i >= 10 && this.hadFirstContact && !this.spawnAnimationCompleted) {
+            } else if (this.shouldCompleteSpawnAnimation(this.spawnFrameCount)) {
                 this.spawnAnimationCompleted = true;
             }
 
             if (this.spawnAnimationCompleted) {
-                if (this.isAttacking) {
-                    this.playAnimation(this.IMAGES_ATTACK);
-                    this.positionX -= this.attackSpeed;
-                } else if (this.isReturning) {
-                    this.playAnimation(this.IMAGES_IDLE);
-                    this.positionX += this.returnSpeed;
-
-                    if (this.positionX >= this.originalX) {
-                        this.positionX = this.originalX;
-                        this.isReturning = false;
-                        world.soundManager.stop('endbossBite');
-                    }
-                } else {
-                    this.playAnimation(this.IMAGES_IDLE);
-                }
+                this.handleCombatBehavior();
             }
 
-            i++;
+            this.spawnFrameCount++;
         }, 150);
+    }
+
+    /**
+     * Handles the death animation if the boss is dead.
+     *
+     * @param {boolean} alreadyPlayed - Whether the death animation has already played.
+     * @returns {boolean} True if the boss is dead and animation was handled.
+     */
+    handleDeathAnimation(alreadyPlayed) {
+        if (this.isDead()) {
+            if (!alreadyPlayed) {
+                this.playAnimation(this.IMAGES_DEAD);
+            }
+            return true;
+        }
+        return false;
+    }
+
+    /**
+    * Checks if the player has triggered the boss by crossing a threshold.
+    * Resets the spawn frame counter on first contact.
+    */
+    checkFirstContact() {
+        if (world?.character.positionX > 1250 && !this.hadFirstContact) {
+            this.hadFirstContact = true;
+            this.spawnFrameCount = 0;
+        }
+    }
+
+    /**
+     * Determines whether the spawning animation should play.
+     *
+     * @param {number} frameCount - The current animation frame count.
+     * @returns {boolean} True if spawning animation should play.
+     */
+    shouldPlaySpawningAnimation(frameCount) {
+        return this.hadFirstContact && frameCount < 10;
+    }
+
+    /**
+     * Determines whether the spawn animation should be marked as completed.
+     *
+     * @param {number} frameCount - The current animation frame count.
+     * @returns {boolean} True if spawning is complete.
+     */
+    shouldCompleteSpawnAnimation(frameCount) {
+        return this.hadFirstContact && frameCount >= 10 && !this.spawnAnimationCompleted;
+    }
+
+    /**
+     * Handles the boss's behavior after spawning: attacking, returning, or idling.
+     */
+    handleCombatBehavior() {
+        if (this.isAttacking) {
+            this.playAnimation(this.IMAGES_ATTACK);
+            this.positionX -= this.attackSpeed;
+        } else if (this.isReturning) {
+            this.playAnimation(this.IMAGES_IDLE);
+            this.positionX += this.returnSpeed;
+
+            if (this.positionX >= this.originalX) {
+                this.positionX = this.originalX;
+                this.isReturning = false;
+                world.soundManager.stop('endbossBite');
+            }
+        } else {
+            this.playAnimation(this.IMAGES_IDLE);
+        }
     }
 }

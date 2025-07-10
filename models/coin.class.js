@@ -1,3 +1,9 @@
+/**
+ * Represents a collectible coin object in the game.
+ * 
+ * Inherits from {@link CollectableObject} and provides animation and collection behavior.
+ * Coins animate continuously and can be collected by the player, triggering a collection animation.
+ */
 class Coin extends CollectableObject {
     IMAGES = [
         'img/collectables/coins/coin-1.png',
@@ -17,6 +23,9 @@ class Coin extends CollectableObject {
         this.animate();
     }
 
+    /**
+     * Starts the coin's idle animation cycle.
+     */
     animate() {
         this.playCycle(this.IMAGES);
     }
@@ -28,5 +37,4 @@ class Coin extends CollectableObject {
         if (this.isBeingCollected) return;
         await this.collectAnimation();
     }
-
 }

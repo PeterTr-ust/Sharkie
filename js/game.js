@@ -95,26 +95,18 @@ function setupWorld(canvas, keyboard, soundManager) {
  * resetting HUD and canvas, and updating UI elements.
  */
 function gameReset() {
-    console.log('Resetting game…');
-
     if (world) {
         stopRunningGame(world);
         world.level.enemies.length = 0;
     }
-
     resetGameState();
-
     if (world) resetStatusBars(world);
-
     if (canvas) clearCanvas(canvas);
-
     stopAllGameSounds(soundManager);
 
     world = null;
 
     updateUiOnGameReset();
-
-    console.log('Game reset complete');
 }
 
 /**
@@ -185,7 +177,6 @@ function gameRestart() {
     soundManager.setMute(wasMuted);
     updateMuteIcon();
 }
-
 
 /**
  * Adds event listeners for keydown events.

@@ -3,18 +3,6 @@
  * Inherits movement and drawing behavior from MovableObject.
  */
 class DangerousJellyFish extends MovableObject {
-    IMAGES_IDLE = [
-        'img/enemies/jelly-fish/dangerous/idle/dangerous-jelly-fish-idle-1.png',
-        'img/enemies/jelly-fish/dangerous/idle/dangerous-jelly-fish-idle-2.png',
-        'img/enemies/jelly-fish/dangerous/idle/dangerous-jelly-fish-idle-3.png',
-        'img/enemies/jelly-fish/dangerous/idle/dangerous-jelly-fish-idle-4.png',
-    ];
-    IMAGES_DEAD = [
-        'img/enemies/jelly-fish/dangerous/dead/dangerous-jelly-fish-dead-1.png',
-        'img/enemies/jelly-fish/dangerous/dead/dangerous-jelly-fish-dead-2.png',
-        'img/enemies/jelly-fish/dangerous/dead/dangerous-jelly-fish-dead-3.png',
-        'img/enemies/jelly-fish/dangerous/dead/dangerous-jelly-fish-dead-4.png',
-    ];
     offset = {
         top: -15,
         left: -10,
@@ -27,6 +15,18 @@ class DangerousJellyFish extends MovableObject {
     damage = 20;
     isDead = false;
     isFlyingAway = false;
+    IMAGES_IDLE = [
+        'img/enemies/jelly-fish/dangerous/idle/dangerous-jelly-fish-idle-1.png',
+        'img/enemies/jelly-fish/dangerous/idle/dangerous-jelly-fish-idle-2.png',
+        'img/enemies/jelly-fish/dangerous/idle/dangerous-jelly-fish-idle-3.png',
+        'img/enemies/jelly-fish/dangerous/idle/dangerous-jelly-fish-idle-4.png',
+    ];
+    IMAGES_DEAD = [
+        'img/enemies/jelly-fish/dangerous/dead/dangerous-jelly-fish-dead-1.png',
+        'img/enemies/jelly-fish/dangerous/dead/dangerous-jelly-fish-dead-2.png',
+        'img/enemies/jelly-fish/dangerous/dead/dangerous-jelly-fish-dead-3.png',
+        'img/enemies/jelly-fish/dangerous/dead/dangerous-jelly-fish-dead-4.png',
+    ];
 
     constructor(x, y) {
         super().loadImg('img/enemies/jelly-fish/dangerous/idle/dangerous-jelly-fish-idle-1.png');
@@ -46,36 +46,48 @@ class DangerousJellyFish extends MovableObject {
     }
 
     /**
-    * Starts the movement and animation intervals.
-    * Moves the fish up and down.
+    * Starts the movement and animation intervals for the jellyfish.
+    * Handles idle/dead animation and vertical swimming behavior.
     */
     animate() {
-        if (this.animationsPaused) return; // Nicht starten wenn pausiert
+        if (this.animationsPaused) return;
 
-        // Sprite-Animation-Interval mit Hilfsmethode
+        this.startIdleOrDeathAnimation();
+        this.startVerticalSwimMovement();
+    }
+
+    /**
+     * Starts the animation loop for idle or dead state.
+     * Plays the appropriate animation based on the jellyfish's state.
+     */
+    startIdleOrDeathAnimation() {
         this.createAnimationInterval(() => {
-            if (this.isDead) {
-                this.playAnimation(this.IMAGES_DEAD);
-            } else {
-                this.playAnimation(this.IMAGES_IDLE);
-            }
+            const images = this.isDead ? this.IMAGES_DEAD : this.IMAGES_IDLE;
+            this.playAnimation(images);
         }, 150);
+    }
 
-        // Bewegungs-Interval mit Hilfsmethode
+    /**
+     * Starts the vertical movement loop for the jellyfish.
+     * Moves the jellyfish up and down within a defined range.
+     */
+    startVerticalSwimMovement() {
         this.createAnimationInterval(() => {
             if (this.isFlyingAway) return;
 
-            if (this.movingUp) {
-                this.moveDown();
-                if (this.positionY >= 380) {
-                    this.movingUp = false;
-                }
-            } else {
-                this.moveUp();
-                if (this.positionY <= 10) {
-                    this.movingUp = true;
-                }
-            }
+            this.movingUp ? this.moveDown() : this.moveUp();
+            this.toggleSwimDirectionIfNeeded();
         }, 1000 / 60);
+    }
+
+    /**
+     * Reverses the swim direction if the jellyfish reaches movement bounds.
+     */
+    toggleSwimDirectionIfNeeded() {
+        if (this.positionY >= 380) {
+            this.movingUp = false;
+        } else if (this.positionY <= 10) {
+            this.movingUp = true;
+        }
     }
 }

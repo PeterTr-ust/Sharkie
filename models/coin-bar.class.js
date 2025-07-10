@@ -24,6 +24,13 @@ class CoinBar extends StatusBar {
         this.setPercentage(0);
     }
 
+    /**
+    * Increases the coin count by one and updates the coin bar display.
+    *
+    * This method delegates to the inherited `addItem()` method from the `StatusBar` class,
+    * which increments the internal value and updates the visual representation
+    * of the coin bar accordingly.
+    */
     addCoin() {
         this.addItem();
     }

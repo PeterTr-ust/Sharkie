@@ -8,6 +8,18 @@ class Character extends MovableObject {
     height = 200;
     width = 200;
     speed = 2;
+    world;
+    offset = {
+        top: -110,
+        left: -50,
+        right: -50,
+        bottom: -50
+    };
+    isAttacking = false;
+    poisonBottlesCollected = 0;
+    maxPoisonBottles = 5;
+    finalDeadImage = 'img/character/dead/8.png';
+    hasPlayedHurtSound = false;
     IMAGES_IDLE = [
         'img/character/idle/1.png',
         'img/character/idle/2.png',
@@ -110,18 +122,6 @@ class Character extends MovableObject {
         'img/character/hurt/shocked/shocked-4.png',
         'img/character/hurt/shocked/shocked-5.png'
     ];
-    world;
-    offset = {
-        top: -110,
-        left: -50,
-        right: -50,
-        bottom: -50
-    };
-    isAttacking = false;
-    poisonBottlesCollected = 0;
-    maxPoisonBottles = 5;
-    finalDeadImage = 'img/character/dead/8.png';
-    hasPlayedHurtSound = false;
 
     constructor(soundManager) {
         super().loadImg('img/character/idle/1.png');
@@ -141,11 +141,6 @@ class Character extends MovableObject {
 
     /**
     * Executes the character's fin slap attack.
-    * 
-    * - Plays the attack animation and sound.
-    * - Temporarily adjusts the character's collision offset to extend attack range.
-    * - Detects and triggers fly-away behavior on any enemy within the attack zone.
-    * - Restores the original offset and attack state after a short delay.
     */
     finAttack() {
         this.isAttacking = true;
@@ -153,22 +148,47 @@ class Character extends MovableObject {
         this.soundManager.play?.('finSlap');
 
         const originalOffset = { ...this.offset };
+        this.extendAttackHitbox();
+
+        this.hitNearbyEnemies();
+
+        this.resetAttackAfterDelay(originalOffset, 150);
+    }
+
+    /**
+     * Temporarily extends the character's collision hitbox for the fin slap attack.
+     */
+    extendAttackHitbox() {
         this.offset.right = -20;
         this.offset.bottom = -30;
         this.offset.top = -90;
+    }
 
-        const hitEnemies = this.world.level.enemies.filter(enemy => !enemy.isFlyingAway && this.isColliding(enemy));
+    /**
+     * Detects enemies within the extended hitbox and triggers their reaction.
+     */
+    hitNearbyEnemies() {
+        const enemies = this.world.level.enemies;
+        const hitEnemies = enemies.filter(enemy => !enemy.isFlyingAway && this.isColliding(enemy));
+
         hitEnemies.forEach(enemy => {
             if (enemy instanceof PufferFish) {
                 enemy.playPufferDeathAnimation();
             }
         });
+    }
 
-
+    /**
+     * Resets the character's hitbox and attack state after a delay.
+     *
+     * @param {Object} originalOffset - The original collision offset to restore.
+     * @param {number} delay - The delay in milliseconds before resetting.
+     */
+    resetAttackAfterDelay(originalOffset, delay) {
         setTimeout(() => {
             this.offset = originalOffset;
             this.isAttacking = false;
-        }, 150);
+        }, delay);
     }
 
     /**
@@ -191,30 +211,56 @@ class Character extends MovableObject {
 
     /**
     * Performs the bubble attack animation and spawns a bubble after animation delay.
-    * @param {Function} onComplete - Callback to execute after animation finishes.
+    *
+    * @param {Function} onComplete - Callback to execute after the bubble is spawned.
     */
     bubbleAttack(onComplete) {
         this.isAttacking = true;
 
-        const animationImages = this.hasAllPoisonBottles()
-            ? this.IMAGES_POISON_BUBBLE_ATTACK
-            : this.IMAGES_BUBBLE_ATTACK;
-
-        this.playAnimation(animationImages);
-        this.soundManager.play?.('bubbleAttack');
-
+        const animationImages = this.getBubbleAttackImages();
         const totalDuration = animationImages.length * 100;
         const bubbleSpawnTime = totalDuration * 0.2;
 
+        this.playAnimation(animationImages);
+        this.soundManager.play?.('bubbleAttack');
+        this.scheduleBubbleSpawn(onComplete, bubbleSpawnTime);
+        this.scheduleAttackReset(totalDuration);
+    }
+
+    /**
+     * Determines which bubble attack animation to use based on poison bottle status.
+     *
+     * @returns {string[]} The array of image paths for the selected animation.
+     */
+    getBubbleAttackImages() {
+        return this.hasAllPoisonBottles()
+            ? this.IMAGES_POISON_BUBBLE_ATTACK
+            : this.IMAGES_BUBBLE_ATTACK;
+    }
+
+    /**
+     * Schedules the execution of the bubble spawn callback.
+     *
+     * @param {Function} onComplete - The callback to execute.
+     * @param {number} delay - Delay in milliseconds before executing the callback.
+     */
+    scheduleBubbleSpawn(onComplete, delay) {
         setTimeout(() => {
             if (typeof onComplete === 'function') {
                 onComplete();
             }
-        }, bubbleSpawnTime);
+        }, delay);
+    }
 
+    /**
+     * Resets the attack state after the animation has finished.
+     *
+     * @param {number} delay - Delay in milliseconds before resetting the attack state.
+     */
+    scheduleAttackReset(delay) {
         setTimeout(() => {
             this.isAttacking = false;
-        }, totalDuration);
+        }, delay);
     }
 
     /**
@@ -292,37 +338,62 @@ class Character extends MovableObject {
     }
 
     /**
-     * Handles character animations based on state and input.
-     */
+    * Handles character animations based on current state and input.
+    */
     handleAnimations() {
-        const kb = this.world?.keyboard;
+        const keyboard = this.world?.keyboard;
+        if (this.hasDied) return;
 
-        if (this.hasDied) {
-            return;
-        } else if (this.isHurt()) {
-            this.inactivity.resetInactivityTimer();
-            const enemy = this.lastHitByEnemy;
-            const images = enemy instanceof PufferFish
-                ? this.IMAGES_HURT_BY_PUFFERFISH
-                : this.IMAGES_HURT_BY_JELLYFISH;
-
-            if (!this.hasPlayedHurtSound) {
-                this.soundManager?.play('hurt');
-                this.hasPlayedHurtSound = true;
-            }
-
-            this.playAnimation(images);
+        if (this.isHurt()) {
+            this.handleHurtAnimation();
         } else {
-            this.hasPlayedHurtSound = false;
-
-            if (kb?.RIGHT || kb?.LEFT || kb?.UP || kb?.DOWN) {
-                this.playAnimation(this.IMAGES_SWIM);
-            } else if (this.inactivity.getInactivityDuration() > 15000) {
-                this.playAnimation(this.IMAGES_INACTIVE);
-            } else {
-                this.playAnimation(this.IMAGES_IDLE);
-            }
+            this.handleMovementOrIdleAnimation(keyboard);
         }
     }
 
+    /**
+     * Handles the animation and sound when the character is hurt.
+     */
+    handleHurtAnimation() {
+        this.inactivity.resetInactivityTimer();
+
+        const enemy = this.lastHitByEnemy;
+        const hurtImages = this.getHurtAnimationImages(enemy);
+
+        if (!this.hasPlayedHurtSound) {
+            this.soundManager?.play('hurt');
+            this.hasPlayedHurtSound = true;
+        }
+
+        this.playAnimation(hurtImages);
+    }
+
+    /**
+     * Determines the correct hurt animation images based on the enemy type.
+     *
+     * @param {Enemy} enemy - The enemy that last hit the character.
+     * @returns {string[]} The array of image paths for the hurt animation.
+     */
+    getHurtAnimationImages(enemy) {
+        return enemy instanceof PufferFish
+            ? this.IMAGES_HURT_BY_PUFFERFISH
+            : this.IMAGES_HURT_BY_JELLYFISH;
+    }
+
+    /**
+     * Handles the animation when the character is moving, idle, or inactive.
+     *
+     * @param {Keyboard} keyboard - The keyboard input handler.
+     */
+    handleMovementOrIdleAnimation(keyboard) {
+        this.hasPlayedHurtSound = false;
+
+        if (keyboard?.RIGHT || keyboard?.LEFT || keyboard?.UP || keyboard?.DOWN) {
+            this.playAnimation(this.IMAGES_SWIM);
+        } else if (this.inactivity.getInactivityDuration() > 15000) {
+            this.playAnimation(this.IMAGES_INACTIVE);
+        } else {
+            this.playAnimation(this.IMAGES_IDLE);
+        }
+    }
 }

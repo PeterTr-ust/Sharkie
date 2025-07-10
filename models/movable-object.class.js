@@ -120,36 +120,70 @@ class MovableObject extends DrawableObject {
     }
 
     /**
-     * Plays the puffer-fish death animation (spiral fly-away + fade).
-     * Stores its interval so it can be cleared on reset.
-     * @returns {void}
-     */
+    * Plays the puffer-fish death animation (spiral fly-away + fade).
+    * Stores its interval so it can be cleared on reset.
+    *
+    * @returns {void}
+    */
     playPufferDeathAnimation() {
         if (this.isFlyingAway) return;
+
+        this.prepareForDeathAnimation();
+
+        const interval = this.startDeathAnimationInterval();
+        this.animationIntervals.push(interval);
+
+        this.overrideDrawWithSpiralFade();
+    }
+
+    /**
+     * Prepares the object for the death animation by setting initial values.
+     */
+    prepareForDeathAnimation() {
         this.isFlyingAway = true;
         this.markedForRemoval = false;
-
         this.speedY = -10;
         this.opacity = 1;
+    }
+
+    /**
+     * Starts the interval that animates the spiral fly-away and fade-out effect.
+     *
+     * @returns {number} The interval ID for later clearing.
+     */
+    startDeathAnimationInterval() {
         let rotation = 0;
         const gravity = 1;
 
-        const interval = setInterval(() => {
+        return setInterval(() => {
             this.positionY += this.speedY;
             this.speedY += gravity;
             rotation += 10;
             this.opacity -= 0.05;
 
             if (this.opacity <= 0 || this.positionY > 600) {
-                clearInterval(interval);
+                clearInterval(this.getLastAnimationInterval());
                 this.markedForRemoval = true;
             }
+
+            this.currentRotation = rotation;
         }, 30);
+    }
 
-        // Track interval for cleanup
-        this.animationIntervals.push(interval);
+    /**
+     * Returns the most recently added animation interval.
+     * Assumes the interval is pushed immediately after creation.
+     *
+     * @returns {number} The last interval ID.
+     */
+    getLastAnimationInterval() {
+        return this.animationIntervals[this.animationIntervals.length - 1];
+    }
 
-        // Override draw to include rotation & opacity
+    /**
+     * Overrides the draw method to apply spiral rotation and fading effect.
+     */
+    overrideDrawWithSpiralFade() {
         this.draw = function (ctx) {
             ctx.save();
             ctx.globalAlpha = this.opacity;
@@ -157,7 +191,7 @@ class MovableObject extends DrawableObject {
                 this.positionX + this.width / 2,
                 this.positionY + this.height / 2
             );
-            ctx.rotate((rotation * Math.PI) / 180);
+            ctx.rotate((this.currentRotation * Math.PI) / 180);
             ctx.drawImage(
                 this.img,
                 -this.width / 2,
@@ -170,37 +204,54 @@ class MovableObject extends DrawableObject {
     }
 
     /**
-     * Plays a jellyfish death animation, then floats it upward until removal.
-     * @param {string[]} imagesDead - Frames for death animation.
-     * @returns {void}
-     */
+    * Plays a jellyfish death animation, then floats it upward until removal.
+    *
+    * @param {string[]} imagesDead - Frames for the death animation.
+    * @returns {void}
+    */
     playJellyDeathAnimation(imagesDead) {
         if (this.isFlyingAway || !imagesDead?.length) return;
+
         this.isFlyingAway = true;
         this.isDead = true;
+
+        this.startDeathFrameSequence(imagesDead);
+    }
+
+    /**
+     * Plays the sequence of death animation frames.
+     *
+     * @param {string[]} images - The array of image paths for the death animation.
+     */
+    startDeathFrameSequence(images) {
         let frameIndex = 0;
 
-        // Play death frames
-        const deadInterval = setInterval(() => {
-            if (frameIndex < imagesDead.length) {
-                this.img = this.imageCache[imagesDead[frameIndex++]];
+        const interval = setInterval(() => {
+            if (frameIndex < images.length) {
+                this.img = this.imageCache[images[frameIndex++]];
             } else {
-                clearInterval(deadInterval);
-
-                // After death, float up
-                const flyInterval = setInterval(() => {
-                    this.positionY -= 5;
-                    if (this.positionY < -100) {
-                        clearInterval(flyInterval);
-                        this.markedForRemoval = true;
-                    }
-                }, 1000 / 60);
-
-                this.animationIntervals.push(flyInterval);
+                clearInterval(interval);
+                this.startFloatUpwardAfterDeath();
             }
         }, 150);
 
-        this.animationIntervals.push(deadInterval);
+        this.animationIntervals.push(interval);
+    }
+
+    /**
+     * Starts the upward floating animation after the death animation completes.
+     */
+    startFloatUpwardAfterDeath() {
+        const interval = setInterval(() => {
+            this.positionY -= 5;
+
+            if (this.positionY < -100) {
+                clearInterval(interval);
+                this.markedForRemoval = true;
+            }
+        }, 1000 / 60);
+
+        this.animationIntervals.push(interval);
     }
 
     /**

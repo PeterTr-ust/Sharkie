@@ -3,6 +3,17 @@
  * Inherits movement and drawing behavior from MovableObject.
  */
 class JellyFish extends MovableObject {
+    offset = {
+        top: -15,
+        left: -10,
+        right: -10,
+        bottom: -15
+    };
+    movingUp = true;
+    height = 80;
+    width = 80;
+    damage = 10;
+    isDead = false;
     IMAGES_IDLE = [
         'img/enemies/jelly-fish/normal/idle/jelly-fish-idle-1.png',
         'img/enemies/jelly-fish/normal/idle/jelly-fish-idle-2.png',
@@ -15,17 +26,6 @@ class JellyFish extends MovableObject {
         'img/enemies/jelly-fish/normal/dead/jelly-fish-dead-3.png',
         'img/enemies/jelly-fish/normal/dead/jelly-fish-dead-4.png',
     ];
-    offset = {
-        top: -15,
-        left: -10,
-        right: -10,
-        bottom: -15
-    };
-    movingUp = true;
-    height = 80;
-    width = 80;
-    damage = 10;
-    isDead = false;
 
     constructor(x, y) {
         super().loadImg('img/enemies/jelly-fish/normal/idle/jelly-fish-idle-1.png');
@@ -45,36 +45,48 @@ class JellyFish extends MovableObject {
     }
 
     /**
-     * Starts the movement and animation intervals.
-     * Moves the fish up and down.
-     */
+    * Starts the movement and animation intervals.
+    * Controls idle/dead animation and vertical swimming behavior.
+    */
     animate() {
-        if (this.animationsPaused) return; // Nicht starten wenn pausiert
+        if (this.animationsPaused) return;
 
-        // Sprite-Animation-Interval mit Hilfsmethode
+        this.startIdleOrDeadAnimation();
+        this.startVerticalSwimMovement();
+    }
+
+    /**
+     * Starts the animation loop for idle or dead state.
+     * Plays the appropriate animation based on the object's state.
+     */
+    startIdleOrDeadAnimation() {
         this.createAnimationInterval(() => {
-            if (this.isDead) {
-                this.playAnimation(this.IMAGES_DEAD);
-            } else {
-                this.playAnimation(this.IMAGES_IDLE);
-            }
+            const images = this.isDead ? this.IMAGES_DEAD : this.IMAGES_IDLE;
+            this.playAnimation(images);
         }, 150);
+    }
 
-        // Bewegungs-Interval mit Hilfsmethode
+    /**
+     * Starts the vertical movement loop for the object.
+     * Moves the object up and down within a defined range unless flying away.
+     */
+    startVerticalSwimMovement() {
         this.createAnimationInterval(() => {
             if (this.isFlyingAway) return;
 
-            if (this.movingUp) {
-                this.moveDown();
-                if (this.positionY >= 380) {
-                    this.movingUp = false;
-                }
-            } else {
-                this.moveUp();
-                if (this.positionY <= 10) {
-                    this.movingUp = true;
-                }
-            }
+            this.movingUp ? this.moveDown() : this.moveUp();
+            this.toggleSwimDirectionIfNeeded();
         }, 1000 / 60);
+    }
+
+    /**
+     * Reverses the swim direction if the object reaches vertical bounds.
+     */
+    toggleSwimDirectionIfNeeded() {
+        if (this.positionY >= 380) {
+            this.movingUp = false;
+        } else if (this.positionY <= 10) {
+            this.movingUp = true;
+        }
     }
 }

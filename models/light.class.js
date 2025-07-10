@@ -10,11 +10,16 @@ class Light extends MovableObject {
 
     constructor() {
         super().loadImg('img/game-background/game-background-element-7.png');
-
         this.animate();
     }
 
+    /**
+    * Triggers the object's animation behavior.
+    *
+    * In this implementation, the object simply moves to the left.
+    * This method can be extended to include additional animation logic.
+    */
     animate() {
-       this.moveLeft();
+        this.moveLeft();
     }
 }
