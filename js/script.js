@@ -137,7 +137,15 @@ function resizeCanvasHeight() {
   canvas.style.height = `${height}px`;
 }
 
-
+/**
+ * Calculates the optimal height for the game canvas based on its width and the viewport height.
+ *
+ * This function retrieves the canvas element by its ID and calculates its height
+ * using a 2:3 aspect ratio (height = width * 2 / 3). If the calculated height exceeds
+ * the available viewport height, it returns the maximum allowed height instead.
+ *
+ * @returns {number} The calculated canvas height in pixels, or 0 if the canvas is not found.
+ */
 function getCanvasHeight() {
   const canvas = document.getElementById('canvas');
   if (!canvas) return 0;

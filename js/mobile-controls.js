@@ -1,3 +1,12 @@
+/**
+ * Initializes mobile controls and hides them if a physical keyboard is detected.
+ *
+ * This event listener waits for the DOM to be fully loaded before executing setup routines.
+ * It sets up touch-based mobile controls for gameplay and hides them automatically
+ * if a physical keyboard is detected via a keydown event.
+ *
+ * @listens DOMContentLoaded
+ */
 window.addEventListener('DOMContentLoaded', () => {
     setupMobileControls(keyboard);
     hideMobileControlsIfKeyboardPresent();
@@ -6,14 +15,10 @@ window.addEventListener('DOMContentLoaded', () => {
 /**
  * Sets up mobile control buttons to simulate keyboard input for the game.
  *
- * This function maps touch and mouse events on on-screen buttons to the corresponding
- * properties of the Keyboard input handler. It supports directional movement (up, down,
- * left, right) as well as attack actions (fin slap and bubble attack).
- *
  * @param {Keyboard} keyboard - The keyboard input handler instance used by the game.
  */
 function setupMobileControls(keyboard) {
-    const map = {
+    const controlMap = {
         'btn-up': 'UP',
         'btn-down': 'DOWN',
         'btn-left': 'LEFT',
@@ -22,24 +27,45 @@ function setupMobileControls(keyboard) {
         'mobile-bubble-attack': 'D'
     };
 
-    for (const [id, key] of Object.entries(map)) {
-        const btn = document.getElementById(id);
-        if (!btn) continue;
+    for (const [elementId, keyCode] of Object.entries(controlMap)) {
+        const button = document.getElementById(elementId);
+        if (!button) continue;
 
-        ['touchstart', 'mousedown'].forEach(evt =>
-            btn.addEventListener(evt, (e) => {
-                e.preventDefault();
-                keyboard[key] = true;
-            })
-        );
-
-        ['touchend', 'mouseup', 'mouseleave'].forEach(evt =>
-            btn.addEventListener(evt, (e) => {
-                e.preventDefault();
-                keyboard[key] = false;
-            })
-        );
+        registerPressEvents(button, keyboard, keyCode);
+        registerReleaseEvents(button, keyboard, keyCode);
     }
+}
+
+/**
+ * Registers touchstart and mousedown events to simulate key press.
+ *
+ * @param {HTMLElement} button - The button element to attach events to.
+ * @param {Keyboard} keyboard - The keyboard input handler instance.
+ * @param {string} keyCode - The key code to simulate.
+ */
+function registerPressEvents(button, keyboard, keyCode) {
+    ['touchstart', 'mousedown'].forEach(eventType => {
+        button.addEventListener(eventType, (event) => {
+            event.preventDefault();
+            keyboard[keyCode] = true;
+        });
+    });
+}
+
+/**
+ * Registers touchend, mouseup, and mouseleave events to simulate key release.
+ *
+ * @param {HTMLElement} button - The button element to attach events to.
+ * @param {Keyboard} keyboard - The keyboard input handler instance.
+ * @param {string} keyCode - The key code to simulate.
+ */
+function registerReleaseEvents(button, keyboard, keyCode) {
+    ['touchend', 'mouseup', 'mouseleave'].forEach(eventType => {
+        button.addEventListener(eventType, (event) => {
+            event.preventDefault();
+            keyboard[keyCode] = false;
+        });
+    });
 }
 
 /**
@@ -66,7 +92,6 @@ function checkOrientationAndShowWarning() {
   const warning = document.getElementById('rotate-warning');
   const startScreen = document.getElementById('start-screen');
   const isPortrait = window.matchMedia("(orientation: portrait)").matches;
-
   const isGameRunning = startScreen?.classList.contains('d-none');
 
   if (isPortrait && isGameRunning) {
