@@ -33,95 +33,175 @@ class World {
 
     /**
     * Stops all running loops, intervals, animations and sounds
-    * so that ein anschließender Neustart eine komplett frische Welt erhält.
+    * so that a subsequent restart starts with a clean game state.
     *
     * @returns {void}
     */
     stopGame() {
-        // 1) Render-Loop stoppen
+        this.stopMainLoops();
+        this.stopCharacterAnimations();
+        this.stopEnemyAnimations();
+        this.stopThrowableObjectAnimations();
+        this.stopCollectableAnimations();
+        this.soundManager.stopAllSounds();
+    }
+
+    /**
+     * Cancels the main game loop and interval.
+     */
+    stopMainLoops() {
         cancelAnimationFrame(this.drawFrameId);
         this.drawFrameId = null;
-
-        // 2) Game-Logic-Loop stoppen
         clearInterval(this.runInterval);
         this.runInterval = null;
+    }
 
-        // 3) Character-Animationen & Floating beenden
+    /**
+     * Clears all animation intervals related to the player character.
+     */
+    stopCharacterAnimations() {
         this.character.clearAllAnimationIntervals();
         clearInterval(this.character.floatingInterval);
+    }
 
-        // 4) Gegner & Endboss: alle Animation-Intervals + Floats + Return-Timer löschen
+    /**
+     * Clears all animation intervals and timers for enemies.
+     */
+    stopEnemyAnimations() {
         this.level.enemies.forEach(enemy => {
             enemy.clearAllAnimationIntervals?.();
             clearInterval(enemy.floatingInterval);
-
-            // falls du in startReturn() das Intervall als this.returnInterval speicherst
             clearInterval(enemy.returnInterval);
             clearTimeout(enemy.startReturnTimeout);
             clearTimeout(enemy.patrolTimeout);
         });
+    }
 
-        // 5) Throwable Objects aufräumen (falls sie eigene Animationen/Floats haben)
+    /**
+     * Clears all animation intervals for throwable objects.
+     */
+    stopThrowableObjectAnimations() {
         this.throwableObjects.forEach(obj => {
             obj.clearAllAnimationIntervals?.();
             clearInterval(obj.floatingInterval);
         });
+    }
 
-        // 6) Münzen, Giftflaschen & Lichter aufräumen
+    /**
+     * Clears all animation intervals for coins, poison bottles, and lights.
+     */
+    stopCollectableAnimations() {
         [...this.level.coins, ...this.level.poisonBottles, ...this.level.lights]
             .forEach(obj => {
                 obj.clearAllAnimationIntervals?.();
                 clearInterval(obj.floatingInterval);
             });
-
-        // 7) Alle Sounds stoppen
-        // this.soundManager.stop('ambient');
-        // this.soundManager.stop('swim');
-        this.soundManager.stopAllSounds();
     }
 
+    /**
+    * Pauses all running animations for the character, enemies, and collectables.
+    *
+    * @returns {void}
+    */
     pauseAllAnimations() {
-        // Pausiere Character-Animationen
-        if (this.character && this.character.pauseAnimations) {
+        this.pauseCharacterAnimations();
+        this.pauseEnemyAnimations();
+        this.pauseCollectableAnimations();
+    }
+
+    /**
+     * Pauses animations for the player character if available.
+     */
+    pauseCharacterAnimations() {
+        if (this.character?.pauseAnimations) {
             this.character.pauseAnimations();
         }
+    }
 
-        // Pausiere alle Enemy-Animationen
+    /**
+     * Pauses animations for all enemies in the current level.
+     */
+    pauseEnemyAnimations() {
         this.level.enemies.forEach(enemy => {
             if (enemy.pauseAnimations) {
                 enemy.pauseAnimations();
             }
         });
+    }
 
-        // Pausiere alle anderen animierten Objekte
-        [...this.level.coins, ...this.level.poisonBottles, ...this.level.lights].forEach(obj => {
+    /**
+     * Pauses animations for all coins, poison bottles, and lights in the level.
+     */
+    pauseCollectableAnimations() {
+        const collectables = [
+            ...this.level.coins,
+            ...this.level.poisonBottles,
+            ...this.level.lights
+        ];
+
+        collectables.forEach(obj => {
             if (obj.pauseAnimations) {
                 obj.pauseAnimations();
             }
         });
     }
 
+    /**
+    * Resumes all paused animations for the character, enemies, and collectables.
+    *
+    * @returns {void}
+    */
     resumeAllAnimations() {
-        // Starte Character-Animationen
-        if (this.character && this.character.resumeAnimations) {
+        this.resumeCharacterAnimations();
+        this.resumeEnemyAnimations();
+        this.resumeCollectableAnimations();
+    }
+
+    /**
+     * Resumes animations for the player character if available.
+     */
+    resumeCharacterAnimations() {
+        if (this.character?.resumeAnimations) {
             this.character.resumeAnimations();
         }
+    }
 
-        // Starte alle Enemy-Animationen
+    /**
+     * Resumes animations for all enemies in the current level.
+     */
+    resumeEnemyAnimations() {
         this.level.enemies.forEach(enemy => {
             if (enemy.resumeAnimations) {
                 enemy.resumeAnimations();
             }
         });
+    }
 
-        // Starte alle anderen animierten Objekte
-        [...this.level.coins, ...this.level.poisonBottles, ...this.level.lights].forEach(obj => {
+    /**
+     * Resumes animations for all coins, poison bottles, and lights in the level.
+     */
+    resumeCollectableAnimations() {
+        const collectables = [
+            ...this.level.coins,
+            ...this.level.poisonBottles,
+            ...this.level.lights
+        ];
+
+        collectables.forEach(obj => {
             if (obj.resumeAnimations) {
                 obj.resumeAnimations();
             }
         });
     }
 
+    /**
+    * Starts the game loop and initializes all core systems.
+    *
+    * Sets the game state to running, resumes all paused animations,
+    * starts ambient background sound, and begins the rendering and logic loops.
+    *
+    * @returns {void}
+    */
     start() {
         this.gameRunning = true;
         this.resumeAllAnimations();
@@ -158,6 +238,14 @@ class World {
         }, 50)
     }
 
+    /**
+    * Checks the current game state to determine if the game should end.
+    *
+    * - Ends the game with a loss if the character has died.
+    * - Ends the game with a win if the endboss has been defeated.
+    *
+    * @returns {void}
+    */
     checkGameState() {
         const endboss = this.level.enemies.find(e => e instanceof Endboss);
 
@@ -167,30 +255,43 @@ class World {
             this.endGame(false);
         }
 
-
         if (endboss && endboss.isDead() && this.gameRunning) {
             this.endGame(true);
         }
     }
 
-
+    /**
+    * Ends the game and triggers the appropriate end screen and cleanup.
+    *
+    * - Stops the game loop and disables further updates.
+    * - Displays the win or lose screen after a short delay.
+    * - Stops all animations and sounds shortly after the end screen appears.
+    *
+    * @param {boolean} won - Indicates whether the player has won (`true`) or lost (`false`).
+    * @returns {void}
+    */
     endGame(won) {
         this.gameRunning = false;
-
         clearTimeout(this.endGameTimeout);
 
-        // Zeige nach 500ms den Endscreen
         setTimeout(() => {
             this.showGameEndScreen(won ? 'win' : 'lose');
         }, 3000);
 
-        // Stoppe das Spiel erst nach 1000ms (z. B. nach Animation)
         setTimeout(() => {
             this.stopGame();
         }, 3500);
     }
 
-
+    /**
+    * Displays the game end screen with a message based on the outcome.
+    *
+    * Updates the title and message elements to reflect a win or loss,
+    * and makes the end screen visible by removing the 'd-none' class.
+    *
+    * @param {string} type - The outcome of the game; either `'win'` or `'lose'`.
+    * @returns {void}
+    */
     showGameEndScreen(type) {
         const screen = document.getElementById('game-end-screen');
         const title = document.getElementById('end-title');
@@ -221,11 +322,20 @@ class World {
             if (isColliding && characterNotAttacking && enemyNotFlyingAway) {
                 this.character.hit(enemy.damage, enemy);
                 this.lifeBar.setPercentage(this.character.energy);
-                console.log('Collision with Character, energy', this.character.energy);
             }
         });
     }
 
+    /**
+    * Checks for collisions between bubbles and jellyfish enemies.
+    *
+    * Iterates over all throwable bubble objects and checks for collisions
+    * with enemies of type {@link JellyFish} or {@link DangerousJellyFish}.
+    * If a collision is detected and the enemy is not already flying away,
+    * the enemy is marked as dead and the bubble is flagged for removal.
+    *
+    * @returns {void}
+    */
     checkBubbleEnemyCollision() {
         this.throwableObjects.forEach((bubble) => {
             this.level.enemies.forEach((enemy) => {
@@ -239,18 +349,25 @@ class World {
         });
     }
 
+    /**
+    * Checks for collisions between poisoned bubbles and the endboss.
+    *
+    * - Finds the endboss from the list of enemies.
+    * - If the endboss is alive, iterates over all throwable objects.
+    * - For each poisoned bubble, checks for collision with the endboss.
+    * - On collision, applies damage to the endboss, marks the bubble for removal,
+    *   and plays a hit sound.
+    *
+    * @returns {void}
+    */
     checkBubbleEndbossCollision() {
         const endboss = this.level.enemies.find(enemy => enemy instanceof Endboss);
         if (!endboss || endboss.isDead()) return;
 
         this.throwableObjects.forEach((bubble, index) => {
             if (bubble.isPoisoned) {
-                console.log(`Poisoned bubble ${index} checking collision...`);
-                console.log('Bubble position:', bubble.positionX, bubble.positionY);
-                console.log('Endboss position:', endboss.positionX, endboss.positionY);
 
                 if (bubble.isColliding(endboss)) {
-                    console.log('🔥 HIT DETECTED!');
                     endboss.hit(20);
                     bubble.markForRemoval = true;
                     this.soundManager.play('bubbleHit');
@@ -258,7 +375,6 @@ class World {
             }
         });
     }
-
 
     /**
     * Checks for collisions between the character and all collectable objects.
@@ -271,6 +387,15 @@ class World {
         });
     }
 
+    /**
+    * Handles the logic when the character collects a poison bottle.
+    *
+    * - Increments the character's poison bottle count.
+    * - Updates the poison status bar.
+    * - If all poison bottles are collected, plays a sound and shows a power-up notification.
+    *
+    * @returns {void}
+    */
     handlePoisonCollection() {
         this.character.collectPoisonBottle();
         this.poisonBar.addPoison();
@@ -281,6 +406,15 @@ class World {
         }
     }
 
+    /**
+    * Displays a temporary power-up notification on the screen.
+    *
+    * - Reveals the notification element by removing the 'd-none' class.
+    * - Automatically hides it again after 3 seconds.
+    * - Does nothing if the notification element is not found in the DOM.
+    *
+    * @returns {void}
+    */
     showPowerUpNotification() {
         const notification = document.getElementById('powerup-notification');
         if (!notification) return;
@@ -322,31 +456,48 @@ class World {
     }
 
     /**
-     * Checks if the player pressed the 'D' key and throws a bubble if so.
-     */
+    * Checks if the player pressed the 'D' key and throws a bubble if allowed.
+    *
+    * @returns {void}
+    */
     checkThrowObjects() {
         if (this.keyboard.D && !this.character.isAttacking) {
-            let directionRight = !this.character.otherDirection;
-            const offsetX = directionRight ? 120 : -10;
+            const directionRight = !this.character.otherDirection;
+            const offsetX = this.getBubbleOffsetX(directionRight);
             const offsetY = 90;
 
             this.character.bubbleAttack(() => {
-                const hasAllPoison = this.character.hasAllPoisonBottles();
-                console.log('🔫 Creating bubble:');
-                console.log('  - Character has all poison bottles:', hasAllPoison);
-                console.log('  - Bubble will be poisoned:', hasAllPoison);
-
-                const bubble = new ThrowableObject(
-                    this.character.positionX + offsetX,
-                    this.character.positionY + offsetY,
-                    this.character.otherDirection !== true,
-                    hasAllPoison
-                );
-
-                console.log('  - Created bubble isPoisoned:', bubble.isPoisoned);
+                const bubble = this.createBubble(offsetX, offsetY);
                 this.throwableObjects.push(bubble);
             });
         }
+    }
+
+    /**
+     * Calculates the horizontal offset for the bubble based on direction.
+     *
+     * @param {boolean} directionRight - Whether the character is facing right.
+     * @returns {number} The X offset for bubble spawn position.
+     */
+    getBubbleOffsetX(directionRight) {
+        return directionRight ? 120 : -10;
+    }
+
+    /**
+     * Creates a new bubble object at the character's position.
+     *
+     * @param {number} offsetX - Horizontal offset from the character.
+     * @param {number} offsetY - Vertical offset from the character.
+     * @returns {ThrowableObject} The newly created bubble object.
+     */
+    createBubble(offsetX, offsetY) {
+        const hasAllPoison = this.character.hasAllPoisonBottles();
+        return new ThrowableObject(
+            this.character.positionX + offsetX,
+            this.character.positionY + offsetY,
+            this.character.otherDirection !== true,
+            hasAllPoison
+        );
     }
 
     /**
@@ -384,7 +535,6 @@ class World {
         this.ctx.lineWidth = 2;
         this.ctx.textAlign = 'left';
         this.ctx.textBaseline = 'middle';
-
         this.ctx.strokeText(text, x, y);
         this.ctx.fillText(text, x, y);
     }
@@ -397,43 +547,25 @@ class World {
     * @returns {void}
     */
     draw() {
-        // 1) Clear full canvas
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-        // 2) Save context and apply camera transform
         this.ctx.save();
         this.ctx.translate(this.cameraX, 0);
-
-        // 3) Draw background and world objects
         this.addObjectsToMap(this.level.backgroundObjects);
         this.addObjectsToMap(this.level.lights);
-
-        // remove enemies that flew away or died
         this.level.enemies = this.level.enemies.filter(e => !e.markedForRemoval);
         this.addObjectsToMap(this.level.enemies);
-
-        // draw active throwables, coins, poison bottles
         this.addObjectsToMap(this.throwableObjects);
         this.addObjectsToMap(this.level.coins);
         this.addObjectsToMap(this.level.poisonBottles);
-
-        // draw the main character
         this.addToMap(this.character);
-
-        // 4) Restore context to remove camera transform
         this.ctx.restore();
-
-        // 5) Draw UI on top (life, coins, poison)
         this.addToMap(this.lifeBar);
         this.addToMap(this.coinBar);
         this.drawCollectableCounter(this.coinBar, 310, 42);
         this.addToMap(this.poisonBar);
         this.drawCollectableCounter(this.poisonBar, 515, 42);
-
-        // 6) Schedule next frame
         this.drawFrameId = requestAnimationFrame(() => this.draw());
     }
-
 
     /**
      * Adds multiple drawable objects to the canvas.
@@ -455,7 +587,6 @@ class World {
         }
 
         objectToAdd.draw(this.ctx);
-
         objectToAdd.drawFrame(this.ctx);
 
         if (objectToAdd.otherDirection) {

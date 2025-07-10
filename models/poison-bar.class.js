@@ -23,6 +23,13 @@ class PoisonBar extends StatusBar {
         this.setPercentage(0);
     }
 
+    /**
+    * Increases the poison bottle count by one and updates the status bar.
+    *
+    * This method delegates to the inherited `addItem()` method from the `StatusBar` class,
+    * which increments the internal value and updates the visual representation
+    * of the poison bar accordingly.
+    */
     addPoison() {
         this.addItem();
     }
