@@ -1,10 +1,12 @@
 /**
-* Creates a new bubble object at the character's position.
-*
-* @param {number} offsetX - Horizontal offset from the character.
-* @param {number} offsetY - Vertical offset from the character.
-* @returns {ThrowableObject} The newly created bubble object.
-*/
+ * Creates a new throwable bubble at the character's current position.
+ * The bubble inherits direction and poison status from the character.
+ *
+ * @param {Character} character - The character object creating the bubble.
+ * @param {number} offsetX - Horizontal offset relative to the character's X position.
+ * @param {number} offsetY - Vertical offset relative to the character's Y position.
+ * @returns {ThrowableObject} A new instance of a throwable bubble object.
+ */
 export function createBubble(character, offsetX, offsetY) {
     const hasAllPoison = character.hasAllPoisonBottles();
     return new ThrowableObject(

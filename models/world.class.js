@@ -1,3 +1,5 @@
+import {draw,} from '../js/renderUtils.js';
+
 import {
     showGameEndScreen,
     drawCollectableCounter,
@@ -219,7 +221,7 @@ export class World {
         this.gameRunning = true;
         this.resumeAllAnimations();
         this.soundManager.playLoop('ambient');
-        this.draw();
+        draw(this);
         this.run();
     }
 
@@ -459,61 +461,6 @@ export class World {
 
         if (!this.keyboard.SPACE) {
             this.spaceKeyPressed = false;
-        }
-    }
-
-    /**
-    * Clears the canvas, draws the world (background, enemies, player, etc.) 
-    * with the current camera offset, then draws the UI (status bars).
-    * This method schedules itself on the next animation frame.
-    *
-    * @returns {void}
-    */
-    draw() {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.ctx.save();
-        this.ctx.translate(this.cameraX, 0);
-        this.addObjectsToMap(this.level.backgroundObjects);
-        this.addObjectsToMap(this.level.lights);
-        this.level.enemies = this.level.enemies.filter(e => !e.markedForRemoval);
-        this.addObjectsToMap(this.level.enemies);
-        this.addObjectsToMap(this.throwableObjects);
-        this.addObjectsToMap(this.level.coins);
-        this.addObjectsToMap(this.level.poisonBottles);
-        this.addToMap(this.character);
-        this.ctx.restore();
-        this.addToMap(this.lifeBar);
-        this.addToMap(this.coinBar);
-        drawCollectableCounter(this.ctx, this.coinBar, 310, 42);
-        this.addToMap(this.poisonBar);
-        drawCollectableCounter(this.ctx, this.poisonBar, 515, 42);
-        this.drawFrameId = requestAnimationFrame(() => this.draw());
-    }
-
-    /**
-     * Adds multiple drawable objects to the canvas.
-     * @param {DrawableObject[]} objects - The objects to draw.
-     */
-    addObjectsToMap(objects) {
-        objects.forEach(object => {
-            this.addToMap(object);
-        });
-    }
-
-    /**
-    * Adds a single object to the canvas, respecting orientation.
-    * @param {DrawableObject} objectToAdd - Object to render.
-    */
-    addToMap(objectToAdd) {
-        if (objectToAdd.otherDirection) {
-            flipImage(this.ctx, objectToAdd);
-        }
-
-        objectToAdd.draw(this.ctx);
-        objectToAdd.drawFrame(this.ctx);
-
-        if (objectToAdd.otherDirection) {
-            flipImageBack(this.ctx, objectToAdd);
         }
     }
 }
