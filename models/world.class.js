@@ -1,8 +1,21 @@
+import {
+    showGameEndScreen,
+    drawCollectableCounter,
+    showPowerUpNotification,
+    flipImage,
+    flipImageBack
+} from '../js/uiUtils.js';
+
+import {
+    createBubble,
+    getBubbleOffsetX
+} from '../js/bubbleUtils.js';
+
 /**
  * Represents the main game world, tying together the character, level,
  * canvas context, status bars, and gameplay logic.
  */
-class World {
+export class World {
     character;
     canvas;
     ctx;
@@ -215,6 +228,11 @@ class World {
      */
     setWorld() {
         this.character.world = this;
+        this.level.enemies.forEach(enemy => {
+            if (enemy instanceof Endboss) {
+                enemy.setWorld(this);
+            }
+        });
     }
 
     /**
@@ -275,37 +293,12 @@ class World {
         clearTimeout(this.endGameTimeout);
 
         setTimeout(() => {
-            this.showGameEndScreen(won ? 'win' : 'lose');
+            showGameEndScreen(won ? 'win' : 'lose');
         }, 3000);
 
         setTimeout(() => {
             this.stopGame();
         }, 3500);
-    }
-
-    /**
-    * Displays the game end screen with a message based on the outcome.
-    *
-    * Updates the title and message elements to reflect a win or loss,
-    * and makes the end screen visible by removing the 'd-none' class.
-    *
-    * @param {string} type - The outcome of the game; either `'win'` or `'lose'`.
-    * @returns {void}
-    */
-    showGameEndScreen(type) {
-        const screen = document.getElementById('game-end-screen');
-        const title = document.getElementById('end-title');
-        const message = document.getElementById('end-message');
-
-        if (type === 'win') {
-            title.textContent = 'Victory!';
-            message.textContent = 'You defeated the endboss – Sharkie is the hero!';
-        } else {
-            title.textContent = 'Game Over';
-            message.textContent = 'Sharkie was defeated… Try again!';
-        }
-
-        screen.classList.remove('d-none');
     }
 
     /**
@@ -402,28 +395,8 @@ class World {
 
         if (this.character.hasAllPoisonBottles()) {
             this.soundManager.play?.('allPoisenCollected');
-            this.showPowerUpNotification();
+            showPowerUpNotification();
         }
-    }
-
-    /**
-    * Displays a temporary power-up notification on the screen.
-    *
-    * - Reveals the notification element by removing the 'd-none' class.
-    * - Automatically hides it again after 3 seconds.
-    * - Does nothing if the notification element is not found in the DOM.
-    *
-    * @returns {void}
-    */
-    showPowerUpNotification() {
-        const notification = document.getElementById('powerup-notification');
-        if (!notification) return;
-
-        notification.classList.remove('d-none');
-
-        setTimeout(() => {
-            notification.classList.add('d-none');
-        }, 3000);
     }
 
     /**
@@ -463,41 +436,14 @@ class World {
     checkThrowObjects() {
         if (this.keyboard.D && !this.character.isAttacking) {
             const directionRight = !this.character.otherDirection;
-            const offsetX = this.getBubbleOffsetX(directionRight);
+            const offsetX = getBubbleOffsetX(directionRight);
             const offsetY = 90;
 
             this.character.bubbleAttack(() => {
-                const bubble = this.createBubble(offsetX, offsetY);
+                const bubble = createBubble(this.character, offsetX, offsetY);
                 this.throwableObjects.push(bubble);
             });
         }
-    }
-
-    /**
-     * Calculates the horizontal offset for the bubble based on direction.
-     *
-     * @param {boolean} directionRight - Whether the character is facing right.
-     * @returns {number} The X offset for bubble spawn position.
-     */
-    getBubbleOffsetX(directionRight) {
-        return directionRight ? 120 : -10;
-    }
-
-    /**
-     * Creates a new bubble object at the character's position.
-     *
-     * @param {number} offsetX - Horizontal offset from the character.
-     * @param {number} offsetY - Vertical offset from the character.
-     * @returns {ThrowableObject} The newly created bubble object.
-     */
-    createBubble(offsetX, offsetY) {
-        const hasAllPoison = this.character.hasAllPoisonBottles();
-        return new ThrowableObject(
-            this.character.positionX + offsetX,
-            this.character.positionY + offsetY,
-            this.character.otherDirection !== true,
-            hasAllPoison
-        );
     }
 
     /**
@@ -514,29 +460,6 @@ class World {
         if (!this.keyboard.SPACE) {
             this.spaceKeyPressed = false;
         }
-    }
-
-    /**
-    * Renders a collectable counter (e.g., "3 / 10") on the canvas at a specified position.
-    * Displays the current collected count out of the total available.
-    *
-    * @param {Object} bar - The bar object containing the collectable status.
-    * @param {number} bar.collected - The current number of collected items.
-    * @param {number} bar.max - The total number of collectable items.
-    * @param {number} x - The x-coordinate on the canvas where the text is drawn.
-    * @param {number} y - The y-coordinate on the canvas where the text is drawn.
-    */
-    drawCollectableCounter(bar, x, y) {
-        const text = `${bar.collected} / ${bar.max}`;
-
-        this.ctx.font = '18px Luckiest Guy';
-        this.ctx.fillStyle = 'white';
-        this.ctx.strokeStyle = 'black';
-        this.ctx.lineWidth = 2;
-        this.ctx.textAlign = 'left';
-        this.ctx.textBaseline = 'middle';
-        this.ctx.strokeText(text, x, y);
-        this.ctx.fillText(text, x, y);
     }
 
     /**
@@ -561,9 +484,9 @@ class World {
         this.ctx.restore();
         this.addToMap(this.lifeBar);
         this.addToMap(this.coinBar);
-        this.drawCollectableCounter(this.coinBar, 310, 42);
+        drawCollectableCounter(this.ctx, this.coinBar, 310, 42);
         this.addToMap(this.poisonBar);
-        this.drawCollectableCounter(this.poisonBar, 515, 42);
+        drawCollectableCounter(this.ctx, this.poisonBar, 515, 42);
         this.drawFrameId = requestAnimationFrame(() => this.draw());
     }
 
@@ -583,34 +506,14 @@ class World {
     */
     addToMap(objectToAdd) {
         if (objectToAdd.otherDirection) {
-            this.flipImage(objectToAdd);
+            flipImage(this.ctx, objectToAdd);
         }
 
         objectToAdd.draw(this.ctx);
         objectToAdd.drawFrame(this.ctx);
 
         if (objectToAdd.otherDirection) {
-            this.flipImageBack(objectToAdd);
+            flipImageBack(this.ctx, objectToAdd);
         }
-    }
-
-    /**
-     * Flips an object's image horizontally.
-     * @param {DrawableObject} objectToAdd - Object to flip.
-     */
-    flipImage(objectToAdd) {
-        this.ctx.save();
-        this.ctx.translate(objectToAdd.width, 0);
-        this.ctx.scale(-1, 1);
-        objectToAdd.positionX = objectToAdd.positionX * -1;
-    }
-
-    /**
-     * Restores the object's original orientation.
-     * @param {DrawableObject} objectToAdd - Object to unflip.
-     */
-    flipImageBack(objectToAdd) {
-        objectToAdd.positionX = objectToAdd.positionX * -1;
-        this.ctx.restore();
     }
 }

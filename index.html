@@ -28,12 +28,12 @@
     <script src="./models/throwable-object.class.js"></script>
     <script src="./models/endboss.class.js"></script>
     <script src="./models/character.class.js"></script>
-    <script src="./models/world.class.js"></script>
+    <script type="module" src="./models/world.class.js"></script>
     <script src="./levels/level1.js"></script>
-    <script src="./js/game.js"></script>
-    <script src="./js/canvas-size.js"></script>
-    <script src="./js/mobile-controls.js"></script>
-    <script src="./js/script.js"></script>
+    <script type="module" src="./js/game.js"></script>
+    <script type="module" src="./js/canvas-size.js"></script>
+    <script type="module" src="./js/mobile-controls.js"></script>
+    <script type="module" src="./js/script.js"></script>
 </head>
 
 <body>
@@ -54,7 +54,7 @@
         <div id="instructions-dialog" class="dialog hide" role="dialog" aria-modal="true"
             aria-labelledby="instructions-title">
             <div class="dialog-content">
-                <button id="close-instructions" class="close-btn" aria-label="Schließen"><img src="/img/icons/close.png"
+                <button id="close-instructions" class="close-btn" aria-label="Schließen"><img src="./img/icons/close.png"
                         alt=""></button>
                 <h2 id="instructions-title">Game Instructions</h2>
 
@@ -91,7 +91,7 @@
                 <p id="end-message"></p>
                 <div class="game-end-screen-buttons">
                     <button id="try-again-button">
-                        <img src="img/try-again-btn.png" alt="Try Again" id="try-again-btn" onclick="gameRestart()" />
+                        <img src="img/try-again-btn.png" alt="Try Again" id="try-again-btn"/>
                     </button>
                     <button id="back-to-start-button" class="custom-button">Back to Start</button>
                 </div>
@@ -115,9 +115,9 @@
                 <button id="mute-button">
                     <img id="mute-icon" src="img/icons/sound-on.png" alt="Toggle Sound" />
                 </button>
-                <button id="persistent-restart-button" onclick="gameRestart()"><img src="./img/icons/retry.png"
+                <button id="persistent-restart-button"><img src="./img/icons/retry.png"
                         alt="retry-button"></button>
-                <button id="persistent-startscreen-button" onclick="handleBackToStartClick(event)"><img
+                <button id="persistent-startscreen-button"><img
                         src="./img/icons/home.png" alt="home-button"></button>
             </div>
         </div>
