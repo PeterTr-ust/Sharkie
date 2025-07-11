@@ -48,7 +48,9 @@ window.addEventListener('DOMContentLoaded', () => {
  *   instructionsBtn: HTMLElement,
  *   closeInstrBtn: HTMLElement,
  *   tryAgainBtn: HTMLElement,
+ *   persistentRestartBtn: HTMLElement,
  *   backToStartBtn: HTMLElement,
+ *   persistentStartBtn: HTMLElement,
  *   muteBtn: HTMLElement
  * }}
  */
