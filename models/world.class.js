@@ -1,17 +1,19 @@
-import {draw,} from '../js/renderUtils.js';
+import { draw, } from '../js/renderUtils.js';
 
 import {
     showGameEndScreen,
-    drawCollectableCounter,
     showPowerUpNotification,
-    flipImage,
-    flipImageBack
 } from '../js/uiUtils.js';
 
 import {
-    createBubble,
-    getBubbleOffsetX
-} from '../js/bubbleUtils.js';
+    checkEnemyCollisions,
+    checkBubbleEnemyCollision,
+    checkBubbleEndbossCollision,
+    checkCollectablesCollisions,
+    checkThrowObjects,
+    checkAttack,
+    removeMarkedThrowables
+} from '../js/collisionUtils.js';
 
 /**
  * Represents the main game world, tying together the character, level,
@@ -244,18 +246,20 @@ export class World {
         if (this.runInterval) {
             clearInterval(this.runInterval);
         }
+
         this.runInterval = setInterval(() => {
             if (!this.gameRunning) return;
 
             this.checkGameState();
-            this.checkEnemyCollisions();
-            this.checkCollectablesCollisions();
-            this.checkThrowObjects();
-            this.checkAttack();
-            this.checkBubbleEnemyCollision();
-            this.checkBubbleEndbossCollision();
-            this.removeMarkedThrowables();
-        }, 50)
+
+            checkEnemyCollisions(this);
+            checkCollectablesCollisions(this, () => this.handlePoisonCollection());
+            checkThrowObjects(this);
+            checkAttack(this);
+            checkBubbleEnemyCollision(this);
+            checkBubbleEndbossCollision(this);
+            removeMarkedThrowables(this);
+        }, 50);
     }
 
     /**
@@ -304,85 +308,6 @@ export class World {
     }
 
     /**
-    * Checks for collisions between the character and enemies.
-    * Applies damage only if the character is not currently attacking
-    * and the enemy is not already flying away.
-    */
-    checkEnemyCollisions() {
-        this.level.enemies.forEach((enemy) => {
-            const isColliding = this.character.isColliding(enemy);
-            const characterNotAttacking = !this.character.isAttacking;
-            const enemyNotFlyingAway = !enemy.isFlyingAway;
-
-            if (isColliding && characterNotAttacking && enemyNotFlyingAway) {
-                this.character.hit(enemy.damage, enemy);
-                this.lifeBar.setPercentage(this.character.energy);
-            }
-        });
-    }
-
-    /**
-    * Checks for collisions between bubbles and jellyfish enemies.
-    *
-    * Iterates over all throwable bubble objects and checks for collisions
-    * with enemies of type {@link JellyFish} or {@link DangerousJellyFish}.
-    * If a collision is detected and the enemy is not already flying away,
-    * the enemy is marked as dead and the bubble is flagged for removal.
-    *
-    * @returns {void}
-    */
-    checkBubbleEnemyCollision() {
-        this.throwableObjects.forEach((bubble) => {
-            this.level.enemies.forEach((enemy) => {
-                if (enemy instanceof JellyFish || enemy instanceof DangerousJellyFish) {
-                    if (!enemy.isFlyingAway && bubble.isColliding(enemy)) {
-                        enemy.dead();
-                        bubble.markForRemoval = true;
-                    }
-                }
-            });
-        });
-    }
-
-    /**
-    * Checks for collisions between poisoned bubbles and the endboss.
-    *
-    * - Finds the endboss from the list of enemies.
-    * - If the endboss is alive, iterates over all throwable objects.
-    * - For each poisoned bubble, checks for collision with the endboss.
-    * - On collision, applies damage to the endboss, marks the bubble for removal,
-    *   and plays a hit sound.
-    *
-    * @returns {void}
-    */
-    checkBubbleEndbossCollision() {
-        const endboss = this.level.enemies.find(enemy => enemy instanceof Endboss);
-        if (!endboss || endboss.isDead()) return;
-
-        this.throwableObjects.forEach((bubble, index) => {
-            if (bubble.isPoisoned) {
-
-                if (bubble.isColliding(endboss)) {
-                    endboss.hit(20);
-                    bubble.markForRemoval = true;
-                    this.soundManager.play('bubbleHit');
-                }
-            }
-        });
-    }
-
-    /**
-    * Checks for collisions between the character and all collectable objects.
-    * Handles collection of coins and poison items.
-    */
-    checkCollectablesCollisions() {
-        this.checkCollection(this.level.coins, 'collectedCoin', this.coinBar.addCoin.bind(this.coinBar));
-        this.checkCollection(this.level.poisonBottles, 'collectedPoison', () => {
-            this.handlePoisonCollection();
-        });
-    }
-
-    /**
     * Handles the logic when the character collects a poison bottle.
     *
     * - Increments the character's poison bottle count.
@@ -398,69 +323,6 @@ export class World {
         if (this.character.hasAllPoisonBottles()) {
             this.soundManager.play?.('allPoisenCollected');
             showPowerUpNotification();
-        }
-    }
-
-    /**
-    * Generic method for detecting and processing collectable item collisions.
-    * Plays a sound, updates the corresponding bar, triggers collection animation, and removes the item.
-    *
-    * @param {Object[]} objects - The array of collectable game objects (e.g., coins, poison).
-    * @param {string} soundKey - The key for the sound to be played when collected.
-    * @param {Function} onCollect - Callback function executed after successful collection (e.g., update UI).
-    */
-    checkCollection(objects, soundKey, onCollect) {
-        for (let i = objects.length - 1; i >= 0; i--) {
-            const obj = objects[i];
-            if (!obj.isBeingCollected && this.character.isColliding(obj)) {
-                this.soundManager.play(soundKey);
-                onCollect();
-                obj.collectAnimation().then(() => {
-                    objects.splice(i, 1);
-                });
-            }
-        }
-    }
-
-    /**
-    * Removes all throwable objects that have been marked for removal
-    * (e.g., due to exceeding the maximum allowed distance).
-    */
-    removeMarkedThrowables() {
-        this.throwableObjects = this.throwableObjects.filter(obj => !obj.markForRemoval);
-    }
-
-    /**
-    * Checks if the player pressed the 'D' key and throws a bubble if allowed.
-    *
-    * @returns {void}
-    */
-    checkThrowObjects() {
-        if (this.keyboard.D && !this.character.isAttacking) {
-            const directionRight = !this.character.otherDirection;
-            const offsetX = getBubbleOffsetX(directionRight);
-            const offsetY = 90;
-
-            this.character.bubbleAttack(() => {
-                const bubble = createBubble(this.character, offsetX, offsetY);
-                this.throwableObjects.push(bubble);
-            });
-        }
-    }
-
-    /**
-    * Checks if the SPACE key was pressed to initiate an attack.
-    * Ensures the attack is triggered only once per key press.
-    * Prevents repeated attacks while holding down the key.
-    */
-    checkAttack() {
-        if (this.keyboard.SPACE && !this.spaceKeyPressed && !this.character.isAttacking) {
-            this.spaceKeyPressed = true;
-            this.character.finAttack();
-        }
-
-        if (!this.keyboard.SPACE) {
-            this.spaceKeyPressed = false;
         }
     }
 }
