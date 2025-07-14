@@ -156,7 +156,6 @@ canvas {
     max-width: 100%;
     flex-shrink: 1;
     width: max-content;
-    /* Nur so groß wie nötig */
     height: auto;
     box-sizing: border-box;
 }
@@ -490,6 +489,10 @@ canvas {
 @media (max-height: 430px) {
     .logo {
         display: none;
+    }
+
+    #canvas-wrapper {
+        max-width: none;
     }
 }
 
