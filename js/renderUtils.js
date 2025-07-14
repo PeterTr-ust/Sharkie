@@ -76,8 +76,8 @@ function addToMap(world, objectToAdd) {
         flipImage(ctx, objectToAdd);
     }
 
-    objectToAdd.draw(ctx);
-    objectToAdd.drawFrame(ctx);
+    objectToAdd.draw(ctx); 
+    // objectToAdd.drawFrame(ctx);
 
     if (objectToAdd.otherDirection) {
         flipImageBack(ctx, objectToAdd);
