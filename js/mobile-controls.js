@@ -48,7 +48,9 @@ function setupMobileControls(keyboard) {
 function registerPressEvents(button, keyboard, keyCode) {
     ['touchstart', 'mousedown'].forEach(eventType => {
         button.addEventListener(eventType, (event) => {
-            event.preventDefault();
+            if (event.cancelable) {
+                event.preventDefault();
+            }
             keyboard[keyCode] = true;
         });
     });
