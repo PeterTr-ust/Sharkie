@@ -1,3 +1,9 @@
+import { World } from '../models/world.class.js';
+import {
+    updateMuteIcon,
+    handlePlayButtonClick,
+} from '../js/script.js';
+
 /**
  * The HTML canvas element used for rendering the game.
  * @type {HTMLCanvasElement|null}
@@ -14,7 +20,7 @@ let world = null;
  * Handles player input through keyboard events.
  * @type {Keyboard}
  */
-let keyboard = new Keyboard();
+export let keyboard = new Keyboard();
 
 /**
  * Indicates whether the game has started.
@@ -33,7 +39,7 @@ let gameLoopId = null;
  * 
  * @param {boolean|null} forceMute - Optional mute override for sound settings.
  */
-function init(forceMute = null) {
+export function init(forceMute = null) {
     canvas = setupCanvas('canvas');
     const muteState = getMuteState(forceMute);
     soundManager.setMute(muteState);
@@ -94,7 +100,7 @@ function setupWorld(canvas, keyboard, soundManager) {
  * Resets the game to its initial state by clearing game logic,
  * resetting HUD and canvas, and updating UI elements.
  */
-function gameReset() {
+export function gameReset() {
     if (world) {
         stopRunningGame(world);
         world.level.enemies.length = 0;
@@ -169,7 +175,7 @@ function updateUiOnGameReset() {
 /**
  * Restarts the game (reset + immediate start)
  */
-function gameRestart() {
+export function gameRestart() {
     const wasMuted = soundManager.muted;
 
     gameReset();

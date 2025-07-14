@@ -1,3 +1,16 @@
+import {
+  init,
+  gameRestart,
+  gameReset
+} from './game.js';
+
+import {
+  checkOrientationAndShowWarning,
+  enableOrientationMonitoring
+} from './mobile-controls.js';
+
+import { adjustCanvasLayout } from './canvas-size.js';
+
 /**
  * Manages game sound functionality such as muting and playing sounds.
  * Global access is provided through the `window` object.
@@ -35,7 +48,9 @@ window.addEventListener('DOMContentLoaded', () => {
  *   instructionsBtn: HTMLElement,
  *   closeInstrBtn: HTMLElement,
  *   tryAgainBtn: HTMLElement,
+ *   persistentRestartBtn: HTMLElement,
  *   backToStartBtn: HTMLElement,
+ *   persistentStartBtn: HTMLElement,
  *   muteBtn: HTMLElement
  * }}
  */
@@ -48,7 +63,9 @@ function getUiElements() {
     instructionsBtn: document.getElementById('instructions-button'),
     closeInstrBtn: document.getElementById('close-instructions'),
     tryAgainBtn: document.getElementById('try-again-button'),
+    persistentRestartBtn: document.getElementById('persistent-restart-button'),
     backToStartBtn: document.getElementById('back-to-start-button'),
+    persistentStartBtn: document.getElementById('persistent-startscreen-button'),
     muteBtn: document.getElementById('mute-button'),
   };
 }
@@ -65,7 +82,9 @@ function bindUIListeners() {
     instructionsBtn,
     closeInstrBtn,
     tryAgainBtn,
+    persistentRestartBtn,
     backToStartBtn,
+    persistentStartBtn,
     muteBtn
   } = getUiElements();
 
@@ -74,7 +93,9 @@ function bindUIListeners() {
   closeInstrBtn?.addEventListener('click', handleCloseInstructionsClick);
   instructionsDialog?.addEventListener('click', e => handleDialogClickOutside(e, instructionsDialog));
   tryAgainBtn?.addEventListener('click', handleTryAgainClick);
+  persistentRestartBtn?.addEventListener('click', handleTryAgainClick);
   backToStartBtn?.addEventListener('click', handleBackToStartClick);
+  persistentStartBtn?.addEventListener('click', handleBackToStartClick);
   muteBtn?.addEventListener('click', () => handleMuteButtonClick(muteBtn));
   document.addEventListener('keydown', e => handleEscapeKeyPress(e, instructionsDialog));
 }
@@ -108,7 +129,7 @@ function showElement(id) {
  * 5. Correctly positions game option buttons within the canvas area.
  * 6. Initializes and starts the game.
  */
-function handlePlayButtonClick() {
+export function handlePlayButtonClick() {
   hideElement('start-screen');
   showElement('canvas-wrapper');
   init();
@@ -129,7 +150,7 @@ function handlePlayButtonClick() {
  * This ensures consistent layout across different device sizes 
  * and orientations. Should be called after the canvas becomes visible.
  */
-function resizeCanvasHeight() {
+export function resizeCanvasHeight() {
   const canvas = document.getElementById('canvas');
   if (!canvas) return;
 
@@ -146,7 +167,7 @@ function resizeCanvasHeight() {
  *
  * @returns {number} The calculated canvas height in pixels, or 0 if the canvas is not found.
  */
-function getCanvasHeight() {
+export function getCanvasHeight() {
   const canvas = document.getElementById('canvas');
   if (!canvas) return 0;
 
@@ -259,7 +280,7 @@ function toggleMute() {
  * icon source and alternative text accordingly. Does nothing if the 
  * icon element is not found in the DOM.
  */
-function updateMuteIcon() {
+export function updateMuteIcon() {
   const icon = document.getElementById('mute-icon');
   if (!icon) return;
 

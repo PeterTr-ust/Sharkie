@@ -3,6 +3,7 @@
  * Extends the MovableObject class to inherit movement behavior.
  */
 class Endboss extends MovableObject {
+    world = null;
     height = 400;
     width = 400;
     positionX = 1750;
@@ -84,11 +85,10 @@ class Endboss extends MovableObject {
         this.startAttackTimer();
     }
 
-    /**
-    * Starts a recurring timer that initiates the Endboss attack behavior
-    * every 10 seconds, as long as the spawn animation is completed and 
-    * the boss is not already attacking or returning.
-     */
+    setWorld(world) {
+        this.world = world;
+    }
+
     startAttackTimer() {
         this.createAnimationInterval(() => {
             if (this.spawnAnimationCompleted && !this.isAttacking && !this.isReturning) {
@@ -97,13 +97,9 @@ class Endboss extends MovableObject {
         }, 5000);
     }
 
-    /**
-     * Initiates the boss's attack phase, marking it as attacking
-     * and triggering the return phase after 2 seconds.
-     */
     startAttack() {
         if (this.isDead()) return;
-        world.soundManager.playLoop('endbossBite');
+        this.world?.soundManager?.playLoop('endbossBite');
         this.isAttacking = true;
         this.lastAttackTime = Date.now();
 
@@ -113,12 +109,6 @@ class Endboss extends MovableObject {
         }, 2000);
     }
 
-    /**
-    * Initiates the boss's return to its original X position.
-    * Stops any bite sound and starts a timed movement loop.
-    *
-    * @returns {void}
-    */
     startReturn() {
         if (this.isDead()) return;
         this.stopBiteSound();
@@ -127,20 +117,10 @@ class Endboss extends MovableObject {
         this.animationIntervals.push(this.returnInterval);
     }
 
-    /**
-     * Stops the endboss bite sound effect.
-     */
     stopBiteSound() {
-        if (world?.soundManager?.stop) {
-            world.soundManager.stop('endbossBite');
-        }
+        this.world?.soundManager?.stop?.('endbossBite');
     }
 
-    /**
-     * Starts the interval that moves the boss back to its original X position.
-     *
-     * @returns {number} The interval ID for later clearing.
-     */
     startReturnInterval() {
         return setInterval(() => {
             if (this.hasReachedOriginalX()) {
@@ -152,43 +132,23 @@ class Endboss extends MovableObject {
         }, 50);
     }
 
-    /**
-     * Checks whether the boss has reached or passed its original X position.
-     *
-     * @returns {boolean} True if the boss is at or beyond its original position.
-     */
     hasReachedOriginalX() {
         return this.positionX >= this.originalX;
     }
 
-    /**
-     * Sets the boss's X position exactly to the original value.
-     */
     snapToOriginalX() {
         this.positionX = this.originalX;
     }
 
-    /**
-     * Stops the return movement and clears the interval.
-     */
     stopReturning() {
         this.isReturning = false;
         clearInterval(this.returnInterval);
     }
 
-    /**
-     * Moves the boss incrementally toward its original X position.
-     */
     moveTowardOriginalX() {
         this.positionX += this.returnSpeed;
     }
 
-    /**
-    * Applies damage to the Endboss and triggers the hurt animation.
-    * If energy drops to 0 or below, initiates the death sequence.
-     * 
-     * @param {number} damage - The amount of damage to inflict.
-    */
     hit(damage) {
         if (this.isDead()) return;
         if (this.energy > 0) {
@@ -198,16 +158,12 @@ class Endboss extends MovableObject {
 
             if (this.energy <= 0) {
                 this.energy = 0;
-                world.soundManager.stop('endbossBite');
+                this.world?.soundManager?.stop?.('endbossBite');
                 this.die();
             }
         }
     }
 
-    /**
-    * Controls the animation and interaction with the player.
-    * Handles spawning, attacking, returning, and death animation states.
-    */
     animate() {
         let deadAnimationPlayed = false;
         this.spawnFrameCount = 0;
@@ -234,12 +190,6 @@ class Endboss extends MovableObject {
         }, 150);
     }
 
-    /**
-     * Handles the death animation if the boss is dead.
-     *
-     * @param {boolean} alreadyPlayed - Whether the death animation has already played.
-     * @returns {boolean} True if the boss is dead and animation was handled.
-     */
     handleDeathAnimation(alreadyPlayed) {
         if (this.isDead()) {
             if (!alreadyPlayed) {
@@ -250,40 +200,21 @@ class Endboss extends MovableObject {
         return false;
     }
 
-    /**
-    * Checks if the player has triggered the boss by crossing a threshold.
-    * Resets the spawn frame counter on first contact.
-    */
     checkFirstContact() {
-        if (world?.character.positionX > 1250 && !this.hadFirstContact) {
+        if (this.world?.character?.positionX > 1250 && !this.hadFirstContact) {
             this.hadFirstContact = true;
             this.spawnFrameCount = 0;
         }
     }
 
-    /**
-     * Determines whether the spawning animation should play.
-     *
-     * @param {number} frameCount - The current animation frame count.
-     * @returns {boolean} True if spawning animation should play.
-     */
     shouldPlaySpawningAnimation(frameCount) {
         return this.hadFirstContact && frameCount < 10;
     }
 
-    /**
-     * Determines whether the spawn animation should be marked as completed.
-     *
-     * @param {number} frameCount - The current animation frame count.
-     * @returns {boolean} True if spawning is complete.
-     */
     shouldCompleteSpawnAnimation(frameCount) {
         return this.hadFirstContact && frameCount >= 10 && !this.spawnAnimationCompleted;
     }
 
-    /**
-     * Handles the boss's behavior after spawning: attacking, returning, or idling.
-     */
     handleCombatBehavior() {
         if (this.isAttacking) {
             this.playAnimation(this.IMAGES_ATTACK);
@@ -295,7 +226,7 @@ class Endboss extends MovableObject {
             if (this.positionX >= this.originalX) {
                 this.positionX = this.originalX;
                 this.isReturning = false;
-                world.soundManager.stop('endbossBite');
+                this.world?.soundManager?.stop?.('endbossBite');
             }
         } else {
             this.playAnimation(this.IMAGES_IDLE);

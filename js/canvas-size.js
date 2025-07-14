@@ -1,3 +1,8 @@
+import {
+  resizeCanvasHeight,
+  getCanvasHeight,
+} from './script.js';
+
 /**
  * Initializes resize handling logic after the HTML document has fully loaded.
  * 
@@ -102,7 +107,7 @@ function syncCanvasContainerSize() {
  * 
  * Should be triggered on page load, orientation change, or window resize events.
  */
-function adjustCanvasLayout() {
+export function adjustCanvasLayout() {
     resizeCanvasHeight();
     syncCanvasContainerSize();
     positionGameOptions();

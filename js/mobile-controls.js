@@ -1,3 +1,5 @@
+import { keyboard } from './game.js';
+
 /**
  * Initializes mobile controls and hides them if a physical keyboard is detected.
  *
@@ -88,7 +90,7 @@ function hideMobileControlsIfKeyboardPresent() {
  * is in portrait mode and the game is currently running.
  * Hides the warning when in landscape mode or if the start screen is visible.
  */
-function checkOrientationAndShowWarning() {
+export function checkOrientationAndShowWarning() {
   const warning = document.getElementById('rotate-warning');
   const startScreen = document.getElementById('start-screen');
   const isPortrait = window.matchMedia("(orientation: portrait)").matches;
@@ -107,7 +109,7 @@ function checkOrientationAndShowWarning() {
  * This function sets up event listeners for orientation and resize events
  * to dynamically show or hide the rotation warning and control game state.
  */
-function enableOrientationMonitoring() {
+export function enableOrientationMonitoring() {
     window.addEventListener('orientationchange', checkOrientationAndShowWarning);
     window.addEventListener('resize', checkOrientationAndShowWarning);
 }
