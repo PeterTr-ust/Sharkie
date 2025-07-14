@@ -335,11 +335,9 @@ canvas {
 }
 
 #mobile-controls {
+    width: 100%;
     display: flex;
     align-items: center;
-    background-color: #4B0082;
-    border-radius: 8px;
-    padding: 4px;
     position: absolute;
     bottom: 8px;
     left: 8px;
@@ -348,8 +346,11 @@ canvas {
 
 .mobile-movements {
     display: grid;
-    grid-template-columns: 16px 16px 16px;
-    grid-template-rows: 16px 16px 16px;
+    grid-template-columns: 24px 24px 24px;
+    grid-template-rows: 24px 24px 24px;
+    background-color: #4B0082;
+    border-radius: 8px;
+    padding: 4px;
 }
 
 #btn-up {
@@ -373,14 +374,20 @@ canvas {
 }
 
 #mobile-controls img {
-    width: 16px;
+    width: 24px;
     height: auto;
 }
 
 .mobile-attacks {
+    position: absolute;
+    bottom: 40px;
+    right: 16px;
     display: flex;
     align-items: center;
     gap: 8px;
+    background-color: #4B0082;
+    border-radius: 8px;
+    padding: 4px;
 }
 
 .mobile-attack {
