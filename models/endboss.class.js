@@ -85,10 +85,17 @@ class Endboss extends MovableObject {
         this.startAttackTimer();
     }
 
+    /**
+     * Assigns the current world reference to the boss.
+     * @param {World} world - The game world instance
+     */
     setWorld(world) {
         this.world = world;
     }
 
+    /**
+     * Starts the recurring interval that triggers boss attacks every few seconds.
+     */
     startAttackTimer() {
         this.createAnimationInterval(() => {
             if (this.spawnAnimationCompleted && !this.isAttacking && !this.isReturning) {
@@ -97,6 +104,9 @@ class Endboss extends MovableObject {
         }, 5000);
     }
 
+    /**
+     * Initiates the attack sequence if the boss is alive.
+     */
     startAttack() {
         if (this.isDead()) return;
         this.world?.soundManager?.playLoop('endbossBite');
@@ -109,6 +119,9 @@ class Endboss extends MovableObject {
         }, 2000);
     }
 
+    /**
+     * Begins the return animation after attacking.
+     */
     startReturn() {
         if (this.isDead()) return;
         this.stopBiteSound();
@@ -117,10 +130,17 @@ class Endboss extends MovableObject {
         this.animationIntervals.push(this.returnInterval);
     }
 
+    /**
+     * Stops the bite sound effect when returning begins.
+     */
     stopBiteSound() {
         this.world?.soundManager?.stop?.('endbossBite');
     }
 
+    /**
+     * Handles movement logic while returning to the original X position.
+     * @returns {number} Interval ID used for clearing later
+     */
     startReturnInterval() {
         return setInterval(() => {
             if (this.hasReachedOriginalX()) {
@@ -132,29 +152,47 @@ class Endboss extends MovableObject {
         }, 50);
     }
 
+    /**
+     * Checks whether the boss has returned to its original X position.
+     * @returns {boolean}
+     */
     hasReachedOriginalX() {
         return this.positionX >= this.originalX;
     }
 
+    /**
+     * Immediately snaps the boss to its original X position.
+     */
     snapToOriginalX() {
         this.positionX = this.originalX;
     }
 
+    /**
+     * Stops the returning process and clears the interval.
+     */
     stopReturning() {
         this.isReturning = false;
         clearInterval(this.returnInterval);
     }
 
+    /**
+     * Moves the boss toward its original X position.
+     */
     moveTowardOriginalX() {
         this.positionX += this.returnSpeed;
     }
 
+    /**
+     * Applies damage to the boss and updates the health bar.
+     * @param {number} damage - The amount of damage received
+     */
     hit(damage) {
         if (this.isDead()) return;
         if (this.energy > 0) {
             this.energy -= damage;
             this.playAnimation(this.IMAGES_HURT);
             this.lastHitTime = Date.now();
+            this.world?.endbossLifeBar?.setPercentage(this.energy);
 
             if (this.energy <= 0) {
                 this.energy = 0;
@@ -164,6 +202,10 @@ class Endboss extends MovableObject {
         }
     }
 
+    /**
+     * Starts the main animation loop for the boss.
+     * Controls death animation, spawning, and combat behavior.
+     */
     animate() {
         let deadAnimationPlayed = false;
         this.spawnFrameCount = 0;
@@ -190,6 +232,11 @@ class Endboss extends MovableObject {
         }, 150);
     }
 
+    /**
+     * Handles the one-time death animation sequence.
+     * @param {boolean} alreadyPlayed - Whether the animation was already triggered
+     * @returns {boolean} True if animation has been played
+     */
     handleDeathAnimation(alreadyPlayed) {
         if (this.isDead()) {
             if (!alreadyPlayed) {
@@ -200,6 +247,9 @@ class Endboss extends MovableObject {
         return false;
     }
 
+    /**
+     * Checks whether the player has entered the boss activation zone.
+     */
     checkFirstContact() {
         if (this.world?.character?.positionX > 1250 && !this.hadFirstContact) {
             this.hadFirstContact = true;
@@ -207,14 +257,27 @@ class Endboss extends MovableObject {
         }
     }
 
+    /**
+     * Determines whether to play spawning animation frames.
+     * @param {number} frameCount - The current animation frame count
+     * @returns {boolean}
+     */
     shouldPlaySpawningAnimation(frameCount) {
         return this.hadFirstContact && frameCount < 10;
     }
 
+    /**
+     * Determines whether the spawning animation has completed.
+     * @param {number} frameCount - The current animation frame count
+     * @returns {boolean}
+     */
     shouldCompleteSpawnAnimation(frameCount) {
         return this.hadFirstContact && frameCount >= 10 && !this.spawnAnimationCompleted;
     }
 
+    /**
+     * Handles combat animations and movement based on boss state.
+     */
     handleCombatBehavior() {
         if (this.isAttacking) {
             this.playAnimation(this.IMAGES_ATTACK);

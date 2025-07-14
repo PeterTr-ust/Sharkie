@@ -27,6 +27,7 @@ export class World {
     soundManager;
     cameraX = 0;
     lifeBar = new LifeBar();
+    endbossLifeBar = new LifeBar(425, 40);
     coinBar = new CoinBar();
     poisonBar = new PoisonBar();
     throwableObjects = [];
@@ -235,6 +236,7 @@ export class World {
         this.level.enemies.forEach(enemy => {
             if (enemy instanceof Endboss) {
                 enemy.setWorld(this);
+                this.endboss = enemy;
             }
         });
     }

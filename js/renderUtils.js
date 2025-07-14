@@ -1,7 +1,7 @@
 import {
-  flipImage,
-  flipImageBack,
-  drawCollectableCounter
+    flipImage,
+    flipImageBack,
+    drawCollectableCounter
 } from './uiUtils.js';
 
 /**
@@ -28,13 +28,31 @@ export function draw(world) {
     addToMap(world, character);
 
     ctx.restore();
+
     addToMap(world, lifeBar);
     addToMap(world, coinBar);
     drawCollectableCounter(ctx, coinBar, 310, 42);
     addToMap(world, poisonBar);
     drawCollectableCounter(ctx, poisonBar, 515, 42);
-
+    drawEndbossUi(ctx, world);
     return requestAnimationFrame(() => draw(world));
+}
+
+/**
+ * Draws the Endboss life bar and label.
+ * @param {CanvasRenderingContext2D} ctx - The canvas rendering context.
+ * @param {World} world - The current game world instance.
+ */
+function drawEndbossUi(ctx, world) {
+    const boss = world.endboss;
+    const lifeBar = world.endbossLifeBar;
+
+    if (!lifeBar || !boss?.spawnAnimationCompleted) return;
+    addToMap(world, world.endbossLifeBar);
+
+    ctx.fillStyle = 'red';
+    ctx.textAlign = 'center';
+    ctx.fillText('Endboss', 535, 83);
 }
 
 /**
