@@ -149,9 +149,7 @@ class Character extends MovableObject {
 
         const originalOffset = { ...this.offset };
         this.extendAttackHitbox();
-
         this.hitNearbyEnemies();
-
         this.resetAttackAfterDelay(originalOffset, 150);
     }
 
